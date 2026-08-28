@@ -1,0 +1,67 @@
+# WeatherGPT - Git Ignore Rules
+
+# Secrets & Environment Variables
+.env
+.env.*
+.env.example
+*.pem
+*.key
+*.cert
+secrets/
+
+# Internal Agent Operating Instructions (Exempt from Public Repo)
+AGENTS.md
+
+# Development Test Suites & Caches (Exempt from Public Repo per Repository Policy)
+tests/
+test_*.py
+*_test.py
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python Bytecode & Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE & Editor Files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# OS Artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & Local Databases
+*.log
+*.sqlite
+*.db
