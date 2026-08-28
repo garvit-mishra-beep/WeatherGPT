@@ -264,6 +264,25 @@ For details, refer to [`SECURITY.md`](SECURITY.md).
 
 ---
 
-## 12. License
+## 12. How to Contribute
+
+We welcome contributions from the community to help advance domain-grounded weather intelligence for India!
+
+### Quick Contribution Steps
+1. **Fork & Clone:** Clone your fork locally and create a virtual environment (`python -m venv .venv`).
+2. **Install Dependencies:** Run `pip install -r requirements.txt`.
+3. **Configure Environment:** Create a `.env` file with your local endpoint settings.
+4. **Create a Feature Branch:** `git checkout -b feat/your-feature-name`
+5. **Develop & Verify:** Implement your changes following project invariants and run the test suite:
+   ```bash
+   python -m pytest -v tests/
+   ```
+6. **Submit PR:** Commit your changes with descriptive commit messages and submit a Pull Request against `master`.
+
+For full coding standards, architectural rules, and pull request guidelines, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+---
+
+## 13. License
 
 License terms for WeatherGPT are currently under review. Refer to project maintainers for licensing inquiries.
