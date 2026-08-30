@@ -1,0 +1,108 @@
+"""WeatherGPT Meteorological Data Adapters Package.
+
+Production-grade ingestion and normalization layer for:
+- IMD Official Severe Weather Warnings & OASIS CAP Feeds
+- NOAA / NCEP GFS 0.25° Numerical Weather Prediction (NWP)
+- Open-Meteo Operational Surface Weather & Secondary Forecasts
+
+Enforces strict authority separation and provenance tracking.
+"""
+
+from app.adapters.base import (
+    BaseNWPProvider,
+    BaseWarningProvider,
+    BaseWeatherProvider,
+)
+from app.adapters.errors import (
+    AdapterError,
+    CAPParseError,
+    GRIBParseError,
+    ProviderResponseError,
+    ProviderTimeoutError,
+    ProviderUnavailableError,
+    ProviderValidationError,
+    UnsupportedDataFormatError,
+)
+from app.adapters.gfs import (
+    GFSNWPProvider,
+    is_within_india_bbox,
+    normalize_gfs_grid_message,
+    snap_to_gfs_grid,
+)
+from app.adapters.imd import IMDWarningProvider, parse_cap_xml
+from app.adapters.models import (
+    NormalizedDailyForecastPoint,
+    NormalizedHourlyForecastPoint,
+    NormalizedNWPGridPoint,
+    NormalizedOfficialAlert,
+    NormalizedWeatherForecastPayload,
+    NormalizedWeatherObservation,
+    ProviderAuthority,
+    ProviderQuality,
+)
+from app.adapters.normalization import (
+    classify_imd_rainfall,
+    fahrenheit_to_celsius,
+    kelvin_to_celsius,
+    kmh_to_ms,
+    map_cap_severity_to_warning_level,
+    ms_to_kmh,
+    normalize_iso_timestamp,
+    pa_to_hpa,
+    uv_wind_to_speed_and_direction,
+)
+from app.adapters.open_meteo import (
+    OpenMeteoProvider,
+    normalize_open_meteo_forecast,
+    normalize_open_meteo_observation,
+    wmo_code_to_condition,
+)
+from app.adapters.strategy import WeatherProviderManager
+
+__all__ = [
+    # Strategy & Managers
+    "WeatherProviderManager",
+    # Concrete Providers
+    "IMDWarningProvider",
+    "GFSNWPProvider",
+    "OpenMeteoProvider",
+    # Base Interfaces
+    "BaseWeatherProvider",
+    "BaseWarningProvider",
+    "BaseNWPProvider",
+    # Models & Enums
+    "NormalizedWeatherObservation",
+    "NormalizedHourlyForecastPoint",
+    "NormalizedDailyForecastPoint",
+    "NormalizedWeatherForecastPayload",
+    "NormalizedOfficialAlert",
+    "NormalizedNWPGridPoint",
+    "ProviderQuality",
+    "ProviderAuthority",
+    # Parsers & Normalizers
+    "parse_cap_xml",
+    "normalize_gfs_grid_message",
+    "snap_to_gfs_grid",
+    "is_within_india_bbox",
+    "normalize_open_meteo_observation",
+    "normalize_open_meteo_forecast",
+    "wmo_code_to_condition",
+    "classify_imd_rainfall",
+    "kelvin_to_celsius",
+    "fahrenheit_to_celsius",
+    "ms_to_kmh",
+    "kmh_to_ms",
+    "pa_to_hpa",
+    "uv_wind_to_speed_and_direction",
+    "map_cap_severity_to_warning_level",
+    "normalize_iso_timestamp",
+    # Errors
+    "AdapterError",
+    "ProviderUnavailableError",
+    "ProviderTimeoutError",
+    "ProviderResponseError",
+    "ProviderValidationError",
+    "UnsupportedDataFormatError",
+    "CAPParseError",
+    "GRIBParseError",
+]

@@ -1,0 +1,60 @@
+# ==============================================================================
+# WeatherGPT — Systemd Production EnvironmentFile Template
+# ==============================================================================
+# Install to: /etc/weathergpt/weathergpt.env (mode 0600, owner: weathergpt)
+# ==============================================================================
+
+# Application Runtime Profile
+APP_ENV=production
+APP_NAME=WeatherGPT
+API_VERSION=v1
+DEBUG=false
+HOST=127.0.0.1
+PORT=8000
+LOG_LEVEL=INFO
+
+# Mandatory Cryptographic Secret (Generate using: openssl rand -hex 32)
+SECRET_KEY=replace_with_real_64_char_hex_random_secret_in_production
+
+# Production CORS Allowlist (Disallows wildcard '*')
+CORS_ORIGINS=["https://weathergpt.in","https://app.weathergpt.in"]
+
+# Request Timeout
+REQUEST_TIMEOUT_SECONDS=30.0
+DOCS_ENABLED=false
+PROXY_HEADERS_ENABLED=true
+FORWARDED_ALLOW_IPS=127.0.0.1
+
+# PostgreSQL 16 + PostGIS 3.4 Production Connection
+DATABASE_URL=postgresql://weathergpt_user:replace_with_db_password@localhost:5432/weathergpt_prod
+DATABASE_POOL_SIZE=10
+DATABASE_MAX_OVERFLOW=5
+DATABASE_POOL_TIMEOUT=10.0
+DATABASE_POOL_RECYCLE=1800
+DATABASE_ECHO=false
+DATABASE_URL_SCHEME=postgresql+asyncpg
+
+# LLM Inference Endpoint (vLLM on dedicated inference server)
+LLM_PROVIDER_TYPE=openai_compatible
+LLM_BASE_URL=http://localhost:8001/v1
+LLM_MODEL_NAME=Qwen/Qwen2.5-14B-Instruct
+LLM_API_KEY=not_required_for_internal_network
+LLM_TEMPERATURE=0.1
+LLM_MAX_TOKENS=1024
+LLM_TIMEOUT_SECONDS=30.0
+
+# Meteorological Feeds & Adapters
+IMD_BASE_URL=https://mausam.imd.gov.in
+IMD_CAP_URL=https://sachet.ndma.gov.in/cap_feed
+IMD_API_KEY=
+IMD_TIMEOUT_SECONDS=10.0
+
+GFS_BASE_URL=https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod
+GFS_DATA_PATH=/var/lib/weathergpt/data/gfs
+
+OPEN_METEO_BASE_URL=https://api.open-meteo.com/v1
+WEATHER_PROVIDER_TIMEOUT_SECONDS=10.0
+WEATHER_PROVIDER_RETRIES=2
+
+# Redis Cache
+REDIS_URL=redis://localhost:6379/0

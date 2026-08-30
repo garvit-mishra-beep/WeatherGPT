@@ -1,0 +1,40 @@
+[Unit]
+Description=WeatherGPT FastAPI Backend Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=weathergpt
+Group=weathergpt
+WorkingDirectory=/opt/weathergpt
+EnvironmentFile=/etc/weathergpt/weathergpt.env
+
+# Native Uvicorn Execution with explicit production worker count
+# Rule of Thumb for CPU/IO Blend: 2-4 workers per server node
+# Ensure: (Workers * DATABASE_POOL_SIZE) <= PostgreSQL max_connections (default 100)
+ExecStart=/opt/weathergpt/venv/bin/python -m uvicorn app.main:app \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --workers 4 \
+    --proxy-headers \
+    --forwarded-allow-ips 127.0.0.1 \
+    --no-access-log \
+    --log-level info
+
+# Process Management & Lifecycle
+Restart=always
+RestartSec=5s
+KillSignal=SIGTERM
+TimeoutStopSec=30s
+LimitNOFILE=65536
+
+# Security & Sandboxing Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+
+[Install]
+WantedBy=multi-user.target

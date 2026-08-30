@@ -3,7 +3,7 @@
 # Secrets & Environment Variables
 .env
 .env.*
-.env.example
+!.env.example
 *.pem
 *.key
 *.cert

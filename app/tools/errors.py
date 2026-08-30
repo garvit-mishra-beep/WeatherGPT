@@ -119,3 +119,25 @@ class ToolProviderError(ToolGatewayError):
             error_code="TOOL_PROVIDER_ERROR",
             details={"tool_name": tool_name, "provider": provider, "reason": reason},
         )
+
+
+class ToolSecurityError(ToolGatewayError):
+    """Raised when a tool argument contains dangerous keywords or malicious patterns."""
+
+    def __init__(self, tool_name: str, reason: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=f"Security violation in tool '{tool_name}': {reason}",
+            error_code="TOOL_SECURITY_ERROR",
+            details=details or {"tool_name": tool_name, "reason": reason},
+        )
+
+
+class ToolRegistrationError(ToolGatewayError):
+    """Raised when registering an invalid or duplicate tool in the registry."""
+
+    def __init__(self, tool_name: str, reason: str):
+        super().__init__(
+            message=f"Registration failed for tool '{tool_name}': {reason}",
+            error_code="TOOL_REGISTRATION_ERROR",
+            details={"tool_name": tool_name, "reason": reason},
+        )

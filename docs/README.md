@@ -27,6 +27,8 @@ This directory contains the authoritative technical specifications, architectura
 | [`19_ARCHITECTURE_REVIEW.md`](19_ARCHITECTURE_REVIEW.md) | Comprehensive Architecture Audit & Matrix | Lead Engineers | Implemented / Verified |
 | [`20_PERFORMANCE.md`](20_PERFORMANCE.md) | Performance Latency Optimization & Connection Pooling | Performance Devs | Implemented / Verified |
 | [`21_BRAINS_IMPLEMENTATION.md`](21_BRAINS_IMPLEMENTATION.md) | Concrete Domain Brain Implementations & Prompts | Core Devs | Implemented / Verified |
+| [`22_BACKEND_FOUNDATION.md`](22_BACKEND_FOUNDATION.md) | Backend Foundation: Factory, /health + /ready, Logging, RFC 7807 | Backend Engineers | Implemented / Verified (B1) |
+| [`22_DATABASE_POSTGIS_FOUNDATION.md`](22_DATABASE_POSTGIS_FOUNDATION.md) | PostgreSQL + PostGIS Foundation: Async ORM, Migrations, Probe | Database Engineers | Implemented / Verified (B2) |
 
 ## Navigation Guidance
 - **For Architecture Overview:** Start with [`01_PRD.md`](01_PRD.md) and [`02_SYSTEM_ARCHITECTURE.md`](02_SYSTEM_ARCHITECTURE.md).
