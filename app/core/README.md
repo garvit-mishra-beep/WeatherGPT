@@ -37,17 +37,9 @@ create_app()
 `fastapi`, `starlette`, `pydantic`/`pydantic-settings`, `app.config`,
 `app.contracts.error` (RFC 7807), `app.dependencies.container`.
 
-## 6. Extension Points
-- **Readiness probes:** implement a `ReadinessProbe` and register it in the
-  lifespan (`ApplicationProbe` is the only B1 default). DB/GIS/NWP/LLM probes are
-  added in later phases.
-- **Middleware:** add only genuinely useful middleware here; never domain logic.
+## 6. Extension Points & Readiness Probes
+- **Application Probe:** Liveness memory check verifying process runtime state.
+- **Database & PostGIS Probe (`DatabaseProbe`):** Async readiness probe verifying PostgreSQL pooled connection acquisition and PostGIS spatial extension availability.
 
 ## 7. Testing
-Covered by `tests/test_backend_foundation.py`. Middleware/handlers are tested
-through `fastapi.testclient.TestClient` with an isolated `app_env="test"` app.
-
-## 8. Limitations
-- At B1 readiness registers only the application probe (no fabricated checks).
-- Production-insecure configuration is guarded at `create_app` runtime, not at
-  `Settings` object construction (so unit tests may build value objects freely).
+Core infrastructure is covered by automated unit and integration tests with RFC 7807 error checks and request-ID propagation.

@@ -54,5 +54,5 @@ json_payload = serialize_map_data(map_spec)
 ## 4. Testing
 Run the automated test suite:
 ```powershell
-pytest tests/test_map_ready.py -v
+pytest -q
 ```

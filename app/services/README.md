@@ -53,5 +53,5 @@ print(f"Affected Districts: {impact.total_affected_boundaries}")
 ## 4. Testing
 Run the automated test suite:
 ```powershell
-pytest tests/test_weather_gis.py -v
+pytest -q
 ```

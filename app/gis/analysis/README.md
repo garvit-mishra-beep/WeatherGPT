@@ -53,5 +53,5 @@ print(f"District: {res.district_name}, Impact Score: {res.impact.composite_impac
 ## 4. Testing
 Run the automated test suite:
 ```powershell
-pytest tests/test_gis_analysis.py -v
+pytest -q
 ```
