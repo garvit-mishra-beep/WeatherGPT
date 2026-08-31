@@ -52,6 +52,10 @@ def create_async_engine_from_settings(settings: Settings) -> AsyncEngine:
         settings.database_pool_recycle,
         settings.database_echo,
     )
+    connect_args = {
+        "timeout": settings.database_connect_timeout,
+        "command_timeout": settings.database_command_timeout,
+    }
     engine = create_async_engine(
         url,
         echo=settings.database_echo,
@@ -60,6 +64,7 @@ def create_async_engine_from_settings(settings: Settings) -> AsyncEngine:
         pool_timeout=settings.database_pool_timeout,
         pool_recycle=settings.database_pool_recycle,
         pool_pre_ping=True,
+        connect_args=connect_args,
         future=True,
         # Never log the URL (it can contain credentials).
         hide_parameters=True,

@@ -125,6 +125,8 @@ class ToolSecurityError(ToolGatewayError):
     """Raised when a tool argument contains dangerous keywords or malicious patterns."""
 
     def __init__(self, tool_name: str, reason: str, details: Optional[Dict[str, Any]] = None):
+        self.tool_name = tool_name
+        self.reason = reason
         super().__init__(
             message=f"Security violation in tool '{tool_name}': {reason}",
             error_code="TOOL_SECURITY_ERROR",

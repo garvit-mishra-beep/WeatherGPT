@@ -1,0 +1,221 @@
+<resources>
+    <string name="app_name">WeatherGPT</string>
+    <string name="app_tagline">वायुबोधक</string>
+    <string name="app_subtitle">समझे वायुमंडल, बताए सरल भाषा में</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">चैट</string>
+    <string name="nav_map">मानचित्र</string>
+    <string name="nav_alerts">अलर्ट</string>
+    <string name="nav_data">डेटा</string>
+    <string name="nav_profile">प्रोफ़ाइल</string>
+    <string name="nav_home">होम</string>
+    <string name="nav_weather">मौसम</string>
+    <string name="nav_settings">सेटिंग्स</string>
+    <string name="nav_farmer">कृषि</string>
+    <string name="nav_analyst">विश्लेषक</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">नमस्ते %1$s!</string>
+    <string name="home_intro">मैं वायुबोधक हूँ, आपके मौसम को समझकर सही सलाह देता हूँ।</string>
+    <string name="home_search_placeholder">आज मौसम कैसा है? / प्रश्न पूछें…</string>
+    <string name="home_quick_actions">त्वरित विकल्प</string>
+    <string name="action_will_it_rain">बारिश होगी?</string>
+    <string name="action_forecast">पूर्वानुमान</string>
+    <string name="action_alerts">अलर्ट</string>
+    <string name="action_map">मानचित्र</string>
+    <string name="home_live_badge">• लाइव</string>
+    <string name="today">आज</string>
+    <string name="feels_like">महसूस</string>
+    <string name="humidity">आर्द्रता</string>
+    <string name="wind_speed">हवा</string>
+    <string name="air_quality">वायु गुणवत्ता</string>
+
+    <!-- Brain Selection Screen -->
+    <string name="brain_selection_title">कौन सा Brain इस्तेमाल करें?</string>
+    <string name="brain_selection_subtitle">हर Brain अपने क्षेत्र का विशेषज्ञ है</string>
+    <string name="brain_auto_title">Auto Brain (सिफारिश)</string>
+    <string name="brain_auto_desc">आपके प्रश्न के अनुसार अपने आप सबसे सही Brain चुनता है</string>
+    <string name="brain_general_title">General Weather</string>
+    <string name="brain_general_desc">दैनिक मौसम, बारिश की संभावना, तापमान और आधिकारिक चेतावनी</string>
+    <string name="brain_farmer_title">Farmer Brain (कृषि)</string>
+    <string name="brain_farmer_desc">सिंचाई का सही समय (FAO-56 ET0), कीटनाशक छिड़काव और फसल जोखिम</string>
+    <string name="brain_researcher_title">Researcher Brain</string>
+    <string name="brain_researcher_desc">जलवायु ट्रेंड विश्लेषण, सेन स्लोप और CSV डेटा एक्सपोर्ट</string>
+    <string name="brain_analyst_title">Analyst Brain (आपदा)</string>
+    <string name="brain_analyst_desc">आपदा जोखिम सूचकांक और NWP मॉडल तुलना</string>
+    <string name="brain_note_title">स्वतः सीखने वाला Auto Brain</string>
+    <string name="brain_note_desc">Auto Brain आपके प्रश्न के अनुसार अपने आप समझ जाता है कि आपको मौसम, खेती या अनुसंधान किस विशेषज्ञ की ज़रूरत है।</string>
+
+    <!-- Weather Screen -->
+    <string name="weather_title">मौसम और पूर्वानुमान</string>
+    <string name="tab_hourly">घंटेवार</string>
+    <string name="tab_3day">3 दिन</string>
+    <string name="tab_5day">5 दिन</string>
+    <string name="tab_10day">10 दिन</string>
+    <string name="summary_title">मौसम सारांश</string>
+    <string name="rain_chance">बारिश की संभावना</string>
+    <string name="forecast_24h_title">24 घंटे का पूर्वानुमान</string>
+
+    <!-- Map Screen -->
+    <string name="map_title">रडार और मौसम मानचित्र</string>
+    <string name="layer_rain">वर्षा</string>
+    <string name="layer_temp">तापमान</string>
+    <string name="layer_wind">हवा</string>
+    <string name="layer_humidity">आर्द्रता</string>
+    <string name="map_timeline_title">डॉपलर रडार समय चक्र</string>
+    <string name="map_legend_light">हल्की</string>
+    <string name="map_legend_moderate">मध्यम</string>
+    <string name="map_legend_heavy">भारी</string>
+    <string name="map_legend_severe">अति भारी</string>
+
+    <!-- Alerts Screen -->
+    <string name="alerts_title">आधिकारिक मौसम अलर्ट</string>
+    <string name="filter_all">सभी</string>
+    <string name="filter_weather">मौसम</string>
+    <string name="filter_agri">कृषि</string>
+    <string name="filter_govt">सरकारी</string>
+    <string name="alert_view_details">विवरण देखें →</string>
+    <string name="alert_no_alerts">इस स्थान के लिए कोई सक्रिय चेतावनी नहीं है</string>
+    <string name="alert_modal_title">चेतावनी का विवरण</string>
+
+    <!-- Data Screen -->
+    <string name="data_title">मौसम वैज्ञानिक डेटा</string>
+    <string name="action_historical_data">ऐतिहासिक डेटा</string>
+    <string name="action_model_comparison">मॉडल तुलना</string>
+    <string name="action_export_data">डेटा एक्सपोर्ट</string>
+    <string name="data_temp_chart_title">तापमान ट्रेंड (°C)</string>
+    <string name="quick_access_title">त्वरित पहुँच</string>
+    <string name="quick_access_analyst">विश्लेषक डैशबोर्ड</string>
+    <string name="quick_access_gfs">GFS 0.25° NWP मॉडल</string>
+    <string name="quick_access_climate">जलवायु ट्रेंड विश्लेषण</string>
+    <string name="export_success">डेटा सफलतापूर्वक CSV में एक्सपोर्ट हो गया है।</string>
+
+    <!-- Farmer Screen -->
+    <string name="farmer_title">किसान प्रोफ़ाइल</string>
+    <string name="farmer_step_progress">1/4</string>
+    <string name="farmer_crop_header">अपनी फसल के बारे में बताएं</string>
+    <string name="farmer_crop_subheader">सटीक कृषि सलाह के लिए यह जानकारी मदद करेगी।</string>
+    <string name="label_crop">मुख्य फसल</string>
+    <string name="label_stage">फसल की अवस्था</string>
+    <string name="label_soil">मिट्टी का प्रकार</string>
+    <string name="label_area">खेत का क्षेत्रफल (एकड़)</string>
+    <string name="btn_next">अगला →</string>
+    <string name="advisory_irrigation_title">सिंचाई सलाह (FAO-56)</string>
+    <string name="advisory_spray_title">कीटनाशक छिड़काव अनुकूलता</string>
+
+    <!-- Analyst Screen -->
+    <string name="analyst_title">विश्लेषक डैशबोर्ड</string>
+    <string name="risk_indicators_title">जोखिम संकेतक</string>
+    <string name="risk_flood">बाढ़ जोखिम</string>
+    <string name="risk_drought">सूखा जोखिम</string>
+    <string name="risk_squall">आंधी/तूफान जोखिम</string>
+    <string name="btn_detailed_report">विस्तृत रिपोर्ट →</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">प्रोफ़ाइल</string>
+    <string name="user_name_default">Garvit Mishra</string>
+    <string name="user_district_default">झाँसी, उत्तर प्रदेश</string>
+    <string name="plan_badge">Vayubodhak Free</string>
+    <string name="your_plan">आपका प्लान</string>
+    <string name="btn_upgrade">👑 अपग्रेड करें →</string>
+    <string name="menu_farmer_profile">किसान प्रोफ़ाइल</string>
+    <string name="menu_saved_regions">सेव किए गए स्थान</string>
+    <string name="menu_app_settings">ऐप सेटिंग्स</string>
+    <string name="menu_help_feedback">सहायता और प्रतिक्रिया</string>
+    <string name="menu_about">Vayubodhak के बारे में</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="setting_language">भाषा (Language)</string>
+    <string name="setting_units">यूनिट्स (Units)</string>
+    <string name="setting_notifications">गंभीर मौसम सूचनाएं</string>
+    <string name="setting_location">प्राथमिक स्थान</string>
+    <string name="setting_server_url">बैकएंड सर्वर URL</string>
+    <string name="setting_about">के बारे में एवं लाइसेंस</string>
+    <string name="dialog_select_language">ऐप की भाषा चुनें (Select Language)</string>
+    <string name="dialog_select_units">माप इकाइयाँ चुनें (Select Units)</string>
+    <string name="dialog_server_url_title">बैकएंड सर्वर URL कॉन्फ़िगर करें</string>
+    <string name="dialog_server_url_desc">LAN URL (जैसे http://192.168.1.100:8000/) दर्ज करें या QR कोड URL पेस्ट करें:</string>
+    <string name="btn_apply_save">लागू करें और सेव करें</string>
+    <string name="btn_cancel">रद्द करें</string>
+    <string name="btn_close">बंद करें</string>
+    <string name="btn_retry">पुनः प्रयास करें</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">वायुबोधक चैट</string>
+    <string name="chat_empty_title">वायुबोधक से पूछें (Ask WeatherGPT)</string>
+    <string name="chat_empty_message">मौसम पूर्वानुमान, सिंचाई निर्धारण (FAO-56), कीटनाशक छिड़काव, या आपदा विश्लेषण के बारे में प्रश्न पूछें।</string>
+    <string name="chat_input_placeholder">मौसम, फसल, जलवायु के बारे में प्रश्न पूछें…</string>
+    <string name="chat_analyzing_message">वायुबोधक विश्लेषण कर रहा है…</string>
+    <string name="recommendation_label">सिफारिश</string>
+    <string name="sources_label">स्रोत</string>
+
+    <!-- Common UI States -->
+    <string name="loading_weather">मौसम डेटा लोड हो रहा है…</string>
+    <string name="loading_forecast">संख्यात्मक पूर्वानुमान प्राप्त हो रहा है…</string>
+    <string name="loading_alerts">आधिकारिक चेतावनी जांची जा रही है…</string>
+    <string name="loading_data">मौसम वैज्ञानिक डेटा लोड हो रहा है…</string>
+    <string name="error_offline">इंटरनेट कनेक्शन उपलब्ध नहीं है। कैश्ड डेटा प्रदर्शित हो रहा है।</string>
+    <string name="location_select_title">स्थान चुनें (Select Location)</string>
+    <string name="location_select_subtitle">भारत के प्रमुख जिले एवं कृषि क्षेत्र:</string>
+    <string name="change_location">स्थान बदलें</string>
+    <string name="weather_condition_stable">ऐसा ही मौसम रहेगा</string>
+    <string name="weather_summary_default">आज दोपहर बाद हल्की से मध्यम बारिश की संभावना है। अधिकतम तापमान 32°C के आसपास रहेगा।</string>
+    <string name="weather_see_all_forecast">पूरे पूर्वानुमान देखें →</string>
+    <string name="quick_access_analyst_sub">स्थानिक खतरा और संवेदनशीलता सूचकांक</string>
+    <string name="quick_access_gfs_sub">भारतीय उपमहाद्वीप के लिए 0.25° ग्रिड मॉडल</string>
+    <string name="quick_access_climate_sub">Mann-Kendall और Sen\'s Slope सांख्यिकी</string>
+    <string name="crop_wheat">गेहूं</string>
+    <string name="crop_rice">धान (चावल)</string>
+    <string name="crop_cotton">कपास</string>
+    <string name="crop_mustard">सरसों</string>
+    <string name="crop_sugarcane">गन्ना</string>
+    <string name="crop_maize">मक्का</string>
+    <string name="stage_sowing">बुवाई / अंकुरण</string>
+    <string name="stage_vegetative">वानस्पतिक वृद्धि</string>
+    <string name="stage_flowering">फूल आना</string>
+    <string name="stage_maturity">परिपक्वता / कटाई</string>
+    <string name="soil_alluvial">दोमट / जलोढ़</string>
+    <string name="soil_black_cotton">काली कपास मिट्टी</string>
+    <string name="soil_red_sandy">लाल रेतीली मिट्टी</string>
+    <string name="soil_clay">चिकनी मिट्टी</string>
+    <string name="dialog_edit_profile_title">प्रोफ़ाइल संपादित करें</string>
+    <string name="dialog_enter_name_prompt">अपना नाम दर्ज करें:</string>
+    <string name="dialog_pro_features_title">वायुबोधक प्रो प्लान की विशेषताएं:</string>
+    <string name="dialog_pro_features_body">• असीमित उच्च-रिज़ॉल्यूशन NWP ग्रिड डेटा\n• स्वचालित WhatsApp मौसम एवं कीट चेतावनी\n• प्रति हेक्टेयर उपग्रह मृदा नमी मैपिंग\n• बहु-मॉडल विचलन AI विश्लेषण</string>
+    <string name="dialog_support_center_title">वायुबोधक सहायता केंद्र:</string>
+    <string name="dialog_support_center_body">• ईमेल: support@weathergpt.in\n• हेल्पलाइन: 1800-WEATHER-GPT (टोल फ्री)\n• तकनीकी दस्तावेज़ीकरण: docs.weathergpt.in</string>
+    <string name="dialog_about_text">भारत का अग्रणी डोमेन-ग्राउंडेड मौसम बुद्धिमत्ता प्लेटफ़ॉर्म। IMD, NOAA GFS, Open-Meteo, ECMWF और PostGIS द्वारा संचालित।</string>
+    <string name="analyst_spatial_report">स्थानिक जोखिम रिपोर्ट</string>
+    <string name="analyst_rainfall_total">वर्षा कुल</string>
+    <string name="analyst_temp_avg">तापमान औसत</string>
+    <string name="export_dialog_title">मौसम वैज्ञानिक डेटा एक्सपोर्ट</string>
+    <string name="export_dialog_desc">30-वर्षीय जलवायु एवं NWP डेटा CSV फ़ाइल में तैयार किया गया है।\n• फ़ाइल: weathergpt_climate_dataset.csv\n• प्रदाता: NOAA GFS 0.25°, Open-Meteo, IMD OASIS\n• पैरामीटर: वर्षा, तापमान (Min/Max), ET0, सापेक्ष आर्द्रता</string>
+    <string name="gfs_dialog_title">GFS 0.25° NWP ग्रिड मॉडल</string>
+    <string name="gfs_dialog_desc">Global Forecast System (GFS) 0.25° संख्यात्मक मौसम मॉडल का ग्रिड डेटा। 6°N-38°N, 68°E-98°E भारतीय उपमहाद्वीप के लिए 2D बाईलिनियर इंटरपोलेशन द्वारा सटीक अनुमान प्रदान करता है।</string>
+    <string name="climate_dialog_title">Mann-Kendall जलवायु ट्रेंड</string>
+    <string name="climate_dialog_desc">गैर-पैरामीट्रिक मैन-केंडल टेस्ट और सेन के स्लोप एस्टीमेटर द्वारा ऐतिहासिक वर्षा और तापमान में दीर्घकालिक जलवायु रुझानों की सांख्यिकीय गणना (95% विश्वास अंतराल)।</string>
+    <string name="dialog_select_period">विश्लेषण समयावधि चुनें</string>
+    <string name="period_7days">7 दिन</string>
+    <string name="period_15days">15 दिन</string>
+    <string name="period_30days">30 दिन</string>
+    <string name="period_90days">90 दिन</string>
+    <string name="compared_to_past">पिछले 30 दिन की तुलना में</string>
+    <string name="from_normal">सामान्य से</string>
+    <string name="alert_sample_rain_title">मध्यम बारिश की संभावना</string>
+    <string name="alert_sample_rain_body">जिले में मध्यम बारिश की संभावना है।</string>
+    <string name="alert_sample_rain_desc">क्षेत्र में मध्यम वर्षा (15.6 mm - 64.4 mm) और 35-45 km/h की रफ्तार से हवाएं चलने की संभावना है।</string>
+    <string name="alert_sample_rain_inst">खेतों में जल निकासी की व्यवस्था करें और खुले में अनाज सुरक्षित रखें।</string>
+    <string name="alert_sample_irr_title">सिंचाई सलाह</string>
+    <string name="alert_sample_irr_body">अगले 2 दिनों में हल्की बारिश की संभावना है। सिंचाई टालें।</string>
+    <string name="alert_sample_irr_desc">मृदा नमी का स्तर 68% है। आगामी वर्षा के कारण 48 घंटे तक सिंचाई टालने की सलाह दी जाती है।</string>
+    <string name="alert_sample_irr_inst">अतिरिक्त सिंचाई से बचें। उर्वरक का उपयोग बारिश थमने के बाद करें।</string>
+    <string name="alert_sample_temp_title">तापमान अपडेट</string>
+    <string name="alert_sample_temp_body">बादलों के कारण दिन का तापमान सामान्य से 2-3°C कम रह सकता है।</string>
+    <string name="alert_sample_temp_desc">अधिकतम तापमान 31°C तथा न्यूनतम तापमान 24°C रहने का अनुमान है।</string>
+    <string name="alert_sample_temp_inst">सामान्य गतिविधियाँ जारी रखी जा सकती हैं।</string>
+    <string name="alert_instructions_label">सलाह / निर्देश:</string>
+    <string name="alert_default_instruction">सतर्क रहें और स्थानीय मौसम विभाग के बुलेटिन पर ध्यान दें।</string>
+    <string name="category_general">सामान्य</string>
+</resources>

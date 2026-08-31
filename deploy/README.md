@@ -1,30 +1,36 @@
 # WeatherGPT — Native Production Deployment Guide
 
-This directory contains configuration templates and instructions for deploying WeatherGPT natively on Linux (Ubuntu 22.04 / 24.04 LTS, Debian 12, or RHEL 9) without Docker or Kubernetes.
+This directory contains configuration templates, systemd service definitions, Nginx reverse proxy specifications, and deployment runbooks for deploying **WeatherGPT** natively on Linux (Ubuntu 22.04 / 24.04 LTS, Debian 12, or RHEL 9) without Docker or Kubernetes virtualization.
 
 ---
 
 ## 1. Native Architecture Topology
 
 ```text
-       [ Internet Traffic ]
-                │
-                ▼
-       [ Nginx Reverse Proxy ]
-       (TLS Termination / Rate Limiting / Security Headers on Ports 80 & 443)
-                │
-                ▼ (HTTP Loopback to 127.0.0.1:8000)
-       [ Systemd Process Manager: weathergpt.service ]
-       (Uvicorn 4-Worker Cluster running Python 3.11/3.12 under user 'weathergpt')
-                │
-                ▼
-       [ FastAPI Application Engine ]
-       (RFC 7807 Error Handling / Request-ID Tracing / Tool Gateway)
-                │
-    ┌───────────┼────────────────────────────────────────┐
-    ▼           ▼                                        ▼
-[ PostgreSQL 16 + PostGIS 3.4 ]              [ Dedicated LLM Host ]
-(Connection Pool: 10 connections/worker)     (vLLM / Ollama Node via LAN)
+       [ Public Internet (Clients / Android Devices / Web) ]
+                                   │
+                                   ▼
+         [ Nginx Reverse Proxy & TLS Gateway (Ports 80 / 443) ]
+         - TLS 1.3 Termination (Let's Encrypt / Custom Certificate)
+         - Security Headers: HSTS, X-Content-Type-Options, CSP, X-Frame-Options
+         - Rate Limiting: 30 r/s general API, 5 r/s conversational chat
+         - Request Size Limit: 10 MB maximum
+                                   │
+                                   ▼ (HTTP Loopback to 127.0.0.1:8000)
+         [ Linux Systemd Service: weathergpt.service (User: weathergpt) ]
+         - Uvicorn Async Cluster (4 Workers)
+         - Native Python 3.11 / 3.12 Virtual Environment
+         - Bounded Process Memory & Restart on Failure
+                                   │
+                                   ▼
+         [ FastAPI ASGI Application Factory (app.main:app) ]
+         - Middleware: Request-ID Correlation, JSON Logging, CORS, Rate Limit
+         - Central Tool Gateway & Domain Brains
+                                   │
+    ┌──────────────────────────────┼──────────────────────────────┐
+    ▼                              ▼                              ▼
+[ PostgreSQL 16 + PostGIS 3.4 ]  [ Redis / In-Memory Cache ]  [ Dedicated LLM Host ]
+(Connection Pool: 10/worker)     (Result & Grid Cache)        (vLLM / Ollama Node via LAN)
 ```
 
 ---
@@ -33,12 +39,12 @@ This directory contains configuration templates and instructions for deploying W
 
 1. **Operating System:** Ubuntu 22.04 / 24.04 LTS or Debian 12.
 2. **Python Runtime:** Python 3.11 or 3.12 with `python3-venv` and `python3-dev`.
-3. **Database Server:** PostgreSQL 16+ with PostGIS 3.4+ extension:
+3. **Database Server:** PostgreSQL 16+ with PostGIS 3.4+ spatial extension:
    ```bash
    sudo apt update
    sudo apt install -y postgresql-16 postgresql-16-postgis-3
    ```
-4. **Geospatial & GRIB2 System Libraries:**
+4. **Geospatial & System Libraries:**
    ```bash
    sudo apt install -y libgeos-dev libproj-dev libeccodes-dev nginx certbot python3-certbot-nginx
    ```
@@ -50,8 +56,8 @@ This directory contains configuration templates and instructions for deploying W
 ### Step 1: Create Non-Root Service User & Directories
 ```bash
 sudo useradd -r -s /bin/false -d /opt/weathergpt weathergpt
-sudo mkdir -p /opt/weathergpt /etc/weathergpt /var/lib/weathergpt/data/gfs
-sudo chown -R weathergpt:weathergpt /opt/weathergpt /etc/weathergpt /var/lib/weathergpt
+sudo mkdir -p /opt/weathergpt /etc/weathergpt /var/lib/weathergpt/data/gfs /var/backups/weathergpt
+sudo chown -R weathergpt:weathergpt /opt/weathergpt /etc/weathergpt /var/lib/weathergpt /var/backups/weathergpt
 ```
 
 ### Step 2: Clone Repository & Build Python Virtual Environment
@@ -103,30 +109,39 @@ sudo certbot --nginx -d api.weathergpt.in
 
 ---
 
-## 4. Verification Checklist
+## 4. Operational Verification Checklist
 
 ```bash
-# 1. Check Liveness Probe (Should return 200 {"status": "ok"})
+# 1. Check Liveness Probe (Sub-2ms response)
 curl -i http://127.0.0.1:8000/api/v1/health
 
-# 2. Check Readiness Probe (Should return 200 {"ready": true, "probes": [...]})
+# 2. Check Readiness Probe (Checks database, PostGIS, providers, cache)
 curl -i http://127.0.0.1:8000/api/v1/ready
 
-# 3. Check Real-Time Weather Observation API
-curl -i "http://127.0.0.1:8000/api/v1/weather/current?latitude=21.17&longitude=72.83"
+# 3. Check Observability Metrics
+curl -i http://127.0.0.1:8000/api/v1/metrics
+
+# 4. Execute Full Configuration Audit Script
+python scripts/verify_production_config.py
+
+# 5. Execute Latency Benchmark Suite
+python scripts/benchmark_native.py
 ```
 
 ---
 
-## 5. Database Backup & Disaster Recovery
+## 5. Automated Upgrades & Database Backups
 
-### Automated Daily PostgreSQL Backup
+### Automated Deployments / Upgrades
 ```bash
-# Backup command
-pg_dump -Fc -U weathergpt_user -d weathergpt_prod -f /var/backups/weathergpt_$(date +%Y%m%d_%H%M%S).dump
+sudo ./scripts/deploy_native.sh
+```
 
-# Restore command into a new database
-createdb -U postgres weathergpt_restore
-psql -U postgres -d weathergpt_restore -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-pg_restore -U postgres -d weathergpt_restore /var/backups/weathergpt_20260830_120000.dump
+### Database Backup & Restore Automation
+```bash
+# Create atomic compressed backup
+./scripts/backup_restore_database.sh backup
+
+# Restore backup
+./scripts/backup_restore_database.sh restore /var/backups/weathergpt/weathergpt_backup_latest.sql.gz
 ```

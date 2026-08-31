@@ -53,6 +53,21 @@ GFS_BASE_URL=https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod
 GFS_DATA_PATH=/var/lib/weathergpt/data/gfs
 
 OPEN_METEO_BASE_URL=https://api.open-meteo.com/v1
+
+# Commercial & Open Weather Providers
+OPENWEATHER_BASE_URL=https://api.openweathermap.org/data/2.5
+OPENWEATHER_API_KEY=
+
+WEATHERAPI_BASE_URL=https://api.weatherapi.com/v1
+WEATHERAPI_API_KEY=
+
+TOMORROW_BASE_URL=https://api.tomorrow.io/v4
+TOMORROW_API_KEY=
+
+# Air Quality Provider (OpenAQ)
+OPENAQ_BASE_URL=https://api.openaq.org/v2
+OPENAQ_API_KEY=
+
 WEATHER_PROVIDER_TIMEOUT_SECONDS=10.0
 WEATHER_PROVIDER_RETRIES=2
 

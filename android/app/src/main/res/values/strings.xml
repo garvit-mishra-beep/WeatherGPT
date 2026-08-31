@@ -1,0 +1,221 @@
+<resources>
+    <string name="app_name">WeatherGPT</string>
+    <string name="app_tagline">Vayubodhak</string>
+    <string name="app_subtitle">Atmospheric Intelligence in Simple Language</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">Chat</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_alerts">Alerts</string>
+    <string name="nav_data">Data</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_weather">Weather</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_farmer">Farmer</string>
+    <string name="nav_analyst">Analyst</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">Hello, %1$s!</string>
+    <string name="home_intro">I am Vayubodhak, your AI weather companion providing actionable guidance.</string>
+    <string name="home_search_placeholder">How is the weather today? / Ask question…</string>
+    <string name="home_quick_actions">Quick Workflows</string>
+    <string name="action_will_it_rain">Will it rain?</string>
+    <string name="action_forecast">Forecast</string>
+    <string name="action_alerts">Alerts</string>
+    <string name="action_map">Map</string>
+    <string name="home_live_badge">Live</string>
+    <string name="today">Today</string>
+    <string name="feels_like">Feels like</string>
+    <string name="humidity">Humidity</string>
+    <string name="wind_speed">Wind</string>
+    <string name="air_quality">Air Quality</string>
+
+    <!-- Brain Selection Screen -->
+    <string name="brain_selection_title">Which Brain would you like to use?</string>
+    <string name="brain_selection_subtitle">Every Brain specializes in a unique domain</string>
+    <string name="brain_auto_title">Auto (Recommended)</string>
+    <string name="brain_auto_desc">Automatically routes your query to the best suited domain brain</string>
+    <string name="brain_general_title">General Weather</string>
+    <string name="brain_general_desc">Daily forecasts, rain chances, temperature, and local severe alerts</string>
+    <string name="brain_farmer_title">Farmer (Krishi)</string>
+    <string name="brain_farmer_desc">FAO-56 ET0 irrigation water balance, spray windows, and crop risk</string>
+    <string name="brain_researcher_title">Researcher</string>
+    <string name="brain_researcher_desc">Multi-decadal historical climate trends, Sen\'s slope, and CSV export</string>
+    <string name="brain_analyst_title">Analyst (Disaster/Risk)</string>
+    <string name="brain_analyst_desc">Spatial hazard-exposure-vulnerability quantification &amp; NWP spread</string>
+    <string name="brain_note_title">Self-Learning Auto Brain</string>
+    <string name="brain_note_desc">Auto Brain automatically adapts to your intent based on whether you ask farming, research, or disaster questions.</string>
+
+    <!-- Weather Screen -->
+    <string name="weather_title">Weather &amp; Forecast</string>
+    <string name="tab_hourly">Hourly</string>
+    <string name="tab_3day">3 Days</string>
+    <string name="tab_5day">5 Days</string>
+    <string name="tab_10day">10 Days</string>
+    <string name="summary_title">Forecast Summary</string>
+    <string name="rain_chance">Rain chance</string>
+    <string name="forecast_24h_title">24-Hour Projection</string>
+
+    <!-- Map Screen -->
+    <string name="map_title">Radar &amp; Weather Map</string>
+    <string name="layer_rain">Rain</string>
+    <string name="layer_temp">Temperature</string>
+    <string name="layer_wind">Wind</string>
+    <string name="layer_humidity">Humidity</string>
+    <string name="map_timeline_title">Doppler Radar Time Series</string>
+    <string name="map_legend_light">Light</string>
+    <string name="map_legend_moderate">Moderate</string>
+    <string name="map_legend_heavy">Heavy</string>
+    <string name="map_legend_severe">Severe</string>
+
+    <!-- Alerts Screen -->
+    <string name="alerts_title">Official Weather Alerts</string>
+    <string name="filter_all">All</string>
+    <string name="filter_weather">Weather</string>
+    <string name="filter_agri">Agriculture</string>
+    <string name="filter_govt">Government</string>
+    <string name="alert_view_details">View Details →</string>
+    <string name="alert_no_alerts">No active warnings for this location</string>
+    <string name="alert_modal_title">Alert Details</string>
+
+    <!-- Data Screen -->
+    <string name="data_title">Meteorological Data</string>
+    <string name="action_historical_data">Historical Data</string>
+    <string name="action_model_comparison">Model Comparison</string>
+    <string name="action_export_data">Export Data</string>
+    <string name="data_temp_chart_title">Temperature Trend (°C)</string>
+    <string name="quick_access_title">Quick Access</string>
+    <string name="quick_access_analyst">Analyst Dashboard</string>
+    <string name="quick_access_gfs">GFS 0.25° NWP Model</string>
+    <string name="quick_access_climate">Mann-Kendall Climate Trend</string>
+    <string name="export_success">Dataset exported successfully as CSV.</string>
+
+    <!-- Farmer Screen -->
+    <string name="farmer_title">Farmer Profile</string>
+    <string name="farmer_step_progress">1/4</string>
+    <string name="farmer_crop_header">Tell us about your crop</string>
+    <string name="farmer_crop_subheader">This information helps calculate precise agronomic advisories.</string>
+    <string name="label_crop">Primary Crop</string>
+    <string name="label_stage">Growth Stage</string>
+    <string name="label_soil">Soil Type</string>
+    <string name="label_area">Field Area (Acres)</string>
+    <string name="btn_next">Next →</string>
+    <string name="advisory_irrigation_title">Irrigation Advisory (FAO-56)</string>
+    <string name="advisory_spray_title">Chemical Spray Window</string>
+
+    <!-- Analyst Screen -->
+    <string name="analyst_title">Analyst Dashboard</string>
+    <string name="risk_indicators_title">Risk Indicators</string>
+    <string name="risk_flood">Flood Risk</string>
+    <string name="risk_drought">Drought Risk</string>
+    <string name="risk_squall">Squall/Storm Risk</string>
+    <string name="btn_detailed_report">Detailed Report →</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="user_name_default">Garvit Mishra</string>
+    <string name="user_district_default">Jhansi, Uttar Pradesh</string>
+    <string name="plan_badge">Vayubodhak Free</string>
+    <string name="your_plan">Your Plan</string>
+    <string name="btn_upgrade">👑 Upgrade →</string>
+    <string name="menu_farmer_profile">Farmer Profile</string>
+    <string name="menu_saved_regions">Saved Locations</string>
+    <string name="menu_app_settings">App Settings</string>
+    <string name="menu_help_feedback">Help &amp; Feedback</string>
+    <string name="menu_about">About Vayubodhak</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="setting_language">Language</string>
+    <string name="setting_units">Measurement Units</string>
+    <string name="setting_notifications">Severe Weather Notifications</string>
+    <string name="setting_location">Primary Location</string>
+    <string name="setting_server_url">Backend Server URL</string>
+    <string name="setting_about">About &amp; Licenses</string>
+    <string name="dialog_select_language">Select Application Language</string>
+    <string name="dialog_select_units">Select Measurement Units</string>
+    <string name="dialog_server_url_title">Configure Backend Server URL</string>
+    <string name="dialog_server_url_desc">Enter LAN URL (e.g. http://192.168.1.100:8000/) or paste QR code URL:</string>
+    <string name="btn_apply_save">Apply &amp; Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_close">Close</string>
+    <string name="btn_retry">Retry</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">WeatherGPT Chat</string>
+    <string name="chat_empty_title">Ask Vayubodhak (WeatherGPT)</string>
+    <string name="chat_empty_message">Ask questions about weather forecasts, irrigation scheduling (FAO-56), chemical spraying, or disaster analysis.</string>
+    <string name="chat_input_placeholder">Ask question about weather, crops, climate…</string>
+    <string name="chat_analyzing_message">Vayubodhak is analyzing meteorological data…</string>
+    <string name="recommendation_label">Recommendation</string>
+    <string name="sources_label">Sources</string>
+
+    <!-- Common UI States -->
+    <string name="loading_weather">Loading weather observations…</string>
+    <string name="loading_forecast">Fetching numerical forecast…</string>
+    <string name="loading_alerts">Checking official severe warnings…</string>
+    <string name="loading_data">Loading meteorological data…</string>
+    <string name="error_offline">No internet connection. Showing cached data.</string>
+    <string name="location_select_title">Select Location</string>
+    <string name="location_select_subtitle">Major districts and agricultural regions across India:</string>
+    <string name="change_location">Change Location</string>
+    <string name="weather_condition_stable">Conditions will remain similar</string>
+    <string name="weather_summary_default">Chance of light to moderate rainfall in the afternoon. Maximum temperature around 32°C.</string>
+    <string name="weather_see_all_forecast">See full forecast →</string>
+    <string name="quick_access_analyst_sub">Spatial hazard and vulnerability indicators</string>
+    <string name="quick_access_gfs_sub">0.25° grid model for Indian subcontinent</string>
+    <string name="quick_access_climate_sub">Mann-Kendall and Sen\'s Slope statistics</string>
+    <string name="crop_wheat">Wheat</string>
+    <string name="crop_rice">Paddy (Rice)</string>
+    <string name="crop_cotton">Cotton</string>
+    <string name="crop_mustard">Mustard</string>
+    <string name="crop_sugarcane">Sugarcane</string>
+    <string name="crop_maize">Maize</string>
+    <string name="stage_sowing">Sowing / Germination</string>
+    <string name="stage_vegetative">Vegetative Growth</string>
+    <string name="stage_flowering">Flowering / Heading</string>
+    <string name="stage_maturity">Maturity / Harvesting</string>
+    <string name="soil_alluvial">Alluvial / Loamy</string>
+    <string name="soil_black_cotton">Black Cotton Soil</string>
+    <string name="soil_red_sandy">Red Sandy Loam</string>
+    <string name="soil_clay">Clayey Soil</string>
+    <string name="dialog_edit_profile_title">Edit Profile</string>
+    <string name="dialog_enter_name_prompt">Enter your name:</string>
+    <string name="dialog_pro_features_title">Vayubodhak Pro Features:</string>
+    <string name="dialog_pro_features_body">• Unlimited high-resolution NWP grid data\n• Automated WhatsApp weather &amp; pest alerts\n• Per-hectare satellite soil moisture mapping\n• Multi-model AI divergence analysis</string>
+    <string name="dialog_support_center_title">Vayubodhak Support Center:</string>
+    <string name="dialog_support_center_body">• Email: support@weathergpt.in\n• Helpline: 1800-WEATHER-GPT (Toll Free)\n• Documentation: docs.weathergpt.in</string>
+    <string name="dialog_about_text">India\'s premier domain-grounded weather intelligence platform. Powered by IMD, NOAA GFS, Open-Meteo, ECMWF, and PostGIS.</string>
+    <string name="analyst_spatial_report">Spatial Risk Report</string>
+    <string name="analyst_rainfall_total">Rainfall Total</string>
+    <string name="analyst_temp_avg">Average Temp</string>
+    <string name="export_dialog_title">Export Meteorological Data</string>
+    <string name="export_dialog_desc">30-year historical climate and NWP dataset prepared as CSV file.\n• File: weathergpt_climate_dataset.csv\n• Providers: NOAA GFS 0.25°, Open-Meteo, IMD OASIS\n• Parameters: Rainfall, Temp Min/Max, ET0, Relative Humidity</string>
+    <string name="gfs_dialog_title">GFS 0.25° NWP Grid Model</string>
+    <string name="gfs_dialog_desc">Global Forecast System (GFS) 0.25° numerical atmospheric grid model covering the Indian subcontinent (6°N-38°N, 68°E-98°E) with 2D bilinear spatial interpolation.</string>
+    <string name="climate_dialog_title">Mann-Kendall Climate Trend</string>
+    <string name="climate_dialog_desc">Non-parametric Mann-Kendall test with Sen\'s slope estimator evaluating multi-decadal monotonic climate trends in rainfall and temperature (95% CI).</string>
+    <string name="dialog_select_period">Select Analysis Period</string>
+    <string name="period_7days">7 Days</string>
+    <string name="period_15days">15 Days</string>
+    <string name="period_30days">30 Days</string>
+    <string name="period_90days">90 Days</string>
+    <string name="compared_to_past">Compared to past 30 days</string>
+    <string name="from_normal">From normal</string>
+    <string name="alert_sample_rain_title">Moderate Rainfall Expected</string>
+    <string name="alert_sample_rain_body">Possibility of moderate rainfall in the district.</string>
+    <string name="alert_sample_rain_desc">Moderate rainfall (15.6 mm - 64.4 mm) and gusty winds of 35-45 km/h expected in the area.</string>
+    <string name="alert_sample_rain_inst">Ensure proper drainage in crop fields and protect harvested grain.</string>
+    <string name="alert_sample_irr_title">Irrigation Advisory</string>
+    <string name="alert_sample_irr_body">Light rain forecasted over next 48h. Postpone scheduled irrigation.</string>
+    <string name="alert_sample_irr_desc">Soil moisture index is adequate at 68%. Postpone irrigation to avoid waterlogging.</string>
+    <string name="alert_sample_irr_inst">Avoid excess irrigation. Apply fertilizers after rain subsides.</string>
+    <string name="alert_sample_temp_title">Temperature Update</string>
+    <string name="alert_sample_temp_body">Day temperature expected to be 2-3°C below normal due to cloud cover.</string>
+    <string name="alert_sample_temp_desc">Max temperature 31°C and min temperature 24°C expected.</string>
+    <string name="alert_sample_temp_inst">Normal farming and field activities can proceed.</string>
+    <string name="alert_instructions_label">Advisory / Instructions:</string>
+    <string name="alert_default_instruction">Stay alert and follow official bulletins from local meteorological center.</string>
+    <string name="category_general">General</string>
+</resources>

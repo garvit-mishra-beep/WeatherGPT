@@ -90,3 +90,29 @@ class ApplicationProbe:
 
     async def check(self) -> ProbeResult:
         return ProbeResult(name=self.name, ok=True, detail="application process ready")
+
+
+@dataclass
+class ProviderHealthProbe:
+    """Aggregated probe reporting meteorological and air quality provider circuit health without failing overall readiness."""
+
+    name: str = "providers"
+    weather_manager: Optional[Any] = None
+
+    async def check(self) -> ProbeResult:
+        if self.weather_manager is None:
+            return ProbeResult(name=self.name, ok=True, detail="no provider manager bound")
+
+        circuit_status = self.weather_manager.get_circuit_status()
+        degraded = [p for p, status in circuit_status.items() if status.get("state") == "OPEN"]
+        detail = "all provider circuits normal" if not degraded else f"degraded provider circuits: {', '.join(degraded)}"
+
+        return ProbeResult(
+            name=self.name,
+            ok=True,  # Application readiness does not fail when external optional upstream is down
+            detail=detail,
+            metadata={
+                "circuits": circuit_status,
+                "degraded_count": len(degraded),
+            },
+        )

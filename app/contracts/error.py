@@ -32,6 +32,8 @@ class ProblemDetailRFC7807(BaseModel):
     detail: str = Field(..., description="Human-readable explanation specific to this occurrence")
     instance: Optional[str] = Field(default=None, description="URI reference identifying specific occurrence")
     error_code: Optional[str] = Field(default=None, description="WeatherGPT specific error code")
+    request_id: Optional[str] = Field(default=None, description="Correlation Request ID for debugging")
+    retryable: bool = Field(default=False, description="Whether client may safely retry this request")
     timestamp: str = Field(..., description="Error occurrence ISO 8601 timestamp")
 
     model_config = ConfigDict(frozen=True)

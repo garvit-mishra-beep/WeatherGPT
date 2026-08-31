@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from app.adapters.models import (
+    NormalizedAirQualityMeasurement,
     NormalizedNWPGridPoint,
     NormalizedOfficialAlert,
     NormalizedWeatherForecastPayload,
@@ -113,4 +114,35 @@ class BaseNWPProvider(ABC):
     @abstractmethod
     async def check_health(self) -> bool:
         """Verify NWP data stream availability."""
+        ...
+
+
+class BaseAirQualityProvider(ABC):
+    """Abstract interface for environmental air quality monitoring providers."""
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Air quality provider identifier (e.g. 'openaq')."""
+        ...
+
+    @property
+    @abstractmethod
+    def authority(self) -> ProviderAuthority:
+        """Authority and trust classification."""
+        ...
+
+    @abstractmethod
+    async def get_air_quality(
+        self,
+        latitude: float,
+        longitude: float,
+        radius_km: float = 25.0,
+    ) -> Optional[NormalizedAirQualityMeasurement]:
+        """Fetch and normalize real-time air quality measurements near coordinates."""
+        ...
+
+    @abstractmethod
+    async def check_health(self) -> bool:
+        """Verify reachability of air quality provider endpoint."""
         ...

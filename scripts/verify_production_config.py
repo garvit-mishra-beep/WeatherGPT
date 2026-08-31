@@ -47,6 +47,11 @@ async def verify_configuration(settings: Settings) -> Tuple[bool, List[str]]:
     print(f"CORS Origins:         {settings.cors_origins}")
     print(f"Interactive Docs:     {'Enabled' if settings.docs_enabled else 'Disabled'}")
     print(f"LLM Provider:         {settings.llm_provider_type} ({settings.llm_model_name})")
+    print(f"Open-Meteo Base:      {settings.open_meteo_base_url}")
+    print(f"OpenWeather Key:      {'Configured' if settings.openweather_api_key else 'Not configured (optional)'}")
+    print(f"WeatherAPI Key:       {'Configured' if settings.weatherapi_api_key else 'Not configured (optional)'}")
+    print(f"Tomorrow.io Key:      {'Configured' if settings.tomorrow_api_key else 'Not configured (optional)'}")
+    print(f"OpenAQ Key:           {'Configured' if settings.openaq_api_key else 'Not configured (optional)'}")
     print("---------------------------------------------------------------------")
 
     # 1. Secret Key Check

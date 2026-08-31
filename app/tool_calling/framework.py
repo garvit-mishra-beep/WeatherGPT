@@ -44,9 +44,11 @@ class LLMToolCallingFramework:
         self,
         llm_provider: LLMProvider,
         default_max_rounds: int = 5,
+        default_max_total_tool_calls: int = 10,
     ) -> None:
         self.llm_provider = llm_provider
         self.default_max_rounds = default_max_rounds
+        self.default_max_total_tool_calls = default_max_total_tool_calls
 
     async def execute_tool_loop(
         self,
@@ -54,6 +56,7 @@ class LLMToolCallingFramework:
         available_tools: List[ToolSchema],
         tool_executor: ToolExecutorCallable,
         max_rounds: Optional[int] = None,
+        max_total_tool_calls: Optional[int] = None,
         brain: BrainType = BrainType.GENERAL,
         temperature: Optional[float] = None,
     ) -> ToolLoopResult:
@@ -64,6 +67,7 @@ class LLMToolCallingFramework:
             available_tools: Collection of ToolSchemas visible to the model.
             tool_executor: Async callable executing validated ToolCallRequests (e.g. Tool Gateway).
             max_rounds: Maximum allowed LLM round-trips before triggering safety cutoff.
+            max_total_tool_calls: Maximum cumulative tool calls permitted per user request.
             brain: The invoking Domain Brain identifier.
             temperature: Sampling temperature for inference.
 
@@ -71,10 +75,11 @@ class LLMToolCallingFramework:
             ToolLoopResult: Terminal response with audit trail of execution steps.
 
         Raises:
-            ToolCallLoopLimitError: If iteration limit is exceeded without a final response.
+            ToolCallLoopLimitError: If iteration limit or tool count limit is exceeded.
             ToolCallingError: If validation or execution fails unrecoverably.
         """
         rounds_limit = max_rounds or self.default_max_rounds
+        total_calls_limit = max_total_tool_calls or self.default_max_total_tool_calls
         validator = ToolCallValidator(available_tools=available_tools)
         tool_definitions = [ToolCallingAdapter.schema_to_definition(t) for t in available_tools]
 
@@ -82,9 +87,10 @@ class LLMToolCallingFramework:
         steps: List[ToolCallExecutionStep] = []
 
         logger.info(
-            "Starting LLM tool loop with %d available tools (Max Rounds: %d, Brain: %s)",
+            "Starting LLM tool loop with %d available tools (Max Rounds: %d, Max Tools: %d, Brain: %s)",
             len(available_tools),
             rounds_limit,
+            total_calls_limit,
             brain.value,
         )
 
@@ -115,11 +121,21 @@ class LLMToolCallingFramework:
                     total_rounds=round_idx,
                 )
 
-            # 3. Check for infinite loop safety threshold
+            # 3. Check for infinite loop / maximum tool call safety threshold
             if round_idx >= rounds_limit:
                 logger.warning(
-                    "Tool loop limit reached (%d rounds) while model is still requesting tool calls",
+                    "Tool loop round limit reached (%d rounds) while model is still requesting tool calls",
                     rounds_limit,
+                )
+                raise ToolCallLoopLimitError(
+                    max_rounds=rounds_limit,
+                    current_round=round_idx,
+                )
+
+            if len(steps) + len(llm_response.tool_calls) > total_calls_limit:
+                logger.warning(
+                    "Cumulative tool calls limit (%d) would be exceeded; terminating loop",
+                    total_calls_limit,
                 )
                 raise ToolCallLoopLimitError(
                     max_rounds=rounds_limit,
@@ -141,10 +157,15 @@ class LLMToolCallingFramework:
                 raw_args = tool_call.function.arguments
 
                 logger.debug("Validating tool call '%s' (ID: %s)", tool_name, tool_call.id)
-                parsed_args = validator.validate_and_parse_arguments(
-                    tool_name=tool_name,
-                    raw_arguments=raw_args,
-                )
+                try:
+                    parsed_args = validator.validate_and_parse_arguments(
+                        tool_name=tool_name,
+                        raw_arguments=raw_args,
+                    )
+                except Exception as arg_err:
+                    logger.warning("Tool argument validation failed for '%s': %s", tool_name, arg_err)
+                    parsed_args = {}
+
                 tool_request = ToolCallingAdapter.tool_call_to_request(
                     tool_call=tool_call,
                     brain=brain,
@@ -152,13 +173,28 @@ class LLMToolCallingFramework:
                 )
                 validated_requests.append((tool_call, tool_request))
 
-            # 6. Execute validated tool calls concurrently for maximum throughput
+            # 6. Execute validated tool calls concurrently
+            import asyncio
+
             async def _execute_single(t_call: ToolCall, t_req: ToolCallRequest) -> Tuple[ToolCallRequest, ToolCallResponse]:
                 try:
                     t_resp = await tool_executor(t_req)
                 except Exception as exec_err:
-                    logger.exception("Error executing tool '%s': %s", t_req.tool_name, exec_err)
-                    raise ToolCallingError(f"Tool execution failed for '{t_req.tool_name}': {str(exec_err)}") from exec_err
+                    logger.warning("Safe error containment in tool '%s': %s", t_req.tool_name, exec_err)
+                    from datetime import datetime, timezone
+                    from app.contracts.tool import ToolProvenance, ToolQuality
+                    t_resp = ToolCallResponse(
+                        call_id=t_req.call_id,
+                        tool_name=t_req.tool_name,
+                        status="error",
+                        execution_time_ms=0.0,
+                        error=str(exec_err),
+                        provenance=ToolProvenance(
+                            data_sources=["ToolCallingFramework Error Containment"],
+                            retrieval_timestamp=datetime.now(timezone.utc).isoformat(),
+                        ),
+                        quality=ToolQuality(freshness="degraded", completeness="none"),
+                    )
 
                 if not isinstance(t_resp, ToolCallResponse):
                     raise ToolResultValidationError(
@@ -167,7 +203,6 @@ class LLMToolCallingFramework:
                     )
                 return t_req, t_resp
 
-            import asyncio
             execution_results = await asyncio.gather(
                 *[_execute_single(tc, tr) for tc, tr in validated_requests]
             )

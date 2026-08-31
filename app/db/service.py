@@ -9,8 +9,9 @@ This boundary keeps FastAPI routes free of direct SQLAlchemy usage: routes depen
 on an ``AsyncSession`` (via ``get_db_session``) or on ``DatabaseService`` itself.
 """
 
+from contextlib import asynccontextmanager
 import logging
-from typing import Optional
+from typing import AsyncGenerator, Optional
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -82,16 +83,24 @@ class DatabaseService:
     def probe(self) -> Optional[DatabaseProbe]:
         return self._probe
 
-    async def session_context(self):
+    @asynccontextmanager
+    async def session_context(self) -> AsyncGenerator[AsyncSession, None]:
         """Asynchronous context manager yielding a bound ``AsyncSession``.
 
-        The caller manages transaction lifecycle; the context only guarantees the
-        session is closed on exit.
+        Guarantees transactional integrity:
+        - Commits on successful block completion.
+        - Automatically rolls back on any exception so connection is never left in a broken transaction.
+        - Always releases and closes the session on exit (zero connection leaks).
         """
         if self._session_factory is None:
             raise RuntimeError("DatabaseService is not initialized")
         async with self._session_factory() as session:
-            yield session
+            try:
+                yield session
+                await session.commit()
+            except Exception:
+                await session.rollback()
+                raise
 
     async def dispose(self) -> None:
         """Gracefully dispose the engine and pool (idempotent)."""

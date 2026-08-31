@@ -6,7 +6,11 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Request, status
 from pydantic import BaseModel, Field
 
+from app.adapters.metrics import provider_metrics
+from app.core.metrics import api_metrics
 from app.core.readiness import ReadinessChecker
+from app.llm.metrics import default_llm_metrics
+from app.tools.metrics import default_tool_metrics
 
 router = APIRouter(tags=["System"])
 
@@ -102,6 +106,26 @@ async def ready(request: Request) -> ReadyResponse:
 
 
 @router.get(
+    "/metrics",
+    status_code=status.HTTP_200_OK,
+    summary="Application and Provider Metrics",
+)
+async def metrics(request: Request) -> Dict[str, Any]:
+    """Expose application-level HTTP/API metrics, external provider metrics, and request deduplication telemetry."""
+    deduplicator = getattr(request.app.state.container, "deduplicator", None)
+    dedup_summary = deduplicator.metrics.get_summary() if deduplicator else {}
+
+    return {
+        "api": api_metrics.get_summary(),
+        "providers": provider_metrics.get_summary(),
+        "deduplication": dedup_summary,
+        "llm": default_llm_metrics.get_summary(),
+        "tools": default_tool_metrics.get_summary(),
+        "timestamp": _now_iso(),
+    }
+
+
+@router.get(
     "/",
     status_code=status.HTTP_200_OK,
     summary="Root metadata",
@@ -115,5 +139,6 @@ async def root(request: Request) -> Dict[str, Any]:
         "openapi_url": "/openapi.json",
         "health_url": "/api/v1/health",
         "ready_url": "/api/v1/ready",
+        "metrics_url": "/api/v1/metrics",
         "version": request.app.state.settings.api_version,
     }
