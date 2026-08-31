@@ -37,8 +37,39 @@ class ProviderTimeoutError(AdapterError):
 class ProviderResponseError(AdapterError):
     """Raised when an external weather provider returns a non-2xx HTTP status or unexpected payload."""
 
-    def __init__(self, message: str, provider: Optional[str] = None, details: Optional[dict] = None) -> None:
+    def __init__(self, message: str, provider: Optional[str] = None, status_code: Optional[int] = None, details: Optional[dict] = None) -> None:
         super().__init__(message, code="PROVIDER_RESPONSE_ERROR", provider=provider, details=details)
+        self.status_code = status_code
+
+
+class ProviderRateLimitError(ProviderResponseError):
+    """Raised when an external weather provider throttles requests (HTTP 429)."""
+
+    def __init__(
+        self,
+        message: str,
+        provider: Optional[str] = None,
+        retry_after_seconds: Optional[float] = None,
+        details: Optional[dict] = None,
+    ) -> None:
+        super().__init__(message, provider=provider, status_code=429, details=details)
+        self.code = "PROVIDER_RATE_LIMIT"
+        self.retry_after_seconds = retry_after_seconds
+
+
+class ProviderCircuitOpenError(ProviderUnavailableError):
+    """Raised when provider circuit breaker is OPEN and fast-fails requests."""
+
+    def __init__(
+        self,
+        message: str,
+        provider: Optional[str] = None,
+        retry_after_seconds: Optional[float] = None,
+        details: Optional[dict] = None,
+    ) -> None:
+        super().__init__(message, provider=provider, details=details)
+        self.code = "PROVIDER_CIRCUIT_OPEN"
+        self.retry_after_seconds = retry_after_seconds
 
 
 class ProviderValidationError(AdapterError):

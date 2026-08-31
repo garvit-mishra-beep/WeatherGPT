@@ -75,8 +75,18 @@ class SpatialEngine:
         if self.session is not None:
             yield self.session
         elif self.session_factory is not None:
-            async with self.session_factory() as session:
-                yield session
+            factory = self.session_factory
+            if callable(factory) and not hasattr(factory, "class_"):
+                try:
+                    resolved = factory()
+                    factory = resolved
+                except Exception:
+                    factory = None
+            if factory is not None and callable(factory):
+                async with factory() as session:
+                    yield session
+            else:
+                raise DatabaseUnavailableError("SpatialEngine has no active AsyncSession or session_factory configured")
         else:
             raise DatabaseUnavailableError("SpatialEngine has no active AsyncSession or session_factory configured")
 

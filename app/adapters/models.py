@@ -204,3 +204,36 @@ class NormalizedNWPGridPoint(BaseModel):
     quality: ProviderQuality = Field(default=ProviderQuality.VALID)
 
     model_config = ConfigDict(frozen=True)
+
+
+# ============================================================================
+# 5. Environmental & Air Quality Measurements (OpenAQ)
+# ============================================================================
+
+class NormalizedAirQualityMeasurement(BaseModel):
+    """Normalized environmental air quality observation for a location."""
+    latitude: float = Field(ge=-90.0, le=90.0)
+    longitude: float = Field(ge=-180.0, le=180.0)
+    location_name: Optional[str] = None
+    city: Optional[str] = None
+    country: str = Field(default="IN")
+    observation_time_iso: str = Field(description="ISO 8601 observation timestamp")
+
+    # Pollutant concentrations (in standard units: µg/m³ or ppm)
+    pm25_ug_m3: Optional[float] = Field(default=None, ge=0.0, description="Particulate Matter <2.5µm (µg/m³)")
+    pm10_ug_m3: Optional[float] = Field(default=None, ge=0.0, description="Particulate Matter <10µm (µg/m³)")
+    o3_ug_m3: Optional[float] = Field(default=None, ge=0.0, description="Ozone O3 (µg/m³)")
+    no2_ug_m3: Optional[float] = Field(default=None, ge=0.0, description="Nitrogen Dioxide NO2 (µg/m³)")
+    so2_ug_m3: Optional[float] = Field(default=None, ge=0.0, description="Sulfur Dioxide SO2 (µg/m³)")
+    co_ug_m3: Optional[float] = Field(default=None, ge=0.0, description="Carbon Monoxide CO (µg/m³)")
+    aqi_calculated: Optional[int] = Field(default=None, ge=0, le=500, description="Estimated/reported Air Quality Index")
+
+    # Provenance & Source Metadata
+    station_id: Optional[str] = None
+    provider: str = Field(default="openaq", description="Originating provider (e.g. 'openaq')")
+    data_source: str = Field(default="OpenAQ API", description="Underlying sensor or reporting network")
+    authority: ProviderAuthority = Field(default=ProviderAuthority.SECONDARY)
+    quality: ProviderQuality = Field(default=ProviderQuality.VALID)
+    retrieval_timestamp_iso: str = Field(description="ISO 8601 timestamp when fetched")
+
+    model_config = ConfigDict(frozen=True)

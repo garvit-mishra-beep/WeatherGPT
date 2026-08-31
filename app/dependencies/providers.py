@@ -54,6 +54,16 @@ def get_weather_manager(request: Request):
     return request.app.state.container.weather_manager
 
 
+def get_cache_service(request: Request):
+    """Return the application-wide ``CacheService`` from ``app.state``."""
+    return request.app.state.container.cache_service
+
+
+def get_deduplicator(request: Request):
+    """Return the application-wide ``RequestDeduplicator`` from ``app.state``."""
+    return request.app.state.container.deduplicator
+
+
 def get_multilingual_service(request: Request):
     return request.app.state.container.multilingual_service
 

@@ -16,6 +16,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from app.core.errors import InvalidRequestIdError
+from app.core.metrics import api_metrics, normalize_route
 from app.core.request_id import (
     _REQUEST_ID_HEADER,
     get_request_id,
@@ -27,6 +28,27 @@ logger = logging.getLogger(__name__)
 
 # Headers that must never be emitted into logs/access entries.
 _SENSITIVE_HEADERS = {"authorization", "cookie", "x-api-key", "proxy-authorization"}
+
+
+class APIMetricsMiddleware(BaseHTTPMiddleware):
+    """Collect HTTP/API observability metrics using low-cardinality labels and monotonic clocks."""
+
+    async def dispatch(self, request: Request, call_next):
+        method = request.method
+        start_time = time.perf_counter()
+        try:
+            response = await call_next(request)
+            duration_seconds = time.perf_counter() - start_time
+            route = normalize_route(request)
+            api_metrics.record_request(method, route)
+            api_metrics.record_response(method, route, response.status_code, duration_seconds)
+            return response
+        except Exception:
+            duration_seconds = time.perf_counter() - start_time
+            route = normalize_route(request)
+            api_metrics.record_request(method, route)
+            api_metrics.record_response(method, route, 500, duration_seconds)
+            raise
 
 
 class RequestIDMiddleware(BaseHTTPMiddleware):

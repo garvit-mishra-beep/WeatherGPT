@@ -12,6 +12,8 @@ from app.adapters.errors import (
     ProviderUnavailableError,
     ProviderValidationError,
 )
+from app.adapters.circuit_breaker import CircuitBreaker
+from app.adapters.http_executor import ResilientHTTPExecutor
 from app.adapters.models import (
     NormalizedWeatherForecastPayload,
     NormalizedWeatherObservation,
@@ -34,9 +36,22 @@ class OpenMeteoProvider(BaseWeatherProvider):
         self,
         settings: Optional[Settings] = None,
         http_client: Optional[httpx.AsyncClient] = None,
+        circuit_breaker: Optional[CircuitBreaker] = None,
     ) -> None:
         self.settings = settings or default_settings
         self._http_client = http_client
+        self.circuit_breaker = circuit_breaker or CircuitBreaker(
+            name="open_meteo",
+            failure_threshold=self.settings.provider_circuit_failure_threshold,
+            recovery_timeout=self.settings.provider_circuit_recovery_seconds,
+        )
+        self.executor = ResilientHTTPExecutor(
+            provider_name="open_meteo",
+            circuit_breaker=self.circuit_breaker,
+            timeout_seconds=self.settings.provider_timeout_seconds,
+            max_retries=self.settings.provider_max_retries,
+            retry_base_delay=self.settings.provider_retry_base_delay_seconds,
+        )
 
     @property
     def name(self) -> str:
@@ -47,61 +62,35 @@ class OpenMeteoProvider(BaseWeatherProvider):
         return ProviderAuthority.SECONDARY
 
     async def _get_client(self) -> httpx.AsyncClient:
-        if self._http_client is None or self._http_client.is_closed:
+        if self._http_client is None or getattr(self._http_client, "is_closed", False) is True:
             self._http_client = httpx.AsyncClient(
-                timeout=httpx.Timeout(self.settings.weather_provider_timeout_seconds),
+                timeout=httpx.Timeout(self.settings.provider_timeout_seconds),
                 headers={"User-Agent": "WeatherGPT-OpenMeteo-Adapter/1.0"},
             )
         return self._http_client
 
-    async def _fetch_with_retries(self, url: str, params: dict) -> dict:
-        """Fetch JSON from provider with exponential backoff on transient 429/5xx errors."""
+    async def _fetch_with_retries(self, url: str, params: dict, operation: str = "forecast") -> dict:
+        """Fetch JSON from provider using ResilientHTTPExecutor."""
         client = await self._get_client()
-        retries = self.settings.weather_provider_retries
-        backoff = 0.5
-
-        for attempt in range(retries + 1):
-            try:
-                response = await client.get(url, params=params)
-                if response.status_code == 200:
-                    return response.json()
-                elif response.status_code in (429, 500, 502, 503, 504) and attempt < retries:
-                    logger.warning(
-                        "Transient error %d from Open-Meteo on attempt %d/%d; retrying in %.2fs",
-                        response.status_code,
-                        attempt + 1,
-                        retries,
-                        backoff,
-                    )
-                    await asyncio.sleep(backoff)
-                    backoff *= 2.0
-                    continue
-                else:
-                    raise ProviderResponseError(
-                        f"Open-Meteo returned HTTP {response.status_code}: {response.text[:200]}",
-                        provider=self.name,
-                        details={"status_code": response.status_code, "url": str(response.url)},
-                    )
-            except httpx.TimeoutException as e:
-                if attempt < retries:
-                    await asyncio.sleep(backoff)
-                    backoff *= 2.0
-                    continue
-                raise ProviderTimeoutError(
-                    f"Timeout connecting to Open-Meteo ({self.settings.weather_provider_timeout_seconds}s): {e}",
-                    provider=self.name,
-                ) from e
-            except httpx.NetworkError as e:
-                if attempt < retries:
-                    await asyncio.sleep(backoff)
-                    backoff *= 2.0
-                    continue
-                raise ProviderUnavailableError(
-                    f"Network error reaching Open-Meteo: {e}",
-                    provider=self.name,
-                ) from e
-
-        raise ProviderUnavailableError("Exhausted retries connecting to Open-Meteo", provider=self.name)
+        response = await self.executor.execute_request(
+            client=client,
+            method="GET",
+            url=url,
+            operation=operation,
+            params=params,
+        )
+        try:
+            raw = response.json()
+            if asyncio.iscoroutine(raw):
+                raw = await raw
+            if not isinstance(raw, dict):
+                raise ValueError(f"Expected dict response, got {type(raw)}")
+            return raw
+        except Exception as e:
+            raise ProviderValidationError(
+                f"Failed to parse JSON response from Open-Meteo: {e}",
+                provider=self.name,
+            ) from e
 
     async def get_current_weather(
         self,

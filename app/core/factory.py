@@ -24,7 +24,8 @@ from app.config import Settings, settings as default_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.lifespan import backend_lifespan
-from app.core.middleware import RequestContextLoggingMiddleware, RequestIDMiddleware
+from app.core.middleware import APIMetricsMiddleware, RequestContextLoggingMiddleware, RequestIDMiddleware
+from app.core.rate_limit import RateLimitMiddleware, default_rate_limiter
 from app.dependencies.container import AppContainer
 
 logger = logging.getLogger(__name__)
@@ -111,11 +112,15 @@ def create_app(
     app.state.container = container
 
     from app.core.readiness import ApplicationProbe, ReadinessChecker
+    from app.core.rate_limit import SlidingWindowRateLimiter
     readiness = ReadinessChecker()
     readiness.register(ApplicationProbe())
     app.state.readiness = readiness
+    app.state.rate_limiter = SlidingWindowRateLimiter(settings=cfg)
 
-    # --- Middleware (request-ID outermost, then access logging, then CORS) ---
+    # --- Middleware (request-ID outermost, then access logging, then API metrics, then rate limiting, then CORS) ---
+    app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(APIMetricsMiddleware)
     app.add_middleware(RequestContextLoggingMiddleware)
     app.add_middleware(RequestIDMiddleware)
 

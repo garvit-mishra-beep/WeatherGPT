@@ -4,6 +4,8 @@ import logging
 from typing import List, Optional
 import httpx
 
+from app.adapters.circuit_breaker import CircuitBreaker
+from app.adapters.http_executor import ResilientHTTPExecutor
 from app.adapters.base import BaseWarningProvider
 from app.adapters.errors import (
     CAPParseError,
@@ -25,9 +27,22 @@ class IMDWarningProvider(BaseWarningProvider):
         self,
         settings: Optional[Settings] = None,
         http_client: Optional[httpx.AsyncClient] = None,
+        circuit_breaker: Optional[CircuitBreaker] = None,
     ) -> None:
         self.settings = settings or default_settings
         self._http_client = http_client
+        self.circuit_breaker = circuit_breaker or CircuitBreaker(
+            name="imd_cap",
+            failure_threshold=self.settings.provider_circuit_failure_threshold,
+            recovery_timeout=self.settings.provider_circuit_recovery_seconds,
+        )
+        self.executor = ResilientHTTPExecutor(
+            provider_name="imd_cap",
+            circuit_breaker=self.circuit_breaker,
+            timeout_seconds=self.settings.imd_timeout_seconds,
+            max_retries=self.settings.provider_max_retries,
+            retry_base_delay=self.settings.provider_retry_base_delay_seconds,
+        )
 
     @property
     def name(self) -> str:
@@ -38,7 +53,7 @@ class IMDWarningProvider(BaseWarningProvider):
         return ProviderAuthority.OFFICIAL
 
     async def _get_client(self) -> httpx.AsyncClient:
-        if self._http_client is None or self._http_client.is_closed:
+        if self._http_client is None or getattr(self._http_client, "is_closed", False) is True:
             self._http_client = httpx.AsyncClient(
                 timeout=httpx.Timeout(self.settings.imd_timeout_seconds),
                 headers={
@@ -59,39 +74,25 @@ class IMDWarningProvider(BaseWarningProvider):
         url = self.settings.imd_cap_url
         client = await self._get_client()
 
+        headers = {}
+        if self.settings.imd_api_key:
+            headers["Authorization"] = f"Bearer {self.settings.imd_api_key}"
+
+        response = await self.executor.execute_request(
+            client=client,
+            method="GET",
+            url=url,
+            operation="cap_alerts",
+            headers=headers,
+        )
+
         try:
-            headers = {}
-            if self.settings.imd_api_key:
-                headers["Authorization"] = f"Bearer {self.settings.imd_api_key}"
-
-            response = await client.get(url, headers=headers)
-            if response.status_code != 200:
-                raise ProviderResponseError(
-                    f"IMD CAP feed returned status {response.status_code}",
-                    provider=self.name,
-                    details={"status_code": response.status_code, "url": url},
-                )
-
             raw_xml = response.text
             all_alerts = parse_cap_xml(raw_xml)
-
-        except httpx.TimeoutException as e:
-            raise ProviderTimeoutError(
-                f"Timeout connecting to IMD CAP endpoint ({self.settings.imd_timeout_seconds}s): {e}",
-                provider=self.name,
-            ) from e
-        except (httpx.NetworkError, httpx.ConnectError) as e:
-            raise ProviderUnavailableError(
-                f"Unable to connect to IMD CAP endpoint: {e}",
-                provider=self.name,
-            ) from e
-        except (CAPParseError, ProviderResponseError):
+        except CAPParseError:
             raise
         except Exception as e:
-            raise ProviderUnavailableError(
-                f"Unexpected error fetching IMD CAP warnings: {e}",
-                provider=self.name,
-            ) from e
+            raise CAPParseError(f"Failed to parse IMD CAP XML: {e}", provider=self.name) from e
 
         # Filter by district/state if specified
         if district_name:

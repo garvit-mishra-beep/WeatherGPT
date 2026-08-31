@@ -1,55 +1,57 @@
 # Geographic Information System (GIS) & Spatial Engine (`app/gis/`)
 
-## 1. Purpose
-The `app/gis/` package provides the administrative geography foundation and deterministic spatial computational engine for WeatherGPT:
+<div align="center">
 
-$$\text{India (Country)} \longrightarrow \text{State / UT} \longrightarrow \text{District} \longrightarrow \text{SubDistrict (Tehsil)}$$
+[![PostGIS](https://img.shields.io/badge/PostGIS-3.4-5B8A3C.svg?style=flat-square&logo=postgis&logoColor=white)](https://postgis.net/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.0-336791.svg?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![GeoJSON](https://img.shields.io/badge/GeoJSON-RFC%207946-000000.svg?style=flat-square)](https://datatracker.ietf.org/doc/html/rfc7946)
+[![Spatial Tests](https://img.shields.io/badge/Spatial%20Tests-35%20Passing-brightgreen.svg?style=flat-square&logo=pytest&logoColor=white)](../../tests/)
 
-All spatial columns are stored as PostGIS `MultiPolygon` in **EPSG:4326** (WGS84) with GiST spatial indexes enabling $<5\text{ ms}$ point-in-polygon resolution (`ST_Covers`).
+**Deterministic PostGIS Spatial Containment, Geodesic Intersections & Map Specification Engine**
+
+</div>
+
+---
+
+## 1. Purpose & Administrative Topology
+
+The `app/gis/` package provides the spatial foundation for WeatherGPT, maintaining a strict topological representation of India's administrative boundaries in PostGIS:
+
+$$\text{India (Country)} \longrightarrow \text{State / UT (28 + 8)} \longrightarrow \text{District (788)} \longrightarrow \text{SubDistrict (Tehsils)}$$
+
+All spatial columns are stored as PostGIS `MultiPolygon` in **EPSG:4326** (WGS84) with GiST spatial indexes enabling sub-5ms point-in-polygon resolution (`ST_Covers`).
+
+---
 
 ## 2. Package Architecture
+
 ```text
 app/gis/
 ├── __init__.py                # Package exports (SpatialEngine, AdministrativeBoundaryService)
-├── README.md                  # This documentation
-├── spatial/                   # (B4) Deterministic Spatial Engine
-│   ├── __init__.py            # Engine, types, validation & error exports
+├── spatial/                   # Pure PostGIS Spatial Computational Engine
 │   ├── engine.py              # SpatialEngine class (resolve_point, intersect, nearby, bbox)
 │   ├── queries.py             # PostGIS query builders (ST_Covers, ST_Intersects, ST_DWithin, ST_MakeEnvelope)
 │   ├── types.py               # Pydantic v2 spatial contracts
-│   ├── validation.py          # Coordinate, GeoJSON geometry & bounding-box validation
-│   └── errors.py              # Spatial error taxonomy
-├── schemas/                   # (B3) Pydantic schemas (AdminLevel, BoundarySummary, HierarchyResolutionResult)
-├── repositories/              # (B3) Country, State, District, SubDistrict base repositories
-├── services/                  # (B3) AdministrativeBoundaryService
-├── ingestion/                 # (B3) GeoJSON boundary ingester & validators
-├── analysis/                  # (B7) Hazard characterization, exposure, vulnerability, and composite risk scoring
-└── map/                       # (B8) Map-Ready Declarative Map Specifications and mobile GeoJSON generation
+│   └── validation.py          # Coordinate, GeoJSON geometry & bounding-box validation
+├── analysis/                  # Deterministic Hazard, Exposure & Vulnerability Scoring (HEV Model)
+│   ├── engine.py              # GISAnalysisEngine
+│   ├── exposure.py            # PostGIS spatial exposure calculator
+│   └── hazard.py              # Compounding multi-hazard index calculator
+├── map/                       # Map-Ready Data & Mobile Declarative Map Specifications
+│   ├── engine.py              # MapSpecificationEngine
+│   ├── geojson.py             # RFC 7946 GeoJSON generator with [lon, lat] ordering
+│   └── simplify.py            # Douglas-Peucker geometry decimation (<500 KB)
+├── repositories/              # Country, State, District, SubDistrict async repositories
+├── services/                  # AdministrativeBoundaryService
+└── ingestion/                 # Idempotent GeoJSON administrative boundary ingester
 ```
 
-## 3. Data Models (`app/db/models/boundaries.py`)
-| Model | Table | Level | Primary Key | Foreign Key | Spatial Column |
-| :--- | :--- | :---: | :--- | :--- | :--- |
-| `SpatialCountry` | `spatial_countries` | Level 0 | `country_code` (e.g. `'IN'`) | — | `geom` (MultiPolygon, 4326) |
-| `SpatialState` | `spatial_states` | Level 1 | `state_code` (e.g. `'IN-GJ'`) | `country_code` $\to$ `spatial_countries` | `geom` (MultiPolygon, 4326) |
-| `SpatialDistrict` | `spatial_districts` | Level 2 | `district_code` (e.g. `'IN-GJ-24'`) | `state_code` $\to$ `spatial_states` | `geom` (MultiPolygon, 4326) |
-| `SpatialSubDistrict`| `spatial_subdistricts`| Level 3 | `subdistrict_code` (e.g. `'IN-GJ-24-001'`)| `district_code` $\to$ `spatial_districts` | `geom` (MultiPolygon, 4326) |
+---
 
-## 4. Deterministic Spatial Engine Capabilities (`app/gis/spatial/`)
-- **Point Containment (`resolve_point`)**: Resolves lat/lon point across administrative tiers via PostGIS `ST_Covers`.
-- **Polygon / MultiPolygon Intersections (`find_intersections`)**: Computes overlapping area ($\text{km}^2$) and percentage overlap with bounding-box index pre-filtering (`&&`) and `ST_Intersection`.
-- **Geodesic Proximity (`find_nearby`)**: Nearest administrative boundaries within distance threshold via PostGIS `ST_DWithin` and `ST_Distance` on `geography`.
-- **Spatial Envelope Queries (`query_bbox`)**: Rectangle bounding-box filtering via PostGIS `ST_MakeEnvelope`.
-- **Boundary Lookup (`lookup_boundary`)**: Direct code-based boundary metadata retrieval.
+## 3. Spatial Capabilities
 
-## 5. Direct / Native PostgreSQL Setup (No Docker required)
-Set `DATABASE_URL` to your native PostgreSQL + PostGIS instance:
-```powershell
-$env:DATABASE_URL="postgresql://postgres:password@localhost:5433/weathergpt"
-alembic upgrade head
-```
-
-## 6. Testing
-- `tests/test_spatial_engine.py`: Unit and live PostGIS integration tests for point containment, polygon intersection, proximity, and bounding boxes.
-- `tests/test_gis_boundaries.py`: Unit tests for boundary models, schemas, and serialization.
-- `tests/test_gis_integration.py`: Live PostGIS integration tests for boundary ingestion and foreign keys.
+- **Point Reverse Geocoding (`resolve_point`)**: Resolves coordinates into Country $\to$ State $\to$ District $\to$ SubDistrict hierarchy using `ST_Covers`.
+- **Warning Polygon Intersections (`find_intersections`)**: Computes exposed geographic area ($\text{km}^2$) and percentage district overlap using bounding-box pre-filtering (`&&`) and `ST_Intersection`.
+- **Geodesic Proximity Queries (`find_nearby`)**: Finds neighboring districts within distance radius using `ST_DWithin` and `ST_Distance` on `geography`.
+- **Bounding Box Envelopes (`query_bbox`)**: Retrieves all boundaries intersecting a rectangular coordinate envelope using `ST_MakeEnvelope`.
+- **Declarative Map Specifications**: Emits ready-to-render styling, viewports, and decimated GeoJSON payloads for MapLibre GL and Leaflet.

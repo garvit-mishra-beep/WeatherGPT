@@ -42,6 +42,9 @@ async def backend_lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Readiness: the application probe is always registered.
     readiness = ReadinessChecker()
     readiness.register(ApplicationProbe())
+    if container.weather_manager is not None:
+        from app.core.readiness import ProviderHealthProbe
+        readiness.register(ProviderHealthProbe(weather_manager=container.weather_manager))
 
     # Database: initialize the async engine + register its probe, but only in
     # environments that actually have a database (not the offline "test" env).

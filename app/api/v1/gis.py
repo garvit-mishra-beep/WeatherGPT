@@ -67,16 +67,19 @@ async def get_point_location(
     if spatial_engine is None:
         raise HTTPException(status_code=503, detail="Spatial database engine is unavailable")
 
-    res = await spatial_engine.resolve_point(latitude=lat, longitude=lon)
-    return {
-        "latitude": lat,
-        "longitude": lon,
-        "is_resolved": res.is_resolved,
-        "country": res.country.model_dump() if res.country else None,
-        "state": res.state.model_dump() if res.state else None,
-        "district": res.district.model_dump() if res.district else None,
-        "subdistrict": res.subdistrict.model_dump() if res.subdistrict else None,
-    }
+    try:
+        res = await spatial_engine.resolve_point(lat=lat, lon=lon)
+        return {
+            "latitude": lat,
+            "longitude": lon,
+            "is_resolved": res.is_resolved,
+            "country": res.country.model_dump() if res.country else None,
+            "state": res.state.model_dump() if res.state else None,
+            "district": res.district.model_dump() if res.district else None,
+            "subdistrict": res.subdistrict.model_dump() if res.subdistrict else None,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Spatial database service unavailable: {str(exc)}")
 
 
 @router.get("/boundary/{level}/{code}")

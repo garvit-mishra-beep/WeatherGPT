@@ -25,6 +25,7 @@ from app.tools.errors import (
     ToolTimeoutError,
     UnknownToolError,
 )
+from app.tools.metrics import ToolMetricsRegistry, default_tool_metrics
 from app.tools.policies import ToolAccessPolicy
 from app.tools.registry import ToolRegistry
 
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 # Maximum allowable JSON serialized payload size returned by any tool (2 MB)
 MAX_TOOL_OUTPUT_BYTES = 2 * 1024 * 1024
+DEFAULT_MAX_BATCH_SIZE = 10
 
 # Disallowed dangerous argument keys
 _DANGEROUS_KEYS = frozenset({
@@ -61,11 +63,15 @@ class ToolGateway:
         registry: ToolRegistry,
         access_policy: Optional[ToolAccessPolicy] = None,
         default_timeout_seconds: float = 10.0,
+        max_batch_size: int = DEFAULT_MAX_BATCH_SIZE,
+        metrics: Optional[ToolMetricsRegistry] = None,
         cache: Optional[ToolResultCache] = None,
     ) -> None:
         self.registry = registry
         self.access_policy = access_policy or ToolAccessPolicy()
         self.default_timeout_seconds = default_timeout_seconds
+        self.max_batch_size = max_batch_size
+        self.metrics = metrics or default_tool_metrics
         self.cache = cache
 
     def _validate_security_and_bounds(self, tool_name: str, arguments: Dict[str, Any]) -> None:
@@ -145,6 +151,7 @@ class ToolGateway:
         brain = request.requested_by_brain
 
         start_time = time.perf_counter()
+        self.metrics.record_execution(tool_name)
 
         logger.info(
             "ToolGateway executing call '%s' (Tool: %s, Brain: %s)",
@@ -153,118 +160,130 @@ class ToolGateway:
             brain.value,
         )
 
-        # 1. Lookup tool in registry
-        tool = self.registry.get(tool_name)
-
-        # 2. Enforce Brain-to-Tool permissions
-        self.access_policy.check_access(brain, tool)
-
-        # 3. Security checks on raw arguments
-        self._validate_security_and_bounds(tool_name, request.arguments)
-
-        # 4. Secondary argument sanitization and type checking against parameter schema
-        validator = ToolCallValidator(available_tools=[tool.to_tool_schema()])
         try:
-            validator.validate_and_parse_arguments(
-                tool_name=tool_name,
-                raw_arguments=json.dumps(request.arguments),
-            )
-        except Exception as arg_err:
-            logger.warning("Gateway argument validation failed for '%s': %s", tool_name, arg_err)
-            raise ToolArgumentValidationError(
-                tool_name=tool_name,
-                reason=str(arg_err),
-            ) from arg_err
+            # 1. Lookup tool in registry
+            tool = self.registry.get(tool_name)
 
-        # 5. Cache check for deduplication
-        if self.cache is not None:
-            cached_resp = self.cache.get(request)
-            if cached_resp is not None:
-                logger.info("ToolGateway cache hit for call '%s' (Tool: %s)", call_id, tool_name)
-                return cached_resp
+            # 2. Enforce Brain-to-Tool permissions
+            self.access_policy.check_access(brain, tool)
 
-        # 6. Determine effective timeout
-        effective_timeout = min(
-            request.timeout_seconds,
-            tool.default_timeout_seconds,
-            self.default_timeout_seconds,
-        )
+            # 3. Security checks on raw arguments
+            self._validate_security_and_bounds(tool_name, request.arguments)
 
-        # 7. Execute with timeout containment
-        try:
-            raw_response = await asyncio.wait_for(
-                tool.execute(request),
-                timeout=effective_timeout,
-            )
-        except asyncio.TimeoutError as timeout_err:
-            execution_time_ms = (time.perf_counter() - start_time) * 1000.0
-            logger.error("Tool '%s' timed out after %.1fs", tool_name, effective_timeout)
-            raise ToolTimeoutError(
-                tool_name=tool_name,
-                timeout_seconds=effective_timeout,
-            ) from timeout_err
-        except ToolGatewayError:
-            raise
-        except Exception as exec_err:
-            logger.exception("Unexpected execution failure in tool '%s': %s", tool_name, exec_err)
-            raise ToolExecutionError(
-                tool_name=tool_name,
-                reason=str(exec_err),
-            ) from exec_err
+            # 4. Secondary argument sanitization and type checking against parameter schema
+            validator = ToolCallValidator(available_tools=[tool.to_tool_schema()])
+            try:
+                validator.validate_and_parse_arguments(
+                    tool_name=tool_name,
+                    raw_arguments=json.dumps(request.arguments),
+                )
+            except Exception as arg_err:
+                logger.warning("Gateway argument validation failed for '%s': %s", tool_name, arg_err)
+                raise ToolArgumentValidationError(
+                    tool_name=tool_name,
+                    reason=str(arg_err),
+                ) from arg_err
 
-        execution_time_ms = (time.perf_counter() - start_time) * 1000.0
+            # 5. Cache check for deduplication
+            if self.cache is not None:
+                cached_resp = self.cache.get(request)
+                if cached_resp is not None:
+                    logger.info("ToolGateway cache hit for call '%s' (Tool: %s)", call_id, tool_name)
+                    return cached_resp
 
-        # 8. Validate output structure
-        if not isinstance(raw_response, ToolCallResponse):
-            raise ToolResultValidationError(
-                tool_name=tool_name,
-                reason=f"Expected ToolCallResponse, got {type(raw_response).__name__}",
+            # 6. Determine effective timeout
+            effective_timeout = min(
+                request.timeout_seconds,
+                tool.default_timeout_seconds,
+                self.default_timeout_seconds,
             )
 
-        if raw_response.call_id != call_id or raw_response.tool_name != tool_name:
-            raise ToolResultValidationError(
-                tool_name=tool_name,
-                reason=f"Mismatched call_id ('{raw_response.call_id}' != '{call_id}') or tool_name",
-            )
+            # 7. Execute with timeout containment
+            try:
+                raw_response = await asyncio.wait_for(
+                    tool.execute(request),
+                    timeout=effective_timeout,
+                )
+            except asyncio.TimeoutError as timeout_err:
+                duration_sec = time.perf_counter() - start_time
+                self.metrics.record_latency(tool_name, duration_sec)
+                self.metrics.record_failure(tool_name, "timeout")
+                logger.error("Tool '%s' timed out after %.1fs", tool_name, effective_timeout)
+                raise ToolTimeoutError(
+                    tool_name=tool_name,
+                    timeout_seconds=effective_timeout,
+                ) from timeout_err
+            except ToolGatewayError:
+                raise
+            except Exception as exec_err:
+                duration_sec = time.perf_counter() - start_time
+                self.metrics.record_latency(tool_name, duration_sec)
+                self.metrics.record_failure(tool_name, "execution_error")
+                logger.exception("Unexpected execution failure in tool '%s': %s", tool_name, exec_err)
+                raise ToolExecutionError(
+                    tool_name=tool_name,
+                    reason=str(exec_err),
+                ) from exec_err
 
-        # 9. Enforce payload size limit
-        try:
-            serialized_payload = json.dumps(raw_response.data)
-            if len(serialized_payload.encode("utf-8")) > MAX_TOOL_OUTPUT_BYTES:
+            duration_sec = time.perf_counter() - start_time
+            self.metrics.record_latency(tool_name, duration_sec)
+
+            # 8. Validate output structure
+            if not isinstance(raw_response, ToolCallResponse):
                 raise ToolResultValidationError(
                     tool_name=tool_name,
-                    reason=f"Tool output size exceeds maximum allowable limit of {MAX_TOOL_OUTPUT_BYTES} bytes",
+                    reason=f"Expected ToolCallResponse, got {type(raw_response).__name__}",
                 )
-        except (TypeError, ValueError) as json_err:
-            pass
 
-        # 10. Store in cache if enabled
-        if self.cache is not None and raw_response.status == "success":
-            self.cache.set(request, raw_response)
+            if raw_response.call_id != call_id or raw_response.tool_name != tool_name:
+                raise ToolResultValidationError(
+                    tool_name=tool_name,
+                    reason=f"Mismatched call_id ('{raw_response.call_id}' != '{call_id}') or tool_name",
+                )
 
-        logger.info(
-            "ToolGateway completed '%s' (Status: %s, Time: %.1fms)",
-            call_id,
-            raw_response.status,
-            execution_time_ms,
-        )
-        return raw_response
+            # 9. Enforce payload size limit
+            try:
+                serialized_payload = json.dumps(raw_response.data)
+                if len(serialized_payload.encode("utf-8")) > MAX_TOOL_OUTPUT_BYTES:
+                    raise ToolResultValidationError(
+                        tool_name=tool_name,
+                        reason=f"Tool output size exceeds maximum allowable limit of {MAX_TOOL_OUTPUT_BYTES} bytes",
+                    )
+            except (TypeError, ValueError):
+                pass
+
+            # 10. Store in cache if enabled
+            if self.cache is not None and raw_response.status == "success":
+                self.cache.set(request, raw_response)
+
+            execution_time_ms = duration_sec * 1000.0
+            logger.info(
+                "ToolGateway completed '%s' (Status: %s, Time: %.1fms)",
+                call_id,
+                raw_response.status,
+                execution_time_ms,
+            )
+            return raw_response
+
+        except Exception as e:
+            if not isinstance(e, (asyncio.TimeoutError, ToolExecutionError)):
+                self.metrics.record_failure(tool_name, type(e).__name__)
+            raise
 
     async def execute_multiple(
         self,
         requests: List[ToolCallRequest],
         isolate_failures: bool = True,
     ) -> List[ToolCallResponse]:
-        """Executes multiple ToolCallRequests concurrently with error isolation.
+        """Executes multiple ToolCallRequests concurrently with error isolation and batch size limit."""
+        if len(requests) > self.max_batch_size:
+            logger.warning(
+                "Requested tool call batch size (%d) exceeds max_batch_size (%d); truncating",
+                len(requests),
+                self.max_batch_size,
+            )
+            requests = requests[:self.max_batch_size]
 
-        Args:
-            requests: List of ToolCallRequest items.
-            isolate_failures: If True, individual tool failures produce error ToolCallResponses
-                             rather than aborting the entire batch.
-
-        Returns:
-            List[ToolCallResponse]: Results in exact deterministic order corresponding to requests.
-        """
         async def _safe_execute(req: ToolCallRequest) -> ToolCallResponse:
             try:
                 return await self.execute(req)

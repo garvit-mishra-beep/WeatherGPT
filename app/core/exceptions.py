@@ -37,6 +37,9 @@ logger = logging.getLogger(__name__)
 _ERROR_URI_BASE = "https://weathergpt.in/errors"
 
 
+_RETRYABLE_STATUSES = frozenset({408, 429, 502, 503, 504})
+
+
 def _http_status_phrase(status_code: int) -> str:
     from http import HTTPStatus
 
@@ -53,9 +56,13 @@ def _build_problem(
     detail: str,
     error_code: Optional[str],
     request: Request,
+    retryable: Optional[bool] = None,
     extra: Optional[Dict[str, Any]] = None,
 ) -> JSONResponse:
     extra = extra or {}
+    is_retryable = retryable if retryable is not None else (status in _RETRYABLE_STATUSES)
+    req_id = get_request_id()
+
     problem = ProblemDetailRFC7807(
         type=f"{_ERROR_URI_BASE}/{error_code if error_code else 'GENERIC_ERROR'}",
         title=title,
@@ -63,6 +70,8 @@ def _build_problem(
         detail=detail,
         instance=str(request.url.path) if request else None,
         error_code=error_code,
+        request_id=req_id,
+        retryable=is_retryable,
         timestamp=datetime.now(timezone.utc).isoformat(),
     )
     payload = problem.model_dump(exclude_none=True)
@@ -80,7 +89,6 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(BackendError)
     async def _backend_error_handler(request: Request, exc: BackendError) -> JSONResponse:
-        # Log internally with full context; never leak tracebacks to the client.
         logger.error(
             "Backend error (request_id=%s, error_code=%s, status=%d): %s",
             get_request_id(),
@@ -97,10 +105,20 @@ def register_exception_handlers(app: FastAPI) -> None:
             extra=exc.extra or None,
         )
 
-    from app.brains.errors import BrainError, BrainNotFoundError
+    from app.brains.errors import BrainError, BrainNotFoundError, BrainExecutionError
     from app.router.errors import RouterError
     from app.adapters.errors import AdapterError, ProviderUnavailableError, ProviderTimeoutError
     from app.grounding.errors import GroundingError
+    from app.llm.types import LLMProviderError, LLMTimeoutError
+    from app.tools.errors import (
+        ToolArgumentValidationError,
+        ToolAuthorizationError,
+        ToolExecutionError,
+        ToolGatewayError,
+        ToolSecurityError,
+        ToolTimeoutError,
+        UnknownToolError,
+    )
 
     @app.exception_handler(BrainNotFoundError)
     async def _brain_not_found_handler(request: Request, exc: BrainNotFoundError) -> JSONResponse:
@@ -110,6 +128,20 @@ def register_exception_handlers(app: FastAPI) -> None:
             detail=exc.message,
             error_code=exc.error_code,
             request=request,
+            retryable=False,
+            extra=exc.details,
+        )
+
+    @app.exception_handler(BrainExecutionError)
+    async def _brain_execution_error_handler(request: Request, exc: BrainExecutionError) -> JSONResponse:
+        logger.error("Brain execution error (request_id=%s): %s", get_request_id(), exc.message)
+        return _build_problem(
+            title="Brain Execution Error",
+            status=500,
+            detail=exc.message,
+            error_code=exc.error_code,
+            request=request,
+            retryable=False,
             extra=exc.details,
         )
 
@@ -122,6 +154,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             detail=exc.message,
             error_code=exc.error_code,
             request=request,
+            retryable=False,
             extra=exc.details,
         )
 
@@ -131,9 +164,77 @@ def register_exception_handlers(app: FastAPI) -> None:
         return _build_problem(
             title="Auto Router Error",
             status=502,
-            detail=str(exc),
+            detail="Failed to classify or route query to appropriate domain intelligence brain",
             error_code="ROUTER_ERROR",
             request=request,
+            retryable=True,
+        )
+
+    @app.exception_handler(LLMTimeoutError)
+    async def _llm_timeout_handler(request: Request, exc: LLMTimeoutError) -> JSONResponse:
+        return _build_problem(
+            title="LLM Inference Timeout",
+            status=504,
+            detail="The inference server timed out processing the reasoning request",
+            error_code="LLM_TIMEOUT",
+            request=request,
+            retryable=True,
+        )
+
+    @app.exception_handler(LLMProviderError)
+    async def _llm_provider_handler(request: Request, exc: LLMProviderError) -> JSONResponse:
+        status_code = exc.status_code if exc.status_code and exc.status_code in {400, 422, 502, 503, 504} else 502
+        return _build_problem(
+            title="LLM Inference Error",
+            status=status_code,
+            detail="Inference backend is temporarily unavailable or returned an error",
+            error_code="LLM_PROVIDER_ERROR",
+            request=request,
+            retryable=(status_code in _RETRYABLE_STATUSES),
+        )
+
+    @app.exception_handler(ToolTimeoutError)
+    async def _tool_timeout_handler(request: Request, exc: ToolTimeoutError) -> JSONResponse:
+        return _build_problem(
+            title="Tool Timeout",
+            status=504,
+            detail=f"Tool '{exc.tool_name}' timed out after {exc.timeout_seconds}s",
+            error_code="TOOL_TIMEOUT",
+            request=request,
+            retryable=True,
+        )
+
+    @app.exception_handler(ToolSecurityError)
+    async def _tool_security_handler(request: Request, exc: ToolSecurityError) -> JSONResponse:
+        return _build_problem(
+            title="Tool Security Violation",
+            status=403,
+            detail=f"Security constraint violated: {exc.reason}",
+            error_code="TOOL_SECURITY_ERROR",
+            request=request,
+            retryable=False,
+        )
+
+    @app.exception_handler(ToolAuthorizationError)
+    async def _tool_auth_handler(request: Request, exc: ToolAuthorizationError) -> JSONResponse:
+        return _build_problem(
+            title="Tool Authorization Denied",
+            status=403,
+            detail=f"Brain '{exc.brain.value}' is not authorized to invoke tool '{exc.tool_name}'",
+            error_code="TOOL_UNAUTHORIZED",
+            request=request,
+            retryable=False,
+        )
+
+    @app.exception_handler(ToolArgumentValidationError)
+    async def _tool_arg_validation_handler(request: Request, exc: ToolArgumentValidationError) -> JSONResponse:
+        return _build_problem(
+            title="Tool Argument Validation Error",
+            status=422,
+            detail=f"Invalid arguments for tool '{exc.tool_name}': {exc.reason}",
+            error_code="TOOL_ARGUMENT_ERROR",
+            request=request,
+            retryable=False,
         )
 
     @app.exception_handler(ProviderTimeoutError)
@@ -141,9 +242,10 @@ def register_exception_handlers(app: FastAPI) -> None:
         return _build_problem(
             title="Provider Timeout",
             status=504,
-            detail=str(exc),
+            detail="External meteorological provider timed out",
             error_code="PROVIDER_TIMEOUT",
             request=request,
+            retryable=True,
         )
 
     @app.exception_handler(ProviderUnavailableError)
@@ -151,9 +253,10 @@ def register_exception_handlers(app: FastAPI) -> None:
         return _build_problem(
             title="Provider Unavailable",
             status=503,
-            detail=str(exc),
+            detail="Configured meteorological providers are temporarily unavailable",
             error_code="PROVIDER_UNAVAILABLE",
             request=request,
+            retryable=True,
         )
 
     @app.exception_handler(AdapterError)
@@ -161,9 +264,10 @@ def register_exception_handlers(app: FastAPI) -> None:
         return _build_problem(
             title="Weather Adapter Error",
             status=502,
-            detail=str(exc),
+            detail="Failed to retrieve or parse external weather provider payload",
             error_code="ADAPTER_ERROR",
             request=request,
+            retryable=True,
         )
 
     @app.exception_handler(GroundingError)
@@ -174,6 +278,33 @@ def register_exception_handlers(app: FastAPI) -> None:
             detail=str(exc),
             error_code="GROUNDING_ERROR",
             request=request,
+            retryable=False,
+        )
+
+    from app.gis.spatial.errors import DatabaseUnavailableError as SpatialDBUnavailable, SpatialEngineError
+
+    @app.exception_handler(SpatialDBUnavailable)
+    async def _spatial_db_unavailable_handler(request: Request, exc: SpatialDBUnavailable) -> JSONResponse:
+        return _build_problem(
+            title="Spatial Database Unavailable",
+            status=503,
+            detail="Spatial database is temporarily unavailable",
+            error_code="DATABASE_UNAVAILABLE",
+            request=request,
+            retryable=True,
+            extra=exc.details,
+        )
+
+    @app.exception_handler(SpatialEngineError)
+    async def _spatial_engine_error_handler(request: Request, exc: SpatialEngineError) -> JSONResponse:
+        return _build_problem(
+            title="Spatial Engine Error",
+            status=500,
+            detail=exc.message,
+            error_code="SPATIAL_ERROR",
+            request=request,
+            retryable=False,
+            extra=exc.details,
         )
 
     @app.exception_handler(RequestValidationError)
@@ -202,6 +333,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             detail=detail,
             error_code="VALIDATION_ERROR",
             request=request,
+            retryable=False,
             extra={"errors": errors},
         )
 
@@ -241,6 +373,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             detail=detail,
             error_code="INTERNAL_SERVER_ERROR",
             request=request,
+            retryable=False,
         )
 
 

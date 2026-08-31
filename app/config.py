@@ -87,6 +87,12 @@ class Settings(BaseSettings):
     database_echo: bool = Field(
         default=False, description="Emit SQLAlchemy SQL echo for debugging (never in production)."
     )
+    database_command_timeout: float = Field(
+        default=30.0, ge=1.0, le=300.0, description="Bounded statement timeout in seconds for PostgreSQL queries."
+    )
+    database_connect_timeout: float = Field(
+        default=10.0, ge=1.0, le=60.0, description="Connection timeout in seconds for PostgreSQL backend handshake."
+    )
     database_url_scheme: str = Field(
         default="postgresql+asyncpg",
         description="SQLAlchemy driver scheme used for the async engine URL.",
@@ -127,7 +133,86 @@ class Settings(BaseSettings):
         description="Open-Meteo secondary numerical weather endpoint",
     )
 
-    weather_provider_timeout_seconds: float = Field(default=10.0, ge=1.0, le=60.0)
+    # External Commercial & Open Weather Providers
+    openweather_base_url: str = Field(
+        default="https://api.openweathermap.org/data/2.5",
+        description="OpenWeatherMap API endpoint",
+    )
+    openweather_api_key: Optional[str] = Field(
+        default=None,
+        description="OpenWeatherMap API key (from OPENWEATHER_API_KEY env var)",
+    )
+
+    weatherapi_base_url: str = Field(
+        default="https://api.weatherapi.com/v1",
+        description="WeatherAPI.com endpoint",
+    )
+    weatherapi_api_key: Optional[str] = Field(
+        default=None,
+        description="WeatherAPI.com API key (from WEATHERAPI_API_KEY env var)",
+    )
+
+    tomorrow_base_url: str = Field(
+        default="https://api.tomorrow.io/v4",
+        description="Tomorrow.io API endpoint",
+    )
+    tomorrow_api_key: Optional[str] = Field(
+        default=None,
+        description="Tomorrow.io API key (from TOMORROW_API_KEY env var)",
+    )
+
+    # Air Quality Provider (OpenAQ v3)
+    openaq_base_url: str = Field(
+        default="https://api.openaq.org/v3",
+        description="OpenAQ air quality API endpoint",
+    )
+    openaq_api_key: Optional[str] = Field(
+        default=None,
+        description="Optional OpenAQ API key (from OPENAQ_API_KEY env var)",
+    )
+
+    # --- B13: Provider Resilience & Circuit Breaker Settings -----------------
+    provider_timeout_seconds: float = Field(
+        default=5.0, ge=1.0, le=60.0, description="Bounded timeout in seconds for external weather provider API calls"
+    )
+    provider_max_retries: int = Field(
+        default=2, ge=0, le=5, description="Max retry attempts for transient provider failures"
+    )
+    provider_retry_base_delay_seconds: float = Field(
+        default=0.5, ge=0.01, le=10.0, description="Base exponential backoff delay in seconds for provider retries"
+    )
+    provider_circuit_failure_threshold: int = Field(
+        default=5, ge=1, le=50, description="Consecutive failure threshold to open provider circuit breaker"
+    )
+    provider_circuit_recovery_seconds: float = Field(
+        default=30.0, ge=0.05, le=300.0, description="Cooldown recovery window in seconds before half-open probe"
+    )
+
+    # --- B13.9: API Rate Limiting Settings -----------------------------------
+    rate_limit_enabled: bool = Field(
+        default=True, description="Enable application-level sliding window rate limiting"
+    )
+    rate_limit_default_requests: int = Field(
+        default=60, ge=1, description="Default max requests per minute per IP"
+    )
+    rate_limit_chat_requests: int = Field(
+        default=20, ge=1, description="Max chat requests per minute per IP"
+    )
+    rate_limit_weather_requests: int = Field(
+        default=60, ge=1, description="Max weather requests per minute per IP"
+    )
+    rate_limit_nwp_requests: int = Field(
+        default=30, ge=1, description="Max NWP requests per minute per IP"
+    )
+    rate_limit_gis_requests: int = Field(
+        default=60, ge=1, description="Max GIS requests per minute per IP"
+    )
+    rate_limit_window_seconds: float = Field(
+        default=60.0, ge=1.0, le=3600.0, description="Rate limit sliding window in seconds"
+    )
+
+    # Legacy compatibility aliases
+    weather_provider_timeout_seconds: float = Field(default=5.0, ge=1.0, le=60.0)
     weather_provider_retries: int = Field(default=2, ge=0, le=5)
 
     @field_validator("cors_origins", mode="before")

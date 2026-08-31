@@ -65,3 +65,22 @@ desktop.ini
 *.log
 *.sqlite
 *.db
+
+# Android Build & Local Configuration
+.gradle/
+build/
+android/.gradle/
+android/app/build/
+android/local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Temporary Screenshots
+WhatsApp Image*
+*.png.tmp
+

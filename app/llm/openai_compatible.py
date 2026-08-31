@@ -1,12 +1,13 @@
-"""OpenAI-Compatible LLM Provider implementation for vLLM, Ollama, and remote gateways."""
-
+import asyncio
 import json
 import logging
+import time
 from typing import Any, Dict, List, Optional, Type, TypeVar
 import httpx
 from pydantic import BaseModel, ValidationError
 
 from app.llm.base import LLMProvider
+from app.llm.metrics import LLMMetricsRegistry, default_llm_metrics
 from app.llm.types import (
     ChatMessage,
     FunctionCall,
@@ -20,6 +21,9 @@ from app.llm.types import (
 
 logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=BaseModel)
+
+# HTTP status codes eligible for conservative automatic retry
+_RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
 
 
 class OpenAICompatibleProvider(LLMProvider):
@@ -39,6 +43,9 @@ class OpenAICompatibleProvider(LLMProvider):
         default_temperature: float = 0.1,
         default_max_tokens: int = 1024,
         timeout_seconds: float = 30.0,
+        max_retries: int = 2,
+        retry_delay_seconds: float = 0.5,
+        metrics: Optional[LLMMetricsRegistry] = None,
         http_client: Optional[httpx.AsyncClient] = None,
     ):
         self.base_url = base_url.rstrip("/")
@@ -47,6 +54,9 @@ class OpenAICompatibleProvider(LLMProvider):
         self.default_temperature = default_temperature
         self.default_max_tokens = default_max_tokens
         self.timeout_seconds = timeout_seconds
+        self.max_retries = max_retries
+        self.retry_delay_seconds = retry_delay_seconds
+        self.metrics = metrics or default_llm_metrics
         self._external_client = http_client is not None
         self._client = http_client or httpx.AsyncClient(
             timeout=httpx.Timeout(self.timeout_seconds),
@@ -60,6 +70,8 @@ class OpenAICompatibleProvider(LLMProvider):
         return headers
 
     async def _get_client(self) -> httpx.AsyncClient:
+        if self._external_client and self._client is not None:
+            return self._client
         if self._client is not None and not self._client.is_closed:
             return self._client
         self._client = httpx.AsyncClient(
@@ -80,7 +92,7 @@ class OpenAICompatibleProvider(LLMProvider):
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
     ) -> LLMResponse:
-        """Execute chat completion request against the OpenAI-compatible endpoint."""
+        """Execute chat completion request against the OpenAI-compatible endpoint with conservative retry."""
         url = f"{self.base_url}/chat/completions"
         payload: Dict[str, Any] = {
             "model": self.model_name,
@@ -94,31 +106,79 @@ class OpenAICompatibleProvider(LLMProvider):
             payload["tool_choice"] = "auto"
 
         client = await self._get_client()
+        self.metrics.record_request(self.model_name)
 
-        try:
-            response = await client.post(url, headers=self._get_headers(), json=payload)
-            if response.status_code != 200:
+        last_exception: Optional[Exception] = None
+        attempt = 0
+        max_attempts = 1 + max(0, self.max_retries)
+
+        while attempt < max_attempts:
+            attempt += 1
+            start_t = time.perf_counter()
+            try:
+                response = await client.post(url, headers=self._get_headers(), json=payload)
+                duration = time.perf_counter() - start_t
+                self.metrics.record_latency(self.model_name, duration)
+
+                if response.status_code == 200:
+                    data = response.json()
+                    return self._parse_completion_response(data)
+
+                # Check if transient error eligible for retry
+                if response.status_code in _RETRYABLE_STATUS_CODES and attempt < max_attempts:
+                    self.metrics.record_retry(self.model_name)
+                    logger.warning(
+                        "Transient inference server error (%d) on attempt %d/%d; retrying...",
+                        response.status_code,
+                        attempt,
+                        max_attempts,
+                    )
+                    await asyncio.sleep(self.retry_delay_seconds * (2 ** (attempt - 1)))
+                    continue
+
+                # Permanent client error (400, 401, 403, 404, 422) or retry exhausted
+                self.metrics.record_failure(self.model_name, f"http_{response.status_code}")
                 raise LLMProviderError(
                     message=f"Inference server error ({response.status_code}): {response.text}",
                     status_code=response.status_code,
                     details={"response_text": response.text, "model": self.model_name},
                 )
 
-            data = response.json()
-            return self._parse_completion_response(data)
+            except httpx.TimeoutException as exc:
+                duration = time.perf_counter() - start_t
+                self.metrics.record_latency(self.model_name, duration)
+                last_exception = exc
+                if attempt < max_attempts:
+                    self.metrics.record_retry(self.model_name)
+                    logger.warning("LLM request timed out on attempt %d/%d; retrying...", attempt, max_attempts)
+                    await asyncio.sleep(self.retry_delay_seconds * (2 ** (attempt - 1)))
+                    continue
+                self.metrics.record_failure(self.model_name, "timeout")
+                logger.error("Timeout during LLM completion to %s: %s", url, exc)
+                raise LLMTimeoutError(
+                    f"LLM request timed out after {self.timeout_seconds} seconds",
+                    status_code=504,
+                ) from exc
 
-        except httpx.TimeoutException as exc:
-            logger.error("Timeout during LLM completion to %s: %s", url, exc)
-            raise LLMTimeoutError(
-                f"LLM request timed out after {self.timeout_seconds} seconds",
-                status_code=504,
-            ) from exc
-        except httpx.RequestError as exc:
-            logger.error("Connection error to LLM server %s: %s", url, exc)
-            raise LLMProviderError(
-                f"Failed to connect to LLM server at {url}: {str(exc)}",
-                status_code=503,
-            ) from exc
+            except httpx.RequestError as exc:
+                duration = time.perf_counter() - start_t
+                self.metrics.record_latency(self.model_name, duration)
+                last_exception = exc
+                if attempt < max_attempts:
+                    self.metrics.record_retry(self.model_name)
+                    logger.warning("Connection error to LLM server on attempt %d/%d; retrying...", attempt, max_attempts)
+                    await asyncio.sleep(self.retry_delay_seconds * (2 ** (attempt - 1)))
+                    continue
+                self.metrics.record_failure(self.model_name, "connection_error")
+                logger.error("Connection error to LLM server %s: %s", url, exc)
+                raise LLMProviderError(
+                    f"Failed to connect to LLM server at {url}: {str(exc)}",
+                    status_code=503,
+                ) from exc
+
+        if last_exception:
+            raise last_exception
+        raise LLMProviderError("LLM inference failed after retry exhaustion")
 
     def _parse_completion_response(self, data: Dict[str, Any]) -> LLMResponse:
         """Parse raw response JSON into typed LLMResponse."""

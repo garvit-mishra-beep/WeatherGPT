@@ -21,6 +21,8 @@ from app.brains.registry import BrainRegistry
 from app.brains.resolver import BrainResolver
 from app.brains.researcher import ResearcherBrain
 from app.brains.analyst import AnalystBrain
+from app.cache.deduplicator import RequestDeduplicator, default_deduplicator
+from app.cache.service import CacheService
 from app.config import Settings, settings as default_settings
 from app.context.manager import ContextManager
 from app.db.service import DatabaseService
@@ -57,6 +59,8 @@ class AppContainer:
     context_manager: Optional[ContextManager] = None
     grounding_service: Optional[GroundingService] = None
     database_service: Optional[DatabaseService] = None
+    cache_service: Optional[CacheService] = None
+    deduplicator: Optional[RequestDeduplicator] = None
     weather_manager: Optional[WeatherProviderManager] = None
     multilingual_service: Optional[MultilingualService] = None
     auto_router: Optional[LLMAutoRouter] = None
@@ -67,8 +71,18 @@ class AppContainer:
 
     def build(self) -> "AppContainer":
         """Deterministically construct all real service boundaries."""
+        if self.cache_service is None:
+            self.cache_service = CacheService()
+
+        if self.deduplicator is None:
+            self.deduplicator = default_deduplicator
+
         if self.weather_manager is None:
-            self.weather_manager = WeatherProviderManager(settings=self.settings)
+            self.weather_manager = WeatherProviderManager(
+                settings=self.settings,
+                cache=self.cache_service,
+                deduplicator=self.deduplicator,
+            )
 
         if self.llm_provider is None:
             self.llm_provider = get_llm_provider(self.settings)
@@ -85,8 +99,9 @@ class AppContainer:
 
         if self.spatial_engine is None:
             from app.gis.spatial.engine import SpatialEngine
-            session_factory = getattr(self.database_service, "session_factory", None)
-            self.spatial_engine = SpatialEngine(session_factory=session_factory)
+            self.spatial_engine = SpatialEngine(
+                session_factory=lambda: getattr(self.database_service, "session_factory", None)
+            )
 
         if self.nwp_engine is None:
             from app.nwp.engine import NWPEngine
