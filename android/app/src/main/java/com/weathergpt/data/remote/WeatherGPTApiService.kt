@@ -150,6 +150,13 @@ interface WeatherGPTApiService {
         @Query("lead_hours") leadHours: Int = 24
     ): GFSGridPointResponseDto
 
+    @GET("api/v1/nwp/wrf")
+    suspend fun getWRFGridPoint(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("lead_hours") leadHours: Int = 24
+    ): com.weathergpt.data.remote.dto.nwp.WRFGridPointResponseDto
+
     @GET("api/v1/nwp/comparison")
     suspend fun getNWPModelComparison(
         @Query("lat") latitude: Double,

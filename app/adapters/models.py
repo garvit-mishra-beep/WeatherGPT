@@ -197,11 +197,13 @@ class NormalizedNWPGridPoint(BaseModel):
     wind_gust_kmh: Optional[float] = Field(default=None, ge=0.0)
     pressure_msl_hpa: float
     total_cloud_cover_pct: float = Field(ge=0.0, le=100.0)
+    cape_jkg: Optional[float] = Field(default=None, ge=0.0, description="Convective Available Potential Energy (J/kg)")
 
-    # Grid Specs
+    # Grid Specs & Status
     grid_resolution_deg: float = Field(default=0.25)
     provider: str = Field(default="NOAA / NCEP")
     quality: ProviderQuality = Field(default=ProviderQuality.VALID)
+    status_message: Optional[str] = Field(default=None, description="Detailed availability or data stream status message")
 
     model_config = ConfigDict(frozen=True)
 

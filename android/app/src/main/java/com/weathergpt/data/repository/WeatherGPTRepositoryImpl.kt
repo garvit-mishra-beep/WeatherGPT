@@ -283,6 +283,14 @@ class WeatherGPTRepositoryImpl(
         apiService.getGFSGridPoint(latitude, longitude, leadHours).toDomain()
     }
 
+    override suspend fun getWRFGridPoint(
+        latitude: Double,
+        longitude: Double,
+        leadHours: Int
+    ): ResultState<NWPGridPoint> = safeApiCall(isIdempotent = true) {
+        apiService.getWRFGridPoint(latitude, longitude, leadHours).toDomain()
+    }
+
     override suspend fun getNWPModelComparison(
         latitude: Double,
         longitude: Double,

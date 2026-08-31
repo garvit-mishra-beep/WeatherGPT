@@ -25,6 +25,7 @@ data class DataScreenUiState(
     val latitude: Double = 28.6139,
     val longitude: Double = 77.2090,
     val gfsGridState: ResultState<NWPGridPoint> = ResultState.Idle,
+    val wrfGridState: ResultState<NWPGridPoint> = ResultState.Idle,
     val nwpComparisonState: ResultState<NWPModelComparison> = ResultState.Idle
 )
 
@@ -55,10 +56,12 @@ class DataViewModel(
 
             _uiState.value = _uiState.value.copy(
                 gfsGridState = ResultState.Loading,
+                wrfGridState = ResultState.Loading,
                 nwpComparisonState = ResultState.Loading
             )
 
             val gfsResult = repository.getGFSGridPoint(lat, lon, leadHours = 24)
+            val wrfResult = repository.getWRFGridPoint(lat, lon, leadHours = 24)
             val compResult = repository.getNWPModelComparison(lat, lon, leadHours = 24)
 
             val divergence = if (compResult is ResultState.Success<NWPModelComparison>) {
@@ -67,6 +70,7 @@ class DataViewModel(
 
             _uiState.value = _uiState.value.copy(
                 gfsGridState = gfsResult,
+                wrfGridState = wrfResult,
                 nwpComparisonState = compResult,
                 divergenceRatio = divergence
             )

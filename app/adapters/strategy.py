@@ -40,6 +40,8 @@ from app.adapters.openaq.client import OpenAQProvider
 from app.adapters.openweather.client import OpenWeatherProvider
 from app.adapters.tomorrow.client import TomorrowIOProvider
 from app.adapters.weatherapi.client import WeatherAPIProvider
+from app.adapters.wrf.client import WRFProvider
+from app.adapters.wrf.models import WRFGridPointResponse
 from app.cache.deduplicator import RequestDeduplicator, default_deduplicator
 from app.cache.keys import (
     make_weather_alerts_key,
@@ -68,6 +70,7 @@ class WeatherProviderManager:
         secondary_weather_provider: Optional[BaseWeatherProvider] = None,
         fallback_weather_providers: Optional[List[BaseWeatherProvider]] = None,
         nwp_provider: Optional[BaseNWPProvider] = None,
+        wrf_provider: Optional[BaseNWPProvider] = None,
         air_quality_provider: Optional[BaseAirQualityProvider] = None,
         metrics: Optional[ProviderMetricsRegistry] = None,
         cache: Optional[CacheService] = None,
@@ -98,6 +101,7 @@ class WeatherProviderManager:
             self.fallback_weather_providers = fallbacks
 
         self.nwp_provider = nwp_provider or GFSNWPProvider(self.settings)
+        self.wrf_provider = wrf_provider or WRFProvider(self.settings)
         self.air_quality_provider = air_quality_provider or OpenAQProvider(self.settings)
 
     @property
@@ -105,7 +109,7 @@ class WeatherProviderManager:
         """Returns list of all active data providers."""
         providers = [self.warning_provider, self.primary_weather_provider]
         providers.extend(self.fallback_weather_providers)
-        providers.extend([self.nwp_provider, self.air_quality_provider])
+        providers.extend([self.nwp_provider, self.wrf_provider, self.air_quality_provider])
         return providers
 
     def get_circuit_breakers(self) -> Dict[str, CircuitBreaker]:
@@ -289,6 +293,35 @@ class WeatherProviderManager:
         """Fetch GFS 0.25° NWP numerical prognostic parameters."""
         return await self.nwp_provider.get_grid_point(latitude, longitude, lead_hours=lead_hours)
 
+    async def get_wrf_grid_point(
+        self,
+        latitude: float,
+        longitude: float,
+        lead_hours: int = 24,
+    ) -> NormalizedNWPGridPoint:
+        """Fetch WRF Regional NWP numerical prognostic parameters."""
+        return await self.wrf_provider.get_grid_point(latitude, longitude, lead_hours=lead_hours)
+
+    async def get_wrf_status(
+        self,
+        latitude: float,
+        longitude: float,
+        lead_hours: int = 24,
+    ) -> WRFGridPointResponse:
+        """Fetch WRF Regional NWP status response payload."""
+        if hasattr(self.wrf_provider, "get_wrf_status_response"):
+            return await self.wrf_provider.get_wrf_status_response(latitude, longitude, lead_hours=lead_hours)
+        grid_pt = await self.wrf_provider.get_grid_point(latitude, longitude, lead_hours=lead_hours)
+        from app.adapters.wrf.models import WRFStatus
+        status_val = WRFStatus.AVAILABLE if grid_pt.quality == ProviderQuality.VALID else WRFStatus.UNAVAILABLE
+        return WRFGridPointResponse(
+            status=status_val,
+            status_code="WRF_DATA_AVAILABLE" if status_val == WRFStatus.AVAILABLE else "WRF_DATA_UNAVAILABLE",
+            message=grid_pt.status_message or "WRF response processed.",
+            data=grid_pt,
+            provenance={"provider": grid_pt.provider, "model": grid_pt.model_name},
+        )
+
     async def check_all_providers_health(self) -> Dict[str, bool]:
         """Check reachability across all registered providers."""
         results = {}
@@ -297,6 +330,7 @@ class WeatherProviderManager:
         for fallback in self.fallback_weather_providers:
             results[fallback.name] = await fallback.check_health()
         results[self.nwp_provider.name] = await self.nwp_provider.check_health()
+        results[self.wrf_provider.name] = await self.wrf_provider.check_health()
         results[self.air_quality_provider.name] = await self.air_quality_provider.check_health()
         return results
 

@@ -69,6 +69,7 @@ from app.adapters.openweather import OpenWeatherProvider
 from app.adapters.strategy import WeatherProviderManager
 from app.adapters.tomorrow import TomorrowIOProvider
 from app.adapters.weatherapi import WeatherAPIProvider
+from app.adapters.wrf import WRFGridPointResponse, WRFProvider, WRFStatus
 
 __all__ = [
     # Strategy & Managers
@@ -76,11 +77,15 @@ __all__ = [
     # Concrete Providers
     "IMDWarningProvider",
     "GFSNWPProvider",
+    "WRFProvider",
     "OpenMeteoProvider",
     "OpenWeatherProvider",
     "WeatherAPIProvider",
     "TomorrowIOProvider",
     "OpenAQProvider",
+    # WRF Models
+    "WRFGridPointResponse",
+    "WRFStatus",
     # Base Interfaces
     "BaseWeatherProvider",
     "BaseWarningProvider",

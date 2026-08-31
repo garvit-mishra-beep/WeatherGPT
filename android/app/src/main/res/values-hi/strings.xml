@@ -215,7 +215,19 @@
     <string name="alert_sample_temp_body">बादलों के कारण दिन का तापमान सामान्य से 2-3°C कम रह सकता है।</string>
     <string name="alert_sample_temp_desc">अधिकतम तापमान 31°C तथा न्यूनतम तापमान 24°C रहने का अनुमान है।</string>
     <string name="alert_sample_temp_inst">सामान्य गतिविधियाँ जारी रखी जा सकती हैं।</string>
-    <string name="alert_instructions_label">सलाह / निर्देश:</string>
     <string name="alert_default_instruction">सतर्क रहें और स्थानीय मौसम विभाग के बुलेटिन पर ध्यान दें।</string>
     <string name="category_general">सामान्य</string>
+    <string name="nwp_gfs_tab">GFS (0.25°)</string>
+    <string name="nwp_wrf_tab">WRF (क्षेत्रीय)</string>
+    <string name="nwp_comparison_tab">मॉडल तुलना</string>
+    <string name="nwp_wrf_unavailable_title">WRF क्षेत्रीय डेटा अनुपलब्ध</string>
+    <string name="nwp_wrf_unavailable_desc">उच्च-रिज़ॉल्यूशन WRF डेटा स्ट्रीम कॉन्फ़िगर नहीं है। लाइव क्षेत्रीय WRF मॉडलिंग सक्रिय करने के लिए बैकएंड में WRF_BASE_URL कॉन्फ़िगर करें।</string>
+    <string name="nwp_model_agreement">मॉडल सहमति</string>
+    <string name="nwp_model_divergence">मॉडल विचलन</string>
+    <string name="nwp_divergence_ratio">विचलन अनुपात (DR)</string>
+    <string name="nwp_gfs_val">GFS 0.25°</string>
+    <string name="nwp_wrf_val">WRF क्षेत्रीय</string>
+    <string name="nwp_ecmwf_val">ECMWF संदर्भ</string>
+    <string name="nwp_cape_label">CAPE सूचकांक</string>
+    <string name="nwp_lead_hours_label">पूर्वानुमान अवधि</string>
 </resources>

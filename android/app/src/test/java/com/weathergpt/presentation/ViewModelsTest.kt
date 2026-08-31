@@ -312,14 +312,37 @@ class ViewModelsTest {
                     )
                 )
             }
+            override suspend fun getWRFGridPoint(latitude: Double, longitude: Double, leadHours: Int): ResultState<NWPGridPoint> {
+                return ResultState.Success(
+                    NWPGridPoint(
+                        model = "WRF_REGIONAL",
+                        gridResolutionDeg = 0.03,
+                        latitude = latitude,
+                        longitude = longitude,
+                        forecastLeadHours = leadHours,
+                        validTime = "2026-08-31T12:00:00Z",
+                        temperature2mC = 0.0,
+                        relativeHumidity2mPct = 0.0,
+                        accumulatedPrecipMm = 0.0,
+                        windSpeedKmh = 0.0,
+                        windDirectionDeg = 0.0,
+                        windGustKmh = null,
+                        pressureMslHpa = 1013.25,
+                        totalCloudCoverPct = 0.0,
+                        status = "UNAVAILABLE",
+                        statusMessage = "WRF regional data source is unconfigured."
+                    )
+                )
+            }
             override suspend fun getNWPModelComparison(latitude: Double, longitude: Double, leadHours: Int): ResultState<NWPModelComparison> {
                 return ResultState.Success(
                     NWPModelComparison(
                         latitude = latitude,
                         longitude = longitude,
                         forecastLeadHours = leadHours,
-                        variable = "temperature_2m",
+                        modelsStatus = mapOf("GFS_0p25" to "AVAILABLE", "WRF_REGIONAL" to "UNAVAILABLE"),
                         models = emptyMap(),
+                        variablesCompared = emptyList(),
                         divergenceAnalysis = com.weathergpt.domain.model.nwp.DivergenceAnalysis(
                             variable = "temperature_2m",
                             units = "°C",
@@ -703,11 +726,16 @@ class ViewModelsTest {
         assertEquals("GFS", gfs.model)
         assertEquals(30.2, gfs.temperature2mC, 0.1)
 
+        assertTrue(vm.uiState.value.wrfGridState is ResultState.Success)
+        val wrf = (vm.uiState.value.wrfGridState as ResultState.Success).data
+        assertEquals("WRF_REGIONAL", wrf.model)
+        assertEquals("UNAVAILABLE", wrf.status)
+
         assertTrue(vm.uiState.value.nwpComparisonState is ResultState.Success)
         assertEquals(0.12, vm.uiState.value.divergenceRatio, 0.001)
 
-        vm.selectModel("ECMWF (IFS)")
-        assertEquals("ECMWF (IFS)", vm.uiState.value.selectedModel)
+        vm.selectModel("WRF (Regional)")
+        assertEquals("WRF (Regional)", vm.uiState.value.selectedModel)
     }
 
     @Test

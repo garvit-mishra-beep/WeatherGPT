@@ -440,15 +440,47 @@ object Mappers {
         windDirectionDeg = atmosphericVariables.windDirectionDeg,
         windGustKmh = atmosphericVariables.windGustKmh,
         pressureMslHpa = atmosphericVariables.pressureMslHpa,
-        totalCloudCoverPct = atmosphericVariables.totalCloudCoverPct
+        totalCloudCoverPct = atmosphericVariables.totalCloudCoverPct,
+        capeJkg = atmosphericVariables.capeJkg,
+        status = "AVAILABLE"
+    )
+
+    fun com.weathergpt.data.remote.dto.nwp.WRFGridPointResponseDto.toDomain(): NWPGridPoint = NWPGridPoint(
+        model = model,
+        gridResolutionDeg = gridResolutionDeg,
+        latitude = location.latitude,
+        longitude = location.longitude,
+        forecastLeadHours = forecastLeadHours,
+        validTime = validTime ?: "",
+        temperature2mC = atmosphericVariables?.temperature2mC ?: 0.0,
+        relativeHumidity2mPct = atmosphericVariables?.relativeHumidity2mPct ?: 0.0,
+        accumulatedPrecipMm = atmosphericVariables?.accumulatedPrecipMm ?: 0.0,
+        windSpeedKmh = atmosphericVariables?.windSpeedKmh ?: 0.0,
+        windDirectionDeg = atmosphericVariables?.windDirectionDeg ?: 0.0,
+        windGustKmh = atmosphericVariables?.windGustKmh,
+        pressureMslHpa = atmosphericVariables?.pressureMslHpa ?: 1013.25,
+        totalCloudCoverPct = atmosphericVariables?.totalCloudCoverPct ?: 0.0,
+        capeJkg = atmosphericVariables?.capeJkg,
+        status = status,
+        statusMessage = message
     )
 
     fun NWPModelComparisonResponseDto.toDomain(): NWPModelComparison = NWPModelComparison(
         latitude = latitude,
         longitude = longitude,
         forecastLeadHours = forecastLeadHours,
-        variable = variable,
+        modelsStatus = modelsStatus,
         models = models,
+        variablesCompared = variablesCompared.map {
+            com.weathergpt.domain.model.nwp.VariableComparison(
+                variable = it.variable,
+                units = it.units,
+                gfs = it.gfs,
+                ecmwf = it.ecmwf,
+                wrf = it.wrf,
+                absoluteDiff = it.absoluteDiff
+            )
+        },
         divergenceAnalysis = divergenceAnalysis?.let {
             DivergenceAnalysis(
                 variable = it.variable,
@@ -460,7 +492,8 @@ object Mappers {
                 agreementCategory = it.agreementCategory,
                 isActionable = it.isActionable
             )
-        }
+        },
+        wrfStatus = modelsStatus["WRF_REGIONAL"] ?: "UNAVAILABLE"
     )
 
     // ========================================================================

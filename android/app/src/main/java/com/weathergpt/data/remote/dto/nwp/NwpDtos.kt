@@ -22,7 +22,9 @@ data class GFSAtmosphericVariablesDto(
     @SerialName("pressure_msl_hpa")
     val pressureMslHpa: Double,
     @SerialName("total_cloud_cover_pct")
-    val totalCloudCoverPct: Double
+    val totalCloudCoverPct: Double,
+    @SerialName("cape_jkg")
+    val capeJkg: Double? = null
 )
 
 @Serializable
@@ -41,6 +43,46 @@ data class GFSGridPointResponseDto(
     val atmosphericVariables: GFSAtmosphericVariablesDto,
     @SerialName("provenance")
     val provenance: JsonObject? = null
+)
+
+@Serializable
+data class WRFGridPointResponseDto(
+    @SerialName("status")
+    val status: String = "UNAVAILABLE",
+    @SerialName("status_code")
+    val statusCode: String = "WRF_DATA_UNAVAILABLE",
+    @SerialName("message")
+    val message: String = "",
+    @SerialName("model")
+    val model: String = "WRF_REGIONAL",
+    @SerialName("grid_resolution_deg")
+    val gridResolutionDeg: Double = 0.03,
+    @SerialName("location")
+    val location: LocationCoordDto,
+    @SerialName("forecast_lead_hours")
+    val forecastLeadHours: Int = 24,
+    @SerialName("valid_time")
+    val validTime: String? = null,
+    @SerialName("atmospheric_variables")
+    val atmosphericVariables: GFSAtmosphericVariablesDto? = null,
+    @SerialName("provenance")
+    val provenance: JsonObject? = null
+)
+
+@Serializable
+data class VariableComparisonDto(
+    @SerialName("variable")
+    val variable: String,
+    @SerialName("units")
+    val units: String,
+    @SerialName("gfs")
+    val gfs: Double? = null,
+    @SerialName("ecmwf")
+    val ecmwf: Double? = null,
+    @SerialName("wrf")
+    val wrf: Double? = null,
+    @SerialName("absolute_diff")
+    val absoluteDiff: Double? = null
 )
 
 @Serializable
@@ -71,10 +113,14 @@ data class NWPModelComparisonResponseDto(
     val longitude: Double,
     @SerialName("forecast_lead_hours")
     val forecastLeadHours: Int,
-    @SerialName("variable")
-    val variable: String = "precipitation_mm",
+    @SerialName("models_status")
+    val modelsStatus: Map<String, String> = emptyMap(),
     @SerialName("models")
     val models: Map<String, Double> = emptyMap(),
+    @SerialName("variables_compared")
+    val variablesCompared: List<VariableComparisonDto> = emptyList(),
     @SerialName("divergence_analysis")
-    val divergenceAnalysis: DivergenceAnalysisDto? = null
+    val divergenceAnalysis: DivergenceAnalysisDto? = null,
+    @SerialName("provenance")
+    val provenance: JsonObject? = null
 )

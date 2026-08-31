@@ -171,6 +171,24 @@ class Settings(BaseSettings):
         description="Optional OpenAQ API key (from OPENAQ_API_KEY env var)",
     )
 
+    # WRF Regional Numerical Weather Prediction Provider Settings
+    wrf_enabled: bool = Field(
+        default=False,
+        description="Enable WRF regional numerical weather prediction provider",
+    )
+    wrf_base_url: Optional[str] = Field(
+        default=None,
+        description="WRF regional NWP API or THREDDS/OPeNDAP endpoint (from WRF_BASE_URL env var)",
+    )
+    wrf_api_key: Optional[str] = Field(
+        default=None,
+        description="Optional WRF API key (from WRF_API_KEY env var)",
+    )
+    wrf_dataset_path: Optional[str] = Field(
+        default=None,
+        description="Optional local/mounted NetCDF or GRIB2 dataset path for WRF (from WRF_DATASET_PATH env var)",
+    )
+
     # --- B13: Provider Resilience & Circuit Breaker Settings -----------------
     provider_timeout_seconds: float = Field(
         default=5.0, ge=1.0, le=60.0, description="Bounded timeout in seconds for external weather provider API calls"

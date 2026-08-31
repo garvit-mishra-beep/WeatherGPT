@@ -124,6 +124,12 @@ interface WeatherGPTRepository {
         leadHours: Int = 24
     ): ResultState<NWPGridPoint>
 
+    suspend fun getWRFGridPoint(
+        latitude: Double,
+        longitude: Double,
+        leadHours: Int = 24
+    ): ResultState<NWPGridPoint>
+
     suspend fun getNWPModelComparison(
         latitude: Double,
         longitude: Double,

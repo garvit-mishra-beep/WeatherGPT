@@ -94,6 +94,7 @@ class DomainUseCasesTest {
         override suspend fun getRiskAssessment(districtName: String, precip24hPercentile: Double, exposureIndex: Double, vulnerabilityIndex: Double, hazardType: String) = throw NotImplementedError()
         override suspend fun getGISAnalysis(latitude: Double?, longitude: Double?, districtCode: String?, observedRainMm: Double?, observedWindKmh: Double?, observedTempC: Double?, leadHours: Int) = throw NotImplementedError()
         override suspend fun getGFSGridPoint(latitude: Double, longitude: Double, leadHours: Int) = throw NotImplementedError()
+        override suspend fun getWRFGridPoint(latitude: Double, longitude: Double, leadHours: Int) = throw NotImplementedError()
         override suspend fun getNWPModelComparison(latitude: Double, longitude: Double, leadHours: Int) = throw NotImplementedError()
         override suspend fun getPointWeatherMap(latitude: Double, longitude: Double) = throw NotImplementedError()
         override suspend fun getWarningMap(warningGeometry: kotlinx.serialization.json.JsonObject, alertId: String, event: String, severity: String) = throw NotImplementedError()

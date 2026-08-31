@@ -14,7 +14,19 @@ data class NWPGridPoint(
     val windDirectionDeg: Double,
     val windGustKmh: Double?,
     val pressureMslHpa: Double,
-    val totalCloudCoverPct: Double
+    val totalCloudCoverPct: Double,
+    val capeJkg: Double? = null,
+    val status: String = "AVAILABLE",
+    val statusMessage: String? = null
+)
+
+data class VariableComparison(
+    val variable: String,
+    val units: String,
+    val gfs: Double?,
+    val ecmwf: Double?,
+    val wrf: Double?,
+    val absoluteDiff: Double?
 )
 
 data class DivergenceAnalysis(
@@ -32,7 +44,9 @@ data class NWPModelComparison(
     val latitude: Double,
     val longitude: Double,
     val forecastLeadHours: Int,
-    val variable: String,
+    val modelsStatus: Map<String, String>,
     val models: Map<String, Double>,
-    val divergenceAnalysis: DivergenceAnalysis?
+    val variablesCompared: List<VariableComparison>,
+    val divergenceAnalysis: DivergenceAnalysis?,
+    val wrfStatus: String = "UNAVAILABLE"
 )

@@ -349,6 +349,69 @@ class WeatherGPTRepositoryTest {
         assertEquals(24.0, nwp.accumulatedPrecipMm, 0.01)
     }
 
+    @Test
+    fun `getWRFGridPoint returns structured unavailable response`() = runTest(testDispatcher) {
+        val json = """
+            {
+                "status": "UNAVAILABLE",
+                "status_code": "WRF_DATA_UNAVAILABLE",
+                "message": "WRF regional data source is unconfigured.",
+                "model": "WRF_REGIONAL",
+                "grid_resolution_deg": 0.03,
+                "location": {"latitude": 21.25, "longitude": 72.75},
+                "forecast_lead_hours": 24,
+                "valid_time": null,
+                "atmospheric_variables": null,
+                "provenance": {"configured": false}
+            }
+        """.trimIndent()
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
+
+        val result = repository.getWRFGridPoint(21.25, 72.75)
+
+        assertTrue(result is ResultState.Success)
+        val wrf = (result as ResultState.Success).data
+        assertEquals("WRF_REGIONAL", wrf.model)
+        assertEquals("UNAVAILABLE", wrf.status)
+        assertEquals("WRF regional data source is unconfigured.", wrf.statusMessage)
+    }
+
+    @Test
+    fun `getWRFGridPoint returns valid prognostic when available`() = runTest(testDispatcher) {
+        val json = """
+            {
+                "status": "AVAILABLE",
+                "status_code": "WRF_DATA_AVAILABLE",
+                "message": "Valid WRF data",
+                "model": "WRF_REGIONAL",
+                "grid_resolution_deg": 0.03,
+                "location": {"latitude": 21.25, "longitude": 72.75},
+                "forecast_lead_hours": 24,
+                "valid_time": "2026-08-31T12:00:00Z",
+                "atmospheric_variables": {
+                    "temperature_2m_c": 31.0,
+                    "relative_humidity_2m_pct": 70.0,
+                    "accumulated_precip_mm": 12.5,
+                    "wind_speed_kmh": 16.0,
+                    "wind_direction_deg": 240.0,
+                    "pressure_msl_hpa": 1009.0,
+                    "total_cloud_cover_pct": 80.0,
+                    "cape_jkg": 1500.0
+                }
+            }
+        """.trimIndent()
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(json))
+
+        val result = repository.getWRFGridPoint(21.25, 72.75)
+
+        assertTrue(result is ResultState.Success)
+        val wrf = (result as ResultState.Success).data
+        assertEquals("WRF_REGIONAL", wrf.model)
+        assertEquals("AVAILABLE", wrf.status)
+        assertEquals(31.0, wrf.temperature2mC, 0.01)
+        assertEquals(1500.0, wrf.capeJkg ?: 0.0, 0.01)
+    }
+
     // ========================================================================
     // 7. Map Endpoints
     // ========================================================================

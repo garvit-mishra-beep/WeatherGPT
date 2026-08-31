@@ -218,4 +218,17 @@
     <string name="alert_instructions_label">Advisory / Instructions:</string>
     <string name="alert_default_instruction">Stay alert and follow official bulletins from local meteorological center.</string>
     <string name="category_general">General</string>
+    <string name="nwp_gfs_tab">GFS (0.25°)</string>
+    <string name="nwp_wrf_tab">WRF (Regional)</string>
+    <string name="nwp_comparison_tab">Model Comparison</string>
+    <string name="nwp_wrf_unavailable_title">WRF Regional Data Unavailable</string>
+    <string name="nwp_wrf_unavailable_desc">High-resolution WRF data stream is not configured. Configure WRF_BASE_URL in backend environment to activate live regional WRF modeling.</string>
+    <string name="nwp_model_agreement">Model Agreement</string>
+    <string name="nwp_model_divergence">Model Divergence</string>
+    <string name="nwp_divergence_ratio">Divergence Ratio (DR)</string>
+    <string name="nwp_gfs_val">GFS 0.25°</string>
+    <string name="nwp_wrf_val">WRF Regional</string>
+    <string name="nwp_ecmwf_val">ECMWF Reference</string>
+    <string name="nwp_cape_label">CAPE Index</string>
+    <string name="nwp_lead_hours_label">Forecast Lead</string>
 </resources>
