@@ -21,6 +21,7 @@ sealed class ScreenDestination(val route: String) {
     data object AnalystDashboard : ScreenDestination("analyst_dashboard")
     data object Settings : ScreenDestination("settings")
     data object Chat : ScreenDestination("chat")
+    data object SystemStatus : ScreenDestination("system_status")
 }
 
 @Stable

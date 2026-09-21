@@ -76,6 +76,14 @@ class AppConfigTest {
     }
 
     @Test
+    fun `demo hotspot targets laptop 1 mobile hotspot gateway`() {
+        AppConfig.useDemoHotspot()
+        assertEquals("http://192.168.137.1:8000/", AppConfig.apiBaseUrl)
+        assertEquals("http://192.168.137.1:11434/", AppConfig.ollamaBaseUrl)
+        assertEquals("192.168.137.1", AppConfig.DEMO_LAN_GATEWAY)
+    }
+
+    @Test
     fun `timeouts are set to sensible production defaults`() {
         assertTrue(AppConfig.REQUEST_TIMEOUT_SECONDS >= 15L)
         assertTrue(AppConfig.CONNECT_TIMEOUT_SECONDS >= 5L)

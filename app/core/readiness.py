@@ -116,3 +116,68 @@ class ProviderHealthProbe:
                 "degraded_count": len(degraded),
             },
         )
+
+
+@dataclass
+class OllamaProbe:
+    """Readiness probe reporting local Ollama LLM provider availability and model status."""
+
+    name: str = "ollama"
+    settings: Optional[Any] = None
+    provider: Optional[Any] = None
+
+    async def check(self) -> ProbeResult:
+        if self.settings and not getattr(self.settings, "ollama_enabled", False) and getattr(self.settings, "llm_provider_type", "") != "ollama":
+            return ProbeResult(
+                name=self.name,
+                ok=True,
+                detail="Ollama disabled (using production LLM provider)",
+                metadata={"status": "DISABLED", "ollama_enabled": False},
+            )
+
+        if self.provider is None:
+            from app.llm.providers.ollama_provider import OllamaProvider
+            base_url = getattr(self.settings, "ollama_base_url", "http://127.0.0.1:11434") if self.settings else "http://127.0.0.1:11434"
+            model_name = getattr(self.settings, "ollama_model", "qwen2.5:1.5b-instruct") if self.settings else "qwen2.5:1.5b-instruct"
+            timeout = min(float(getattr(self.settings, "ollama_timeout_seconds", 5.0) if self.settings else 5.0), 5.0)
+            self.provider = OllamaProvider(base_url=base_url, model_name=model_name, timeout_seconds=timeout)
+
+        is_healthy = await self.provider.check_health()
+        if not is_healthy:
+            return ProbeResult(
+                name=self.name,
+                ok=False,
+                detail=f"Ollama server unreachable at {self.provider.base_url}",
+                metadata={
+                    "status": "UNAVAILABLE",
+                    "base_url": self.provider.base_url,
+                    "model": self.provider.model_name,
+                },
+            )
+
+        model_ok = await self.provider.check_model_available()
+        if not model_ok:
+            available = await self.provider.list_available_models()
+            return ProbeResult(
+                name=self.name,
+                ok=False,
+                detail=f"Ollama reachable but configured model '{self.provider.model_name}' is not pulled. Available: {available}",
+                metadata={
+                    "status": "UNAVAILABLE",
+                    "base_url": self.provider.base_url,
+                    "configured_model": self.provider.model_name,
+                    "available_models": available,
+                },
+            )
+
+        return ProbeResult(
+            name=self.name,
+            ok=True,
+            detail=f"Ollama AVAILABLE with model '{self.provider.model_name}'",
+            metadata={
+                "status": "AVAILABLE",
+                "base_url": self.provider.base_url,
+                "model": self.provider.model_name,
+            },
+        )
+

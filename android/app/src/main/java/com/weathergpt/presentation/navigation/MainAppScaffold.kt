@@ -9,9 +9,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.weathergpt.domain.model.chat.DomainBrain
 import com.weathergpt.presentation.alerts.AlertsScreen
@@ -60,6 +63,15 @@ fun MainAppScaffold(
     val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
     val chatViewModel: ChatViewModel = viewModel(factory = ChatViewModel.Factory)
 
+    // Handle deep-link pending navigation from push notifications
+    val pendingDest by mainViewModel.pendingDestination.collectAsStateWithLifecycle()
+    LaunchedEffect(pendingDest) {
+        pendingDest?.let {
+            navigationState.navigateTo(it)
+            mainViewModel.clearPendingDestination()
+        }
+    }
+
     // Handle system back navigation
     val canGoBack = navigationState.backStack.isNotEmpty()
     BackHandler(enabled = canGoBack) {
@@ -90,6 +102,7 @@ fun MainAppScaffold(
         is ScreenDestination.AnalystDashboard -> androidx.compose.ui.res.stringResource(com.weathergpt.R.string.analyst_title)
         is ScreenDestination.Settings -> androidx.compose.ui.res.stringResource(com.weathergpt.R.string.settings_title)
         is ScreenDestination.Chat -> androidx.compose.ui.res.stringResource(com.weathergpt.R.string.chat_title)
+        is ScreenDestination.SystemStatus -> "System & Data Status"
     }
 
     val topBarSubtitle = when (currentDestination) {
@@ -114,11 +127,7 @@ fun MainAppScaffold(
                                     Text(text = "⭐", fontSize = 16.sp)
                                 }
                             }
-                            is ScreenDestination.Map -> {
-                                IconButton(onClick = {}) {
-                                    Text(text = "📑", fontSize = 16.sp)
-                                }
-                            }
+
                             is ScreenDestination.Data, is ScreenDestination.AnalystDashboard -> {
                                 IconButton(onClick = {}) {
                                     Text(text = "🎛️", fontSize = 16.sp)
@@ -161,7 +170,8 @@ fun MainAppScaffold(
                                 chatViewModel.sendMessage(query)
                             }
                             navigationState.navigateTo(ScreenDestination.Chat)
-                        }
+                        },
+                        onNavigateToSystemStatus = { navigationState.navigateTo(ScreenDestination.SystemStatus) }
                     )
                 }
                 is ScreenDestination.BrainSelection -> {
@@ -188,7 +198,13 @@ fun MainAppScaffold(
                     MapScreen(viewModel = mapViewModel)
                 }
                 is ScreenDestination.Alerts -> {
-                    AlertsScreen(viewModel = alertsViewModel)
+                    AlertsScreen(
+                        viewModel = alertsViewModel,
+                        onAssessImpact = { query ->
+                            chatViewModel.sendMessage(query)
+                            navigationState.navigateTo(ScreenDestination.Chat)
+                        }
+                    )
                 }
                 is ScreenDestination.Data -> {
                     DataScreen(
@@ -206,7 +222,11 @@ fun MainAppScaffold(
                     AnalystDashboardScreen(viewModel = analystDashboardViewModel)
                 }
                 is ScreenDestination.Settings -> {
-                    SettingsScreen(viewModel = settingsViewModel)
+                    SettingsScreen(
+                        viewModel = settingsViewModel,
+                        onNavigateToFarmerProfile = { navigationState.navigateTo(ScreenDestination.FarmerProfile) },
+                        onNavigateToFieldDetails = { navigationState.navigateTo(ScreenDestination.FarmerProfile) }
+                    )
                 }
                 is ScreenDestination.Profile -> {
                     ProfileScreen(
@@ -217,6 +237,11 @@ fun MainAppScaffold(
                 }
                 is ScreenDestination.Chat -> {
                     ChatScreen(viewModel = chatViewModel)
+                }
+                is ScreenDestination.SystemStatus -> {
+                    com.weathergpt.presentation.status.SystemStatusScreen(
+                        onNavigateBack = { navigationState.navigateBack() }
+                    )
                 }
             }
         }

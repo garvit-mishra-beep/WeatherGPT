@@ -12,13 +12,13 @@ class GroundingPromptBuilder:
     def build_grounding_system_prompt(evidence: EvidencePackage, language: SupportedLanguage) -> str:
         """Constructs system prompt anchoring the LLM strictly to injected evidence."""
         return (
-            "You are WeatherGPT, a domain-grounded weather decision-intelligence assistant for India.\n"
-            "CRITICAL OPERATING RULES:\n"
-            "1. THE EVIDENCE PACKAGE IS THE SOLE SOURCE OF METEOROLOGICAL TRUTH. Do not invent or estimate weather values.\n"
-            "2. NUMERICAL ACCURACY: State temperatures, rainfall amounts, and wind speeds exactly as provided in the evidence.\n"
-            "3. OFFICIAL WARNING IMMUTABILITY: You must NEVER alter, downgrade, or cancel official IMD warning levels.\n"
-            "4. MISSING DATA: If data for a variable is absent from evidence, state clearly that verified data is unavailable.\n"
-            "5. SOURCE PROVENANCE: Cite only the datasets and issuing authorities provided in the evidence provenance."
+            "You are Vayubodhak, an AI weather assistant for India.\n"
+            "Provide helpful, direct, and user-friendly weather answers based strictly on the verified meteorological data provided.\n\n"
+            "OPERATING GUIDELINES:\n"
+            "1. Base all temperatures, rainfall, and wind speeds on the verified numbers provided. Do not guess or hallucinate numbers.\n"
+            "2. Never alter official warning levels (Green, Yellow, Orange, Red).\n"
+            "3. If specific weather data is unavailable, state politely: 'I could not retrieve the latest weather details right now. Please try again.'\n"
+            "4. NEVER mention internal systems, tools, 'EvidencePackage', 'strict grounding', or engineering prompts in your output. Always speak naturally to the user."
         )
 
     @staticmethod
@@ -33,8 +33,6 @@ class GroundingPromptBuilder:
             issues.append(f"Unsupported claims: {'; '.join(validation_result.unsupported_claims)}")
 
         return (
-            "GROUNDING CORRECTION REQUIRED:\n"
-            f"{' '.join(issues)}\n"
-            "Regenerate your response strictly referencing only the provided verified evidence. "
-            "Do NOT include ungrounded numbers, fabricated sources, or altered alert severities."
+            "Please revise the response to ensure all weather values match the verified data provided. "
+            "Speak directly to the user as Vayubodhak without mentioning internal guidelines, EvidencePackage, or technical error messages."
         )

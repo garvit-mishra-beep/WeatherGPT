@@ -132,6 +132,16 @@ def create_app(
     # --- Routers under the single central API prefix ---
     app.include_router(api_router, prefix=f"/api/{cfg.api_version}")
 
+    # --- Interactive Weather Map Explorer UI ---
+    from pathlib import Path
+    from fastapi.responses import FileResponse
+
+    _STATIC_MAP_PATH = Path(__file__).resolve().parent.parent / "static" / "weather_map.html"
+
+    @app.get("/map", include_in_schema=False)
+    async def map_explorer() -> FileResponse:
+        return FileResponse(_STATIC_MAP_PATH, media_type="text/html")
+
     logger.info(
         "Application factory created %s (env=%s, api=%s)",
         cfg.app_name,
@@ -139,6 +149,7 @@ def create_app(
         cfg.api_version,
     )
     return app
+
 
 
 def _configure_cors(app: FastAPI, cfg: Settings) -> None:

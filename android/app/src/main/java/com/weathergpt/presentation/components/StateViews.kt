@@ -24,15 +24,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.weathergpt.R
 import com.weathergpt.core.error.AppError
 
 @Composable
 fun LoadingState(
-    message: String = "Loading meteorological intelligence...",
+    message: String? = null,
     modifier: Modifier = Modifier
 ) {
+    val displayMessage = message ?: stringResource(R.string.loading_general)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -49,7 +52,7 @@ fun LoadingState(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = message,
+                text = displayMessage,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -69,6 +72,7 @@ fun ErrorState(
     modifier: Modifier = Modifier
 ) {
     val isOffline = error is AppError.NetworkUnavailable
+    val isWeatherUnavailable = error is AppError.WeatherUnavailable
 
     Box(
         modifier = modifier
@@ -81,14 +85,22 @@ fun ErrorState(
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Warning,
+                imageVector = if (isWeatherUnavailable) Icons.Default.Info else Icons.Default.Warning,
                 contentDescription = "Error",
-                tint = if (isOffline) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                tint = when {
+                    isWeatherUnavailable -> MaterialTheme.colorScheme.primary
+                    isOffline -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.error
+                },
                 modifier = Modifier.size(48.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = if (isOffline) "No Internet Connection" else "Unable to load data",
+                text = when {
+                    isWeatherUnavailable -> "Weather unavailable"
+                    isOffline -> stringResource(R.string.error_no_internet_title)
+                    else -> stringResource(R.string.error_unable_to_load)
+                },
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -105,14 +117,14 @@ fun ErrorState(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     if (errorCode != null) {
                         Text(
-                            text = "Code: $errorCode",
+                            text = stringResource(R.string.error_code_label, errorCode),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
                     }
                     if (requestId != null) {
                         Text(
-                            text = "Request ID: ${requestId.take(16)}...",
+                            text = stringResource(R.string.error_request_id_label, "${requestId.take(16)}..."),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -124,7 +136,7 @@ fun ErrorState(
                 Spacer(modifier = Modifier.height(16.dp))
                 RetryButton(
                     onRetry = onRetry,
-                    text = if (isOffline) "Check Connection" else "Retry"
+                    text = if (isOffline) stringResource(R.string.btn_check_connection) else stringResource(R.string.btn_retry)
                 )
             }
         }
@@ -133,12 +145,14 @@ fun ErrorState(
 
 @Composable
 fun EmptyState(
-    title: String = "No data available",
-    message: String = "There are currently no active items for this section.",
+    title: String? = null,
+    message: String? = null,
     icon: ImageVector = Icons.Default.Info,
     action: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val displayTitle = title ?: stringResource(R.string.empty_state_title)
+    val displayMessage = message ?: stringResource(R.string.empty_state_message)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -157,13 +171,13 @@ fun EmptyState(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = title,
+                text = displayTitle,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = message,
+                text = displayMessage,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -180,8 +194,9 @@ fun EmptyState(
 fun RetryButton(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
-    text: String = "Retry"
+    text: String? = null
 ) {
+    val displayText = text ?: stringResource(R.string.btn_retry)
     OutlinedButton(
         onClick = onRetry,
         modifier = modifier
@@ -192,7 +207,7 @@ fun RetryButton(
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.size(8.dp))
-        Text(text = text)
+        Text(text = displayText)
     }
 }
 

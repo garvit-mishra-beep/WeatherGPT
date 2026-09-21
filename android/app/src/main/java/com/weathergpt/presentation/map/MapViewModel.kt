@@ -30,10 +30,23 @@ enum class WeatherMapLayer(val id: String, val title: String) {
     RISK("risk", "Operational Hazard Risk")
 }
 
+data class MapCity(
+    val name: String,
+    val latitude: Double,
+    val longitude: Double
+)
+
 data class MapUiState(
     val selectedLayer: WeatherMapLayer = WeatherMapLayer.RAIN,
-    val centerCoordinates: MapLatLng = MapLatLng(28.6139, 77.2090),
-    val zoomLevel: Double = 6.0,
+    val centerCoordinates: MapLatLng = MapLatLng(22.72, 78.65),
+    val zoomLevel: Double = 5.0,
+    val selectedCityName: String = "Indore",
+    val defaultCities: List<MapCity> = listOf(
+        MapCity("Indore", 22.7196, 75.8577),
+        MapCity("Delhi", 28.6139, 77.2090),
+        MapCity("Mumbai", 19.0760, 72.8777),
+        MapCity("Chennai", 13.0827, 80.2707)
+    ),
     val timelineStepMinutes: Int = 0,
     val isPlaying: Boolean = false,
     val isLoading: Boolean = false,
@@ -41,8 +54,8 @@ data class MapUiState(
     val mapSpec: RenderableMapSpecification = RenderableMapSpecification(
         id = "radar_composite_india",
         title = "National Meteorological Radar Composite",
-        center = MapLatLng(28.6139, 77.2090),
-        zoom = 6.0,
+        center = MapLatLng(22.72, 78.65),
+        zoom = 5.0,
         bounds = MapBounds(
             southWest = MapLatLng(6.0, 68.0),
             northEast = MapLatLng(38.0, 98.0)
@@ -76,11 +89,37 @@ class MapViewModel(
         viewModelScope.launch {
             locationManager.locationState.collectLatest { loc ->
                 _uiState.value = _uiState.value.copy(
-                    centerCoordinates = MapLatLng(loc.latitude, loc.longitude)
+                    centerCoordinates = MapLatLng(loc.latitude, loc.longitude),
+                    selectedCityName = loc.districtName
                 )
                 loadMapSpec()
             }
         }
+    }
+
+    fun onLocationSelected(latitude: Double, longitude: Double, label: String) {
+        viewModelScope.launch {
+            val dist = if (label.isNotBlank() && label != "Selected location" && label != "Your Location") {
+                label
+            } else {
+                _uiState.value.selectedCityName
+            }
+            _uiState.value = _uiState.value.copy(
+                centerCoordinates = MapLatLng(latitude, longitude),
+                selectedCityName = dist
+            )
+            locationManager.updateLocation(
+                district = dist,
+                state = locationManager.locationState.value.stateName,
+                latitude = latitude,
+                longitude = longitude
+            )
+            locationManager.resolveLocationHierarchy(repository)
+        }
+    }
+
+    fun selectCity(city: MapCity) {
+        onLocationSelected(city.latitude, city.longitude, city.name)
     }
 
     fun loadMapSpec() {
@@ -131,6 +170,19 @@ class MapViewModel(
     }
 
     companion object {
+        fun getWeatherVisual(code: Int): String {
+            return when (code) {
+                0 -> "☀️"
+                1, 2, 3 -> if (code == 2) "⛅" else "☁️"
+                45, 48 -> "🌫️"
+                in 51..57 -> "🌦️"
+                in 61..67, in 80..82 -> "🌧️"
+                in 71..77 -> "🌨️"
+                in 95..99 -> "⛈️"
+                else -> "☁️"
+            }
+        }
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as WeatherGPTApplication)

@@ -1,0 +1,40 @@
+{
+  "latitude": 23.0225,
+  "longitude": 72.5714,
+  "elevation": 53.0,
+  "timezone": "Asia/Kolkata",
+  "current": {
+    "time": "2026-08-30T10:00",
+    "temperature_2m": 31.5,
+    "relative_humidity_2m": 68.0,
+    "apparent_temperature": 36.8,
+    "precipitation": 1.2,
+    "weather_code": 80,
+    "surface_pressure": 1005.4,
+    "wind_speed_10m": 14.5,
+    "wind_direction_10m": 245.0,
+    "wind_gusts_10m": 22.0
+  },
+  "hourly": {
+    "time": ["2026-08-30T10:00", "2026-08-30T11:00", "2026-08-30T12:00"],
+    "temperature_2m": [31.5, 32.8, 33.2],
+    "relative_humidity_2m": [68.0, 64.0, 60.0],
+    "precipitation_probability": [40.0, 60.0, 75.0],
+    "precipitation": [1.2, 3.4, 8.5],
+    "weather_code": [80, 81, 81],
+    "surface_pressure": [1005.4, 1004.8, 1004.2],
+    "wind_speed_10m": [14.5, 16.2, 18.0],
+    "wind_direction_10m": [245.0, 250.0, 255.0],
+    "wind_gusts_10m": [22.0, 25.4, 28.1]
+  },
+  "daily": {
+    "time": ["2026-08-30", "2026-08-31", "2026-09-01"],
+    "temperature_2m_max": [34.0, 32.5, 31.0],
+    "temperature_2m_min": [26.2, 25.8, 25.0],
+    "precipitation_sum": [13.1, 45.2, 18.0],
+    "precipitation_probability_max": [75.0, 95.0, 60.0],
+    "wind_speed_10m_max": [18.0, 24.5, 15.0],
+    "wind_direction_10m_dominant": [250.0, 240.0, 260.0],
+    "weather_code": [81, 95, 80]
+  }
+}

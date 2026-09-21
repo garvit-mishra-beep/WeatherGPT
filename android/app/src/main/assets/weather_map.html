@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Weather Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<style>
+  :root {
+    --primary-green: #1B5E20;
+    --primary-green-light: #E8F5E9;
+    --accent-green: #2E7D32;
+    --surface: #FFFFFF;
+    --surface-glass: rgba(255, 255, 255, 0.94);
+    --border: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.12);
+    --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.16);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #F8FAF8;
+    color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #map-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+    background: #E8F0E9;
+  }
+
+  /* --- Minimal Unobtrusive Attribution --- */
+  .leaflet-control-attribution {
+    font-size: 9px !important;
+    color: var(--text-muted) !important;
+    background: rgba(255, 255, 255, 0.75) !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    margin: 4px !important;
+  }
+  .leaflet-control-attribution a {
+    color: var(--text-secondary) !important;
+    text-decoration: none !important;
+  }
+
+  /* --- Modern Leaflet Controls (Zoom & Layers) --- */
+  .leaflet-top.leaflet-left {
+    top: 8px;
+    left: 8px;
+  }
+  .leaflet-top.leaflet-right {
+    top: 8px;
+    right: 8px;
+  }
+  .leaflet-bottom.leaflet-right {
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .leaflet-bar {
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-md) !important;
+  }
+  .leaflet-bar a {
+    background-color: var(--surface) !important;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border) !important;
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    font-size: 16px !important;
+    transition: background-color 0.15s ease;
+  }
+  .leaflet-bar a:last-child {
+    border-bottom: none !important;
+  }
+  .leaflet-bar a:hover, .leaflet-bar a:active {
+    background-color: var(--primary-green-light) !important;
+    color: var(--primary-green) !important;
+  }
+
+  /* --- Layer Switcher Control --- */
+  .leaflet-control-layers {
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    background: var(--surface-glass) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md) !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    font-weight: 500;
+    color: var(--text-primary) !important;
+  }
+  .leaflet-control-layers-toggle {
+    width: 38px !important;
+    height: 38px !important;
+    background-size: 20px 20px !important;
+    border-radius: 12px !important;
+  }
+  .leaflet-control-layers-base label,
+  .leaflet-control-layers-overlays label {
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .leaflet-control-layers-separator {
+    border-top: 1px solid var(--border) !important;
+    margin: 6px 0 !important;
+  }
+
+  /* --- Floating Locate Control FAB --- */
+  .floating-locate-btn {
+    position: absolute;
+    bottom: 96px;
+    right: 12px;
+    z-index: 800;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s ease;
+  }
+  .floating-locate-btn:active {
+    transform: scale(0.92);
+    background: var(--primary-green-light);
+  }
+
+  /* --- Radar Live Indicator Badge --- */
+  #radar-badge {
+    display: none;
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    z-index: 800;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #FFFFFF;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow-sm);
+  }
+  #radar-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00E676;
+    animation: radarPulse 1.6s infinite ease-in-out;
+  }
+  @keyframes radarPulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 6px #00E676; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+  }
+
+  /* --- Clearly Designed Weather Marker --- */
+  .met-marker {
+    background: var(--surface);
+    border: 1.5px solid var(--primary-green);
+    border-radius: 18px;
+    padding: 3px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 3px 10px rgba(27, 94, 32, 0.22);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.15s ease;
+  }
+  .met-marker:hover {
+    transform: scale(1.06);
+  }
+  .met-marker .met-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+  .met-marker .met-temp {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary-green);
+    line-height: 1;
+  }
+
+  /* --- Compact Weather Popup Card --- */
+  .leaflet-popup-content-wrapper {
+    background: var(--surface) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--shadow-lg) !important;
+    border: 1px solid var(--border) !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+  .leaflet-popup-content {
+    margin: 12px 14px !important;
+    line-height: 1.3 !important;
+  }
+  .leaflet-popup-tip {
+    background: var(--surface) !important;
+  }
+
+  .weather-card-popup {
+    min-width: 180px;
+    font-family: inherit;
+  }
+  .weather-card-popup .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    gap: 6px;
+  }
+  .weather-card-popup .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .weather-card-popup .card-coords {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .weather-card-popup .card-main {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .weather-card-popup .card-temp {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary-green);
+  }
+  .weather-card-popup .card-cond {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .weather-card-popup .card-metrics {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .weather-card-popup .card-metric-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .weather-card-popup .btn-hourly {
+    margin-top: 6px;
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--primary-green-light);
+    color: var(--primary-green);
+    border: 1px solid rgba(27, 94, 32, 0.2);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+  }
+  .weather-card-popup .btn-hourly:active {
+    background: var(--primary-green);
+    color: #FFFFFF;
+  }
+
+  /* --- Hourly & Historical Modal --- */
+  #modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #modal-overlay.active {
+    display: flex;
+  }
+  #modal-box {
+    background: var(--surface);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  #modal-header {
+    padding: 14px 16px;
+    background: var(--primary-green-light);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #modal-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-green);
+  }
+  #modal-header .loc-subtitle {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  #modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  #modal-controls {
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: #FAFAFA;
+  }
+  #modal-controls label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  #modal-date {
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-primary);
+  }
+  #modal-fetch-btn {
+    padding: 5px 12px;
+    background: var(--primary-green);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #modal-body {
+    padding: 12px 16px;
+    overflow-y: auto;
+    max-height: 55vh;
+  }
+  table.hourly-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  table.hourly-table th {
+    text-align: left;
+    padding: 6px 8px;
+    background: #F1F5F9;
+    color: var(--text-secondary);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+  }
+  table.hourly-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+  table.hourly-table tr:hover td {
+    background: var(--primary-green-light);
+  }
+</style>
+</head>
+<body>
+<div id="map-container">
+  <div id="map"></div>
+
+  <!-- Minimal Live Radar Indicator (shown only when radar overlay is active) -->
+  <div id="radar-badge">
+    <div id="radar-dot"></div>
+    <span>LIVE RADAR</span>
+  </div>
+
+  <!-- Floating Current Location FAB Button -->
+  <button class="floating-locate-btn" id="locate-fab" title="Current Location">📍</button>
+</div>
+
+<!-- Modal for Hourly Meteorological Projections -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <div id="modal-header">
+      <div>
+        <h3>Hourly Weather Data</h3>
+        <div class="loc-subtitle" id="modal-loc">—</div>
+      </div>
+      <button id="modal-close">✕</button>
+    </div>
+    <div id="modal-controls">
+      <label for="modal-date">Date:</label>
+      <input type="date" id="modal-date" />
+      <button id="modal-fetch-btn">View</button>
+    </div>
+    <div id="modal-body">
+      <div id="modal-status" style="font-size:12px; color:#64748b;">Loading hourly data…</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+  // ---- Leaflet Map Setup (Centered on India: 22.72°N, 78.65°E, zoom 5) ----
+  const map = L.map('map', {
+    zoomControl: true,
+    attributionControl: true
+  }).setView([22.72, 78.65], 5);
+
+  // Position default zoom control at bottom-right
+  map.zoomControl.setPosition('bottomright');
+
+  // Discreet attribution with no prefix
+  map.attributionControl.setPrefix(false);
+
+  // 1. High-Resolution Satellite Base Layer (Esri World Imagery)
+  const satelliteLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {
+      attribution: '© Esri, Maxar',
+      maxZoom: 19
+    }
+  ).addTo(map);
+
+  // 2. Clear Administrative Boundaries (State & District lines)
+  const boundaryLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    {
+      attribution: '© Esri Boundaries',
+      maxZoom: 19,
+      pane: 'overlayPane'
+    }
+  ).addTo(map);
+
+  // 3. Clean Street Map Base Layer (OpenStreetMap)
+  const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19
+  });
+
+  // Dynamic Weather Overlays
+  const weatherLayerGroup = L.layerGroup().addTo(map);
+
+  let radarFrames = [];
+  let radarLayer = null;
+  let radarIndex = 0;
+  let radarAnimTimer = null;
+  let cloudLayer = null;
+  const radarBadge = document.getElementById('radar-badge');
+
+  async function initRadarAndCloudLayers() {
+    try {
+      const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+      const data = await res.json();
+
+      // Satellite IR Cloud Cover
+      if (data.satellite && data.satellite.infrared && data.satellite.infrared.length) {
+        const latestSat = data.satellite.infrared[data.satellite.infrared.length - 1];
+        cloudLayer = L.tileLayer(`${data.host}${latestSat.path}/256/{z}/{x}/{y}/0/0_0.png`, {
+          opacity: 0.55,
+          attribution: '© RainViewer'
+        });
+        layerControl.addOverlay(cloudLayer, "☁️ Cloud Cover (IR)");
+      }
+
+      // Live Animated Rain Radar
+      radarFrames = data.radar.past || [];
+      if (radarFrames.length) {
+        const latest = radarFrames[radarFrames.length - 1];
+        radarLayer = L.tileLayer(`${data.host}${latest.path}/256/{z}/{x}/{y}/4/1_1.png`, {
+          opacity: 0.65,
+          attribution: '© RainViewer Radar'
+        });
+        layerControl.addOverlay(radarLayer, "🌧️ Rain Radar (Live)");
+        radarIndex = radarFrames.length - 1;
+
+        map.on('overlayadd', (e) => {
+          if (e.layer === radarLayer) {
+            radarBadge.style.display = 'flex';
+            startRadarAnimation();
+          }
+        });
+        map.on('overlayremove', (e) => {
+          if (e.layer === radarLayer) {
+            radarBadge.style.display = 'none';
+            stopRadarAnimation();
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("Could not initialize radar layer:", e);
+    }
+  }
+
+  function startRadarAnimation() {
+    stopRadarAnimation();
+    radarAnimTimer = setInterval(() => {
+      if (!radarFrames.length || !radarLayer) return;
+      radarIndex = (radarIndex + 1) % radarFrames.length;
+      const frame = radarFrames[radarIndex];
+      radarLayer.setUrl(`https://tilecache.rainviewer.com${frame.path}/256/{z}/{x}/{y}/4/1_1.png`);
+    }, 850);
+  }
+
+  function stopRadarAnimation() {
+    if (radarAnimTimer) clearInterval(radarAnimTimer);
+    radarAnimTimer = null;
+  }
+
+  // --- Layer Control ---
+  const layerControl = L.control.layers(
+    {
+      "🛰️ Satellite": satelliteLayer,
+      "🗺️ Street": streetLayer
+    },
+    {
+      "Administrative Borders": boundaryLayer,
+      "Weather Markers": weatherLayerGroup
+    },
+    { position: 'topright', collapsed: true }
+  ).addTo(map);
+
+  initRadarAndCloudLayers();
+
+  // --- Weather Interpretation ---
+  function describeWeather(code) {
+    const map = {
+      0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+      45: "Fog", 48: "Depositing rime fog",
+      51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
+      61: "Slight rain", 63: "Moderate rain", 65: "Heavy rain",
+      71: "Slight snow", 73: "Snow", 75: "Heavy snow",
+      80: "Rain showers", 81: "Moderate showers", 82: "Violent rain showers",
+      95: "Thunderstorm", 96: "Thunderstorm w/ hail", 99: "Severe thunderstorm"
+    };
+    return map[code] || "Weather data";
+  }
+
+  function getWeatherSymbol(code) {
+    if (code === 0) return "☀️";
+    if (code === 1 || code === 2) return "⛅";
+    if (code === 3) return "☁️";
+    if (code === 45 || code === 48) return "🌫️";
+    if (code >= 51 && code <= 57) return "🌦️";
+    if (code >= 61 && code <= 67 || code >= 80 && code <= 82) return "🌧️";
+    if (code >= 71 && code <= 77) return "🌨️";
+    if (code >= 95) return "⛈️";
+    return "☁️";
+  }
+
+  // --- Fetch Real Meteorological Observations from Open-Meteo ---
+  async function fetchWeather(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m&daily=precipitation_probability_max&timezone=auto`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Weather observation fetch failed");
+    return res.json();
+  }
+
+  function notifyAndroidBridge(lat, lon, label) {
+    if (window.AndroidBridge && typeof window.AndroidBridge.onLocationSelected === 'function') {
+      try {
+        window.AndroidBridge.onLocationSelected(parseFloat(lat), parseFloat(lon), label || "");
+      } catch (e) {
+        console.warn("AndroidBridge notification error:", e);
+      }
+    }
+  }
+
+  let activeMarker = null;
+
+  function addWeatherMarker(lat, lon, label, openImmediately = true) {
+    const numLat = parseFloat(lat);
+    const numLon = parseFloat(lon);
+
+    // Clear previous dynamic marker to maintain a clean, focused display
+    if (activeMarker) {
+      weatherLayerGroup.removeLayer(activeMarker);
+      activeMarker = null;
+    }
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="met-marker"><span class="met-icon">☁️</span><span class="met-temp">…</span></div>`,
+      iconSize: [64, 30],
+      iconAnchor: [32, 15]
+    });
+
+    const marker = L.marker([numLat, numLon], { icon }).addTo(weatherLayerGroup);
+    activeMarker = marker;
+
+    const popup = L.popup({ autoPanPadding: [20, 20] }).setContent(`
+      <div class="weather-card-popup">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${label}</div>
+            <div class="card-coords">${numLat.toFixed(2)}°N, ${numLon.toFixed(2)}°E</div>
+          </div>
+        </div>
+        <div style="font-size:11px; color:#64748b; padding:8px 0;">Retrieving real-time weather…</div>
+      </div>
+    `);
+    marker.bindPopup(popup);
+
+    if (openImmediately) {
+      marker.openPopup();
+    }
+
+    notifyAndroidBridge(numLat, numLon, label);
+
+    fetchWeather(numLat, numLon).then(data => {
+      const cw = data.current_weather;
+      const symbol = getWeatherSymbol(cw.weathercode);
+      const condition = describeWeather(cw.weathercode);
+      const rainChance = (data.daily && data.daily.precipitation_probability_max)
+        ? data.daily.precipitation_probability_max[0] ?? 0 : 0;
+      const windSpeed = cw.windspeed ?? 0;
+
+      const html = `
+        <div class="weather-card-popup">
+          <div class="card-header">
+            <div>
+              <div class="card-title">${label}</div>
+              <div class="card-coords">${numLat.toFixed(2)}°N, ${numLon.toFixed(2)}°E</div>
+            </div>
+          </div>
+          <div class="card-main">
+            <span class="card-temp">${Math.round(cw.temperature)}°C</span>
+            <span class="card-cond">${symbol} ${condition}</span>
+          </div>
+          <div class="card-metrics">
+            <div class="card-metric-item">🌧️ Rain: <strong>${rainChance}%</strong></div>
+            <div class="card-metric-item">💨 Wind: <strong>${windSpeed} km/h</strong></div>
+          </div>
+          <button class="btn-hourly" data-lat="${numLat}" data-lon="${numLon}" data-label="${label}">Hourly Forecast &amp; Data →</button>
+        </div>
+      `;
+      popup.setContent(html);
+
+      const el = marker.getElement();
+      if (el) {
+        const iconEl = el.querySelector('.met-icon');
+        const tempEl = el.querySelector('.met-temp');
+        if (iconEl) iconEl.innerText = symbol;
+        if (tempEl) tempEl.innerText = `${Math.round(cw.temperature)}°`;
+      }
+    }).catch(err => {
+      console.warn("Weather load error:", err);
+      popup.setContent(`
+        <div class="weather-card-popup">
+          <div class="card-title">${label}</div>
+          <div style="font-size:11px; color:#DC2626; padding:6px 0;">Weather data temporarily unavailable.</div>
+        </div>
+      `);
+    });
+
+    return marker;
+  }
+
+  // --- Tap Anywhere on Map to Inspect Weather ---
+  map.on('click', (e) => {
+    const lat = e.latlng.lat.toFixed(3);
+    const lon = e.latlng.lng.toFixed(3);
+    addWeatherMarker(lat, lon, "Observed Location", true);
+  });
+
+  // --- Current Location FAB Handler ---
+  const locateFab = document.getElementById('locate-fab');
+  locateFab.addEventListener('click', locateUser);
+
+  function locateUser() {
+    locateFab.innerText = "⏳";
+
+    function resetFab() {
+      locateFab.innerText = "📍";
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          map.flyTo([lat, lon], 10, { duration: 1.2 });
+          addWeatherMarker(lat.toFixed(3), lon.toFixed(3), "Current Location", true);
+          resetFab();
+        },
+        () => {
+          // Fallback: Default to central India location
+          map.flyTo([22.7196, 75.8577], 9, { duration: 1.2 });
+          addWeatherMarker(22.720, 75.858, "Indore", true);
+          resetFab();
+        },
+        { timeout: 7000 }
+      );
+    } else {
+      resetFab();
+    }
+  }
+
+  // --- Hourly Modal Handler ---
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalDate = document.getElementById('modal-date');
+  const modalLoc = document.getElementById('modal-loc');
+  const modalBody = document.getElementById('modal-body');
+  let modalLat = null, modalLon = null, modalLabel = "";
+
+  const todayIso = new Date().toISOString().split('T')[0];
+  modalDate.value = todayIso;
+
+  map.on('popupopen', (e) => {
+    const btn = e.popup.getElement().querySelector('.btn-hourly');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        openHourlyModal(btn.dataset.lat, btn.dataset.lon, btn.dataset.label);
+      });
+    }
+  });
+
+  function openHourlyModal(lat, lon, label) {
+    modalLat = lat; modalLon = lon; modalLabel = label;
+    modalLoc.innerText = `${label} (${parseFloat(lat).toFixed(2)}°, ${parseFloat(lon).toFixed(2)}°)`;
+    modalBody.innerHTML = `<div id="modal-status">Loading hourly observations…</div>`;
+    modalOverlay.classList.add('active');
+    fetchHourlyData(lat, lon, modalDate.value);
+  }
+
+  document.getElementById('modal-close').addEventListener('click', () => {
+    modalOverlay.classList.remove('active');
+  });
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) modalOverlay.classList.remove('active');
+  });
+
+  document.getElementById('modal-fetch-btn').addEventListener('click', () => {
+    if (modalLat && modalLon) {
+      fetchHourlyData(modalLat, modalLon, modalDate.value);
+    }
+  });
+
+  async function fetchHourlyData(lat, lon, dateStr) {
+    modalBody.innerHTML = `<div style="font-size:12px; color:#64748B; padding:10px 0;">Loading data for ${dateStr}…</div>`;
+    const selected = new Date(dateStr);
+    const now = new Date();
+    const isPast = selected < new Date(now.toDateString());
+
+    const base = isPast
+      ? `https://archive-api.open-meteo.com/v1/archive`
+      : `https://api.open-meteo.com/v1/forecast`;
+    const url = `${base}?latitude=${lat}&longitude=${lon}&start_date=${dateStr}&end_date=${dateStr}&hourly=temperature_2m,weathercode,precipitation_probability,windspeed_10m&timezone=auto`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Request failed");
+      const data = await res.json();
+      renderHourlyTable(data);
+    } catch (err) {
+      modalBody.innerHTML = `<div style="font-size:12px; color:#DC2626; padding:10px 0;">Could not retrieve hourly data.</div>`;
+    }
+  }
+
+  function renderHourlyTable(data) {
+    if (!data.hourly || !data.hourly.time || !data.hourly.time.length) {
+      modalBody.innerHTML = `<div style="font-size:12px; color:#64748B;">No hourly records found.</div>`;
+      return;
+    }
+    const times = data.hourly.time;
+    const temps = data.hourly.temperature_2m;
+    const codes = data.hourly.weathercode;
+    const rain = data.hourly.precipitation_probability;
+    const wind = data.hourly.windspeed_10m;
+
+    let rows = "";
+    for (let i = 0; i < times.length; i += 2) { // 2-hour interval for compact density
+      const timeStr = new Date(times[i]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      rows += `
+        <tr>
+          <td><strong>${timeStr}</strong></td>
+          <td>${temps[i] ?? "—"}°C</td>
+          <td>${getWeatherSymbol(codes[i])} ${describeWeather(codes[i])}</td>
+          <td>${rain && rain[i] != null ? rain[i] + "%" : "—"}</td>
+          <td>${wind && wind[i] != null ? wind[i] + " km/h" : "—"}</td>
+        </tr>
+      `;
+    }
+
+    modalBody.innerHTML = `
+      <table class="hourly-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Temp</th>
+            <th>Condition</th>
+            <th>Rain</th>
+            <th>Wind</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  // --- External APIs for Android Integration ---
+  window.focusLocation = function(lat, lon, label) {
+    const numLat = parseFloat(lat);
+    const numLon = parseFloat(lon);
+    if (!isNaN(numLat) && !isNaN(numLon)) {
+      map.flyTo([numLat, numLon], 9, { duration: 1.0 });
+      addWeatherMarker(numLat, numLon, label || "Selected Location", true);
+    }
+  };
+
+  window.searchCity = async function(name) {
+    const query = (name || "").trim();
+    if (!query) return;
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      const results = await res.json();
+      if (results && results.length > 0) {
+        const place = results[0];
+        const lat = parseFloat(place.lat);
+        const lon = parseFloat(place.lon);
+        const shortName = place.display_name.split(',')[0];
+        map.flyTo([lat, lon], 9, { duration: 1.2 });
+        addWeatherMarker(lat, lon, shortName, true);
+      }
+    } catch (e) {
+      console.warn("City geocode failed:", e);
+    }
+  };
+
+  window.selectBaseLayer = function(layerType) {
+    if (layerType === 'street') {
+      if (map.hasLayer(satelliteLayer)) map.removeLayer(satelliteLayer);
+      if (!map.hasLayer(streetLayer)) map.addLayer(streetLayer);
+    } else {
+      if (map.hasLayer(streetLayer)) map.removeLayer(streetLayer);
+      if (!map.hasLayer(satelliteLayer)) map.addLayer(satelliteLayer);
+    }
+  };
+
+  window.locateUser = locateUser;
+</script>
+</body>
+</html>

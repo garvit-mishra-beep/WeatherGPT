@@ -1,0 +1,25 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "country_code": "IN",
+        "country_name": "India",
+        "area_sqkm": 3287263.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [68.0, 6.0],
+            [98.0, 6.0],
+            [98.0, 38.0],
+            [68.0, 38.0],
+            [68.0, 6.0]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -46,6 +46,10 @@ async def backend_lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         from app.core.readiness import ProviderHealthProbe
         readiness.register(ProviderHealthProbe(weather_manager=container.weather_manager))
 
+    # Ollama LLM Probe (reports AVAILABLE / UNAVAILABLE / DISABLED)
+    from app.core.readiness import OllamaProbe
+    readiness.register(OllamaProbe(settings=settings))
+
     # Database: initialize the async engine + register its probe, but only in
     # environments that actually have a database (not the offline "test" env).
     if settings.app_env != "test":

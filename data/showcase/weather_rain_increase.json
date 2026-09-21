@@ -1,0 +1,33 @@
+{
+  "record_id": "SHOWCASE-OBS-002",
+  "scenario_id": "SCENARIO-GWALIOR-MONSOON-2026",
+  "source_id": "OPEN_METEO",
+  "source_authority": "E2",
+  "evidence_class": "OBSERVATION",
+  "observed_at": "2026-09-21T09:30:00Z",
+  "ingested_at": "2026-09-21T09:31:00Z",
+  "valid_from": "2026-09-21T09:30:00Z",
+  "valid_until": "2026-09-21T12:30:00Z",
+  "geography": "Gwalior District",
+  "coordinates": {
+    "latitude": 26.2183,
+    "longitude": 78.1828
+  },
+  "measurements": {
+    "temperature_c": 24.2,
+    "relative_humidity_pct": 95.0,
+    "wind_speed_kmh": 38.0,
+    "precipitation_mm": 88.5,
+    "surface_pressure_hpa": 998.4
+  },
+  "delta_summary": {
+    "precipitation_delta_mm": 85.5,
+    "precipitation_percentage_delta": 2850.0,
+    "wind_delta_kmh": 25.5,
+    "temperature_delta_c": -4.3,
+    "exceeds_prototype_threshold": true
+  },
+  "quality_state": "VALID",
+  "freshness_state": "FRESH",
+  "payload_hash": "b2c3d4e5f6a10718293a4b5c6d7e8f90123456789abcdef0123456789abcdef1"
+}

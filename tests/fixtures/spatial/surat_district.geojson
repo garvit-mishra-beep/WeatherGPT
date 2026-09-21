@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "district_code": "IN-GJ-24",
+        "state_code": "IN-GJ",
+        "district_name": "Surat",
+        "area_sqkm": 4418.0,
+        "centroid_lat": 21.1702,
+        "centroid_lon": 72.8311
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [72.6, 20.9],
+            [73.3, 20.9],
+            [73.3, 21.6],
+            [72.6, 21.6],
+            [72.6, 20.9]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -99,6 +99,9 @@ class DomainUseCasesTest {
         override suspend fun getPointWeatherMap(latitude: Double, longitude: Double) = throw NotImplementedError()
         override suspend fun getWarningMap(warningGeometry: kotlinx.serialization.json.JsonObject, alertId: String, event: String, severity: String) = throw NotImplementedError()
         override suspend fun getRiskMap(latitude: Double?, longitude: Double?, districtCode: String?, observedRainMm: Double?, observedWindKmh: Double?) = throw NotImplementedError()
+        override suspend fun evaluateDecision(question: String, locationName: String?, latitude: Double?, longitude: Double?, requestedTime: String?, domain: String?, context: Map<String, String>?) = throw NotImplementedError()
+        override suspend fun getFarmerProfile(): ResultState<com.weathergpt.domain.model.farmer.FarmerProfile> = ResultState.Success(com.weathergpt.domain.model.farmer.FarmerProfile())
+        override suspend fun saveFarmerProfile(profile: com.weathergpt.domain.model.farmer.FarmerProfile): ResultState<Unit> = ResultState.Success(Unit)
     }
 
     @Test

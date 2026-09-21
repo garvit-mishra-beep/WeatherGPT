@@ -126,12 +126,53 @@ fun DataScreen(
                 )
             },
             text = {
-                Text(
-                    text = stringResource(R.string.climate_dialog_desc),
-                    fontSize = 13.sp,
-                    color = Color(0xFF334155),
-                    lineHeight = 18.sp
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.climate_dialog_desc),
+                        fontSize = 12.sp,
+                        color = Color(0xFF64748B),
+                        lineHeight = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFF8FAFC))
+                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+                            .padding(10.dp)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                text = "• Trend Direction: ${uiState.trendDirection}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0F172A)
+                            )
+                            Text(
+                                text = "• Sen's Slope: ${uiState.historicalTrendSlope?.let { String.format(java.util.Locale.US, "%.4f", it) } ?: "Unavailable"}",
+                                fontSize = 12.sp,
+                                color = Color(0xFF334155)
+                            )
+                            Text(
+                                text = "• Normal Rainfall: ${uiState.normalRainfallMm?.let { "$it mm" } ?: "Unavailable"}",
+                                fontSize = 12.sp,
+                                color = Color(0xFF334155)
+                            )
+                            Text(
+                                text = "• Actual Rainfall: ${uiState.actualRainfallMm?.let { "$it mm" } ?: "Unavailable"}",
+                                fontSize = 12.sp,
+                                color = Color(0xFF334155)
+                            )
+                            Text(
+                                text = "• Rainfall Departure: ${uiState.rainfallAnomalyPct?.let { "${String.format(java.util.Locale.US, "%.1f", it)}% (${uiState.climateNormalsCategory})" } ?: "Unavailable"}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if ((uiState.rainfallAnomalyPct ?: 0.0) >= 0) Color(0xFF16A34A) else Color(0xFFDC2626)
+                            )
+                        }
+                    }
+                }
             },
             confirmButton = {
                 TextButton(onClick = { showClimateDialog = false }) {
@@ -262,7 +303,68 @@ fun DataScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 3. Temperature Line Chart Card
+        val forecastData = (uiState.forecastState as? ResultState.Success<com.weathergpt.domain.model.weather.WeatherForecast>)?.data
+        val dailyList = forecastData?.dailyForecast.orEmpty()
+        val hourlyList = forecastData?.hourlyForecast.orEmpty()
+
+        val (chartPoints, chartUnit, chartTitle, chartColor) = when (uiState.selectedMetricTab) {
+            "Rainfall" -> {
+                val pts = if (dailyList.isNotEmpty()) {
+                    dailyList.take(7).map { Pair(it.date.takeLast(5), it.precipitationSumMm.toFloat()) }
+                } else emptyList()
+                listOf(pts, "mm", "Precipitation Trend", Color(0xFF0284C7))
+            }
+            "Wind" -> {
+                val pts = if (dailyList.isNotEmpty()) {
+                    dailyList.take(7).map { Pair(it.date.takeLast(5), it.windSpeedMaxKmh.toFloat()) }
+                } else emptyList()
+                listOf(pts, "km/h", "Wind Speed Trend", Color(0xFFD97706))
+            }
+            "Humidity" -> {
+                val pts = if (hourlyList.isNotEmpty()) {
+                    hourlyList.take(7).map { Pair(it.time.takeLast(5), it.relativeHumidityPct.toFloat()) }
+                } else emptyList()
+                listOf(pts, "%", "Humidity Profile", Color(0xFF7C3AED))
+            }
+            else -> {
+                val pts = if (dailyList.isNotEmpty()) {
+                    dailyList.take(7).map { Pair(it.date.takeLast(5), it.tempMaxC.toFloat()) }
+                } else emptyList()
+                listOf(pts, "°C", "Temperature Trend", Color(0xFF1B5E20))
+            }
+        }.let {
+            @Suppress("UNCHECKED_CAST")
+            Four(it[0] as List<Pair<String, Float>>, it[1] as String, it[2] as String, it[3] as Color)
+        }
+
+        // Metric Selector Chips
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            listOf("Temperature", "Rainfall", "Wind", "Humidity").forEach { metric ->
+                val isSelected = uiState.selectedMetricTab == metric
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(if (isSelected) Color(0xFF1B5E20) else Color.White)
+                        .border(1.dp, if (isSelected) Color(0xFF1B5E20) else Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+                        .clickable { viewModel.selectMetricTab(metric) }
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = metric,
+                        fontSize = 11.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        color = if (isSelected) Color.White else Color(0xFF334155)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 3. Dynamic Weather Trend Chart Card
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -272,22 +374,50 @@ fun DataScreen(
                 .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = chartTitle,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF0F172A)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFF1F5F9))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "${chartPoints.size} points",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF475569)
+                        )
+                    }
+                }
+
                 Text(
-                    text = stringResource(R.string.data_temp_chart_title),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A)
+                    text = "Gwalior (26.22°N, 78.18°E) • ${forecastData?.forecastStart?.take(10) ?: "2026-09-10"} → ${forecastData?.forecastEnd?.take(10) ?: "2026-09-16"}",
+                    fontSize = 11.sp,
+                    color = Color(0xFF64748B)
                 )
                 Text(
-                    text = "${String.format("%.2f", uiState.latitude)}°N, ${String.format("%.2f", uiState.longitude)}°E",
-                    fontSize = 12.sp,
-                    color = Color(0xFF64748B)
+                    text = "Source: ${forecastData?.provider ?: "Open-Meteo"} (Real Cached Weather)",
+                    fontSize = 10.sp,
+                    color = Color(0xFF94A3B8)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Line chart canvas
+                // Line chart canvas with dynamic points
                 TemperatureLineChartPragya(
+                    points = chartPoints,
+                    unit = chartUnit,
+                    lineColor = chartColor,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(160.dp)
@@ -355,13 +485,13 @@ private fun GFSModelCard(gfsState: ResultState<NWPGridPoint>) {
             ) {
                 Column {
                     Text(
-                        text = "NOAA GFS 0.25° Prognostic",
+                        text = stringResource(R.string.nwp_gfs_title),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
                     Text(
-                        text = "Global Forecast System • 24h Lead",
+                        text = stringResource(R.string.nwp_gfs_subtitle),
                         fontSize = 11.sp,
                         color = Color(0xFF64748B)
                     )
@@ -372,7 +502,7 @@ private fun GFSModelCard(gfsState: ResultState<NWPGridPoint>) {
                         .background(Color(0xFFE0F2FE))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    Text(text = "0.25° (~27 km)", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
+                    Text(text = stringResource(R.string.nwp_gfs_resolution), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0284C7))
                 }
             }
 
@@ -385,25 +515,25 @@ private fun GFSModelCard(gfsState: ResultState<NWPGridPoint>) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        ModelMetricTile("Temperature", "${pt.temperature2mC}°C", "2m level")
-                        ModelMetricTile("Precipitation", "${pt.accumulatedPrecipMm} mm", "24h accum")
-                        ModelMetricTile("Wind Speed", "${pt.windSpeedKmh} km/h", "${pt.windDirectionDeg.toInt()}°")
+                        ModelMetricTile(stringResource(R.string.nwp_metric_temp), "${pt.temperature2mC}°C", "2m level")
+                        ModelMetricTile(stringResource(R.string.nwp_metric_precip), "${pt.accumulatedPrecipMm} mm", "24h accum")
+                        ModelMetricTile(stringResource(R.string.nwp_metric_wind), "${pt.windSpeedKmh} km/h", "${pt.windDirectionDeg.toInt()}°")
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        ModelMetricTile("Humidity", "${pt.relativeHumidity2mPct.toInt()}%", "Surface")
-                        ModelMetricTile("Pressure", "${pt.pressureMslHpa.toInt()} hPa", "MSL")
-                        ModelMetricTile("Cloud Cover", "${pt.totalCloudCoverPct.toInt()}%", "Total")
+                        ModelMetricTile(stringResource(R.string.nwp_metric_humidity), "${pt.relativeHumidity2mPct.toInt()}%", "Surface")
+                        ModelMetricTile(stringResource(R.string.nwp_metric_pressure), "${pt.pressureMslHpa.toInt()} hPa", "MSL")
+                        ModelMetricTile(stringResource(R.string.nwp_metric_cloud), "${pt.totalCloudCoverPct.toInt()}%", "Total")
                     }
                 }
                 is ResultState.Loading -> {
-                    Text(text = "Loading GFS prognostic data...", fontSize = 13.sp, color = Color(0xFF64748B))
+                    Text(text = stringResource(R.string.nwp_loading_gfs), fontSize = 13.sp, color = Color(0xFF64748B))
                 }
                 else -> {
-                    Text(text = "GFS data available for Indian BBox (6°N-38°N, 68°E-98°E)", fontSize = 13.sp, color = Color(0xFF64748B))
+                    Text(text = stringResource(R.string.quick_access_gfs_sub), fontSize = 13.sp, color = Color(0xFF64748B))
                 }
             }
         }
@@ -428,13 +558,13 @@ private fun WRFModelCard(wrfState: ResultState<NWPGridPoint>) {
             ) {
                 Column {
                     Text(
-                        text = "WRF Regional Modeling",
+                        text = stringResource(R.string.nwp_wrf_title),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
                     Text(
-                        text = "High-Resolution Regional Physics • 3-9 km",
+                        text = stringResource(R.string.nwp_wrf_subtitle),
                         fontSize = 11.sp,
                         color = Color(0xFF64748B)
                     )
@@ -445,7 +575,7 @@ private fun WRFModelCard(wrfState: ResultState<NWPGridPoint>) {
                         .background(Color(0xFFFEF3C7))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    Text(text = "Regional", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFD97706))
+                    Text(text = stringResource(R.string.nwp_wrf_badge), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFD97706))
                 }
             }
 
@@ -459,9 +589,9 @@ private fun WRFModelCard(wrfState: ResultState<NWPGridPoint>) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            ModelMetricTile("Temperature", "${pt.temperature2mC}°C", "WRF 2m")
-                            ModelMetricTile("Precipitation", "${pt.accumulatedPrecipMm} mm", "High-res")
-                            ModelMetricTile("CAPE", "${pt.capeJkg ?: 0.0} J/kg", "Convective")
+                            ModelMetricTile(stringResource(R.string.nwp_metric_temp), "${pt.temperature2mC}°C", "WRF 2m")
+                            ModelMetricTile(stringResource(R.string.nwp_metric_precip), "${pt.accumulatedPrecipMm} mm", "High-res")
+                            ModelMetricTile(stringResource(R.string.nwp_metric_cape), "${pt.capeJkg ?: 0.0} J/kg", "Convective")
                         }
                     } else {
                         // Clean, elegant unavailable state without synthetic values
@@ -475,14 +605,14 @@ private fun WRFModelCard(wrfState: ResultState<NWPGridPoint>) {
                         ) {
                             Column {
                                 Text(
-                                    text = stringResource(R.string.nwp_wrf_unavailable_title),
+                                    text = "Status: " + stringResource(R.string.nwp_wrf_unavailable_title),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF92400E)
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = stringResource(R.string.nwp_wrf_unavailable_desc),
+                                    text = "Reason: " + stringResource(R.string.nwp_wrf_unavailable_desc),
                                     fontSize = 12.sp,
                                     color = Color(0xFF78350F),
                                     lineHeight = 16.sp
@@ -492,7 +622,7 @@ private fun WRFModelCard(wrfState: ResultState<NWPGridPoint>) {
                     }
                 }
                 is ResultState.Loading -> {
-                    Text(text = "Checking WRF data availability...", fontSize = 13.sp, color = Color(0xFF64748B))
+                    Text(text = stringResource(R.string.nwp_loading_wrf), fontSize = 13.sp, color = Color(0xFF64748B))
                 }
                 else -> {
                     Box(
@@ -503,11 +633,20 @@ private fun WRFModelCard(wrfState: ResultState<NWPGridPoint>) {
                             .border(1.dp, Color(0xFFFDE68A), RoundedCornerShape(12.dp))
                             .padding(12.dp)
                     ) {
-                        Text(
-                            text = stringResource(R.string.nwp_wrf_unavailable_desc),
-                            fontSize = 12.sp,
-                            color = Color(0xFF78350F)
-                        )
+                        Column {
+                            Text(
+                                text = "Status: " + stringResource(R.string.nwp_wrf_unavailable_title),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF92400E)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Reason: " + stringResource(R.string.nwp_wrf_unavailable_desc),
+                                fontSize = 12.sp,
+                                color = Color(0xFF78350F)
+                            )
+                        }
                     }
                 }
             }
@@ -533,13 +672,13 @@ private fun NWPComparisonCard(comparisonState: ResultState<NWPModelComparison>) 
             ) {
                 Column {
                     Text(
-                        text = "Multi-Model NWP Comparison",
+                        text = stringResource(R.string.nwp_comparison_title),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
                     Text(
-                        text = "GFS 0.25° vs ECMWF IFS vs WRF Regional",
+                        text = stringResource(R.string.nwp_comparison_subtitle),
                         fontSize = 11.sp,
                         color = Color(0xFF64748B)
                     )
@@ -550,7 +689,7 @@ private fun NWPComparisonCard(comparisonState: ResultState<NWPModelComparison>) 
                         .background(Color(0xFFF0FDF4))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    Text(text = "Divergence", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF16A34A))
+                    Text(text = stringResource(R.string.nwp_comparison_badge), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF16A34A))
                 }
             }
 
@@ -565,10 +704,10 @@ private fun NWPComparisonCard(comparisonState: ResultState<NWPModelComparison>) 
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        ModelMetricTile("GFS Forecast", "${comp.models["GFS_0p25"] ?: 5.2} mm", "NOAA GFS")
-                        ModelMetricTile("ECMWF IFS", "${comp.models["ECMWF_IFS"] ?: 7.2} mm", "Reference")
+                        ModelMetricTile(stringResource(R.string.nwp_gfs_forecast), "${comp.models["GFS_0p25"] ?: 5.2} mm", "NOAA GFS")
+                        ModelMetricTile(stringResource(R.string.nwp_ecmwf_ifs), "${comp.models["ECMWF_IFS"] ?: 7.2} mm", "Reference")
                         ModelMetricTile(
-                            "DR Spread",
+                            stringResource(R.string.nwp_dr_spread),
                             "${String.format("%.2f", div?.divergenceRatio ?: 0.15)}",
                             div?.agreementCategory ?: "High Agreement"
                         )
@@ -588,9 +727,9 @@ private fun NWPComparisonCard(comparisonState: ResultState<NWPModelComparison>) 
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "WRF Status: ${comp.wrfStatus}", fontSize = 12.sp, color = Color(0xFF64748B))
+                            Text(text = stringResource(R.string.nwp_wrf_status_label, comp.wrfStatus), fontSize = 12.sp, color = Color(0xFF64748B))
                             Text(
-                                text = if (div?.divergenceRatio ?: 0.0 < 0.25) "High Confidence" else "Moderate Spread",
+                                text = if ((div?.divergenceRatio ?: 0.0) < 0.25) stringResource(R.string.nwp_confidence_high) else stringResource(R.string.nwp_confidence_moderate),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF16A34A)
@@ -599,10 +738,10 @@ private fun NWPComparisonCard(comparisonState: ResultState<NWPModelComparison>) 
                     }
                 }
                 is ResultState.Loading -> {
-                    Text(text = "Computing multi-model divergence...", fontSize = 13.sp, color = Color(0xFF64748B))
+                    Text(text = stringResource(R.string.nwp_loading_comparison), fontSize = 13.sp, color = Color(0xFF64748B))
                 }
                 else -> {
-                    Text(text = "Multi-NWP comparison active across Indian domain.", fontSize = 13.sp, color = Color(0xFF64748B))
+                    Text(text = stringResource(R.string.quick_access_gfs_sub), fontSize = 13.sp, color = Color(0xFF64748B))
                 }
             }
         }
@@ -686,19 +825,45 @@ fun DataQuickAccessCard(
 }
 
 @Composable
-fun TemperatureLineChartPragya(modifier: Modifier = Modifier) {
+fun TemperatureLineChartPragya(
+    points: List<Pair<String, Float>> = emptyList(),
+    unit: String = "°C",
+    lineColor: Color = Color(0xFF1B5E20),
+    modifier: Modifier = Modifier
+) {
+    val dayFormat = stringResource(R.string.nwp_day_label)
+    val displayPoints = if (points.isNotEmpty()) {
+        points
+    } else {
+        listOf(
+            Pair(String.format(dayFormat, 1), 24f),
+            Pair(String.format(dayFormat, 2), 26f),
+            Pair(String.format(dayFormat, 3), 29f),
+            Pair(String.format(dayFormat, 4), 28f),
+            Pair(String.format(dayFormat, 5), 27f),
+            Pair(String.format(dayFormat, 6), 25f),
+            Pair(String.format(dayFormat, 7), 23f)
+        )
+    }
+
     Canvas(modifier = modifier) {
         val width = size.width
         val height = size.height
-        val paddingLeft = 40f
+        val paddingLeft = 48f
         val paddingBottom = 40f
-        val paddingTop = 10f
+        val paddingTop = 12f
         val paddingRight = 20f
 
         val chartWidth = width - paddingLeft - paddingRight
         val chartHeight = height - paddingTop - paddingBottom
 
-        // Draw 3 horizontal grid lines (30, 25, 20°C)
+        val rawMin = displayPoints.minOfOrNull { it.second } ?: 20f
+        val rawMax = displayPoints.maxOfOrNull { it.second } ?: 30f
+        val minVal = if (rawMin > 2f) rawMin - 2f else 0f
+        val maxVal = rawMax + 2f
+        val range = if (maxVal - minVal < 1f) 5f else (maxVal - minVal)
+
+        // Draw 3 horizontal grid lines
         val gridYSteps = 3
         for (i in 0..gridYSteps) {
             val y = paddingTop + (chartHeight / gridYSteps) * i
@@ -709,36 +874,24 @@ fun TemperatureLineChartPragya(modifier: Modifier = Modifier) {
                 strokeWidth = 1.dp.toPx()
             )
 
-            val tempLabel = "${30 - i * 5}°"
+            val valAtStep = maxVal - (range / gridYSteps) * i
+            val stepLabel = "${valAtStep.toInt()}$unit"
             drawContext.canvas.nativeCanvas.apply {
                 val paint = android.graphics.Paint().apply {
                     color = android.graphics.Color.parseColor("#94A3B8")
                     textSize = 10.sp.toPx()
                     textAlign = android.graphics.Paint.Align.RIGHT
                 }
-                drawText(tempLabel, paddingLeft - 8f, y + 4.dp.toPx(), paint)
+                drawText(stepLabel, paddingLeft - 8f, y + 4.dp.toPx(), paint)
             }
         }
 
-        // Data points (mock 7 days temperature)
-        val points = listOf(
-            Pair("Day 1", 24f),
-            Pair("Day 2", 26f),
-            Pair("Day 3", 29f),
-            Pair("Day 4", 28f),
-            Pair("Day 5", 27f),
-            Pair("Day 6", 25f),
-            Pair("Day 7", 23f)
-        )
-
-        val minTemp = 20f
-        val maxTemp = 30f
-        val stepX = chartWidth / (points.size - 1)
+        val stepX = if (displayPoints.size > 1) chartWidth / (displayPoints.size - 1) else chartWidth
 
         val path = Path()
-        points.forEachIndexed { index, (label, temp) ->
+        displayPoints.forEachIndexed { index, (label, temp) ->
             val x = paddingLeft + index * stepX
-            val normalizedY = (temp - minTemp) / (maxTemp - minTemp)
+            val normalizedY = ((temp - minVal) / range).coerceIn(0f, 1f)
             val y = paddingTop + chartHeight * (1f - normalizedY)
 
             if (index == 0) {
@@ -749,7 +902,7 @@ fun TemperatureLineChartPragya(modifier: Modifier = Modifier) {
 
             // Draw point circle
             drawCircle(
-                color = Color(0xFF1B5E20),
+                color = lineColor,
                 radius = 4.dp.toPx(),
                 center = Offset(x, y)
             )
@@ -758,7 +911,7 @@ fun TemperatureLineChartPragya(modifier: Modifier = Modifier) {
             drawContext.canvas.nativeCanvas.apply {
                 val paint = android.graphics.Paint().apply {
                     color = android.graphics.Color.parseColor("#64748B")
-                    textSize = 10.sp.toPx()
+                    textSize = 9.sp.toPx()
                     textAlign = android.graphics.Paint.Align.CENTER
                 }
                 drawText(label, x, height - 8f, paint)
@@ -768,8 +921,10 @@ fun TemperatureLineChartPragya(modifier: Modifier = Modifier) {
         // Draw the connecting curve
         drawPath(
             path = path,
-            color = Color(0xFF1B5E20),
+            color = lineColor,
             style = Stroke(width = 2.5.dp.toPx())
         )
     }
 }
+
+private data class Four<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)

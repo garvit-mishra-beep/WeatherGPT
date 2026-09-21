@@ -3,7 +3,7 @@
 Computes deterministic atmospheric aggregations over Polygon & MultiPolygon boundaries.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import numpy as np
 
 from app.nwp.errors import NWPError

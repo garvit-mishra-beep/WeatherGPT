@@ -8,8 +8,8 @@
 [![Compile SDK](https://img.shields.io/badge/Compile%20SDK-35-blue.svg?style=flat-square)](https://developer.android.com/about/versions/15)
 [![Min SDK](https://img.shields.io/badge/Min%20SDK-26%20(Android%208.0)-blue.svg?style=flat-square)](https://developer.android.com/about/versions/oreo)
 [![Target SDK](https://img.shields.io/badge/Target%20SDK-35-blue.svg?style=flat-square)](https://developer.android.com/about/versions/15)
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-105%20Passing-brightgreen.svg?style=flat-square&logo=junit5&logoColor=white)](app/src/test/)
-[![Bilingual](https://img.shields.io/badge/Localization-English%20%7C%20Hindi-orange.svg?style=flat-square)](app/src/main/res/)
+[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-149%20Passing-brightgreen.svg?style=flat-square&logo=junit5&logoColor=white)](app/src/test/)
+[![Localization](https://img.shields.io/badge/Localization-10%20Indian%20Languages-orange.svg?style=flat-square)](app/src/main/res/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](../LICENSE)
 
 **Native Jetpack Compose Mobile Client for WeatherGPT**
@@ -41,7 +41,7 @@ $$\text{User Query} \longrightarrow \text{StateFlow / ViewModel} \longrightarrow
 ## 1. Key Capabilities & Design Highlights
 
 - **Pixel-Perfect Visual Fidelity**: Built directly from Pragya's approved visual design prototype with consistent typography, custom organic shapes, rounded card elevations, and curated color palettes.
-- **100% Reactive Bilingual Localization**: Dynamic, runtime English and Hindi switching across all 11 screens, dialogs, bottom sheets, and metric cards via centralized Android string resources (`values/strings.xml` and `values-hi/strings.xml`). Zero hardcoded Devanagari in Kotlin code.
+- **100% Reactive Localization (10 Languages)**: Dynamic, runtime language switching across all 11 screens, dialogs, bottom sheets, and metric cards via centralized Android string resources (`values/`, `values-hi/`, `values-mr/`, `values-bn/`, `values-ta/`, `values-te/`, `values-gu/`, `values-kn/`, `values-ml/`, `values-pa/`). Zero hardcoded text in Kotlin code.
 - **Domain Intelligence Reasoning (4 Brains)**: Seamless conversational interactions with specialized agents:
   1. **General Weather Brain**: Everyday consumer forecasts and severe weather alerts.
   2. **Farmer Brain (Kisan Mitra)**: FAO-56 $ET_0$ irrigation advisories, growth stage tracking, and spray window suitability.
@@ -49,7 +49,7 @@ $$\text{User Query} \longrightarrow \text{StateFlow / ViewModel} \longrightarrow
   4. **Analyst Brain**: Spatial hazard-exposure-vulnerability indicators, multi-model NWP spread, and disaster risk mitigation.
 - **Interactive Weather & Radar Canvas**: Mobile-optimized map rendering with layer filtering (Rain, Temperature, Wind, Humidity), precipitation intensity legend, and a timeline scrubber playback bar.
 - **Official Warning Immutability**: Real-time rendering of official IMD / NDMA Sachet OASIS CAP XML severe weather warnings with immutable severity color tokens (Green, Yellow, Orange, Red).
-- **Zero Microphone Scope**: Voice/STT/TTS has been cleanly removed from the scope, eliminating background audio permissions and maximizing UI clarity for text and card interactions.
+- **Cloud-Native Voice Button & Peripheral Layer**: Integrated Google Cloud Speech-to-Text V2 + Text-to-Speech peripheral layer in Chat composer with 48dp accessible touch targets, explicit WCAG content descriptions, 7 reactive UI states, live pulsing recording indicator, and graceful non-fatal error fallback.
 
 ---
 
@@ -109,7 +109,7 @@ The Android application follows official Android Clean Architecture guidelines w
 | :---: | :--- | :--- | :--- | :--- |
 | **1** | **Home Screen** | [`HomeScreen.kt`](app/src/main/java/com/weathergpt/presentation/home/HomeScreen.kt) | `HomeViewModel` | User greeting, Vayubodhak intro, quick workflow chips ("Will it rain?", "Forecast", "Alerts", "Map"), search bar, live weather card with metric pills. |
 | **2** | **Conversational Chat** | [`ChatScreen.kt`](app/src/main/java/com/weathergpt/presentation/chat/ChatScreen.kt) | `ChatViewModel` | Streaming message stream, recommendation callout cards, verified source provenance chips, and inline retry button. |
-| **3** | **Brain Selection** | [`BrainSelectionBottomSheet.kt`](app/src/main/java/com/weathergpt/presentation/brain/BrainSelectionBottomSheet.kt) | `MainViewModel` | Modal bottom sheet allowing selection between Auto (Recommended), General, Farmer, Researcher, and Analyst brains with full bilingual capability descriptions. |
+| **3** | **Brain Selection** | [`BrainSelectionScreen.kt`](app/src/main/java/com/weathergpt/presentation/brain/BrainSelectionScreen.kt) | `MainViewModel` | Modal bottom sheet allowing selection between Auto (Recommended), General, Farmer, Researcher, and Analyst brains with full bilingual capability descriptions. |
 | **4** | **Weather & Forecast** | [`WeatherScreen.kt`](app/src/main/java/com/weathergpt/presentation/weather/WeatherScreen.kt) | `WeatherViewModel` | Multi-interval tabs (Hourly, 3 Days, 5 Days, 10 Days), condition summary card, 24h temperature trend carousel, and meteorological metric cards. |
 | **5** | **Radar & Weather Map** | [`MapScreen.kt`](app/src/main/java/com/weathergpt/presentation/map/MapScreen.kt) | `MapViewModel` | Technical radar map canvas, interactive layer chips (Rain, Temperature, Wind, Humidity), precipitation intensity scale, and timeline scrubber. |
 | **6** | **Official Alerts** | [`AlertsScreen.kt`](app/src/main/java/com/weathergpt/presentation/alerts/AlertsScreen.kt) | `AlertsViewModel` | Official IMD CAP XML severe weather warnings, category filters (All, Weather, Agriculture, Government), and detailed advisory modal dialogs. |
@@ -133,20 +133,17 @@ fun ProvideAppLanguage(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    val locale = when (language) {
-        AppLanguage.ENGLISH -> Locale("en")
-        AppLanguage.HINDI -> Locale("hi")
-    }
-    val localizedConfig = remember(locale) {
-        Configuration(context.resources.configuration).apply {
+    val (localizedContext, localizedConfig) = remember(context, language) {
+        val locale = Locale(language.code)
+        Locale.setDefault(locale)
+        val config = Configuration(context.resources.configuration).apply {
             setLocale(locale)
+            setLayoutDirection(locale)
         }
-    }
-    val localizedContext = remember(locale) {
-        context.createConfigurationContext(localizedConfig)
+        val ctx = context.createConfigurationContext(config)
+        Pair(ctx, config)
     }
 
-    // Injects both localizedContext and localizedConfig into Compose hierarchy
     CompositionLocalProvider(
         LocalContext provides localizedContext,
         LocalConfiguration provides localizedConfig
@@ -159,7 +156,8 @@ fun ProvideAppLanguage(
 ### Architectural Guarantees:
 1. **Instant Runtime Switching**: Toggling language in Settings triggers an immediate recomposition of the entire `@Composable` tree with zero Activity recreation and zero navigation reset.
 2. **Persistence**: `SharedSettingsManager` stores `AppLanguage` in `SharedPreferences` and restores it immediately upon application launch.
-3. **Zero Devanagari in Kotlin**: All user-facing strings are strictly extracted into `res/values/strings.xml` (English) and `res/values-hi/strings.xml` (Hindi).
+3. **10 Official Indian Languages Supported**: All user-facing strings are strictly extracted into `res/values/strings.xml` (English), `res/values-hi/strings.xml` (Hindi), `res/values-bn/strings.xml` (Bengali), `res/values-mr/strings.xml` (Marathi), `res/values-gu/strings.xml` (Gujarati), `res/values-ta/strings.xml` (Tamil), `res/values-te/strings.xml` (Telugu), `res/values-kn/strings.xml` (Kannada), `res/values-ml/strings.xml` (Malayalam), and `res/values-pa/strings.xml` (Punjabi).
+4. **Zero Hardcoded Strings**: All text displayed in UI components is sourced from `stringResource(R.string.*)`.
 
 ---
 
@@ -291,6 +289,7 @@ For complete technical specifications and engineering reports, refer to the docu
 - **UI Prototype Fidelity Report**: [`docs/71_UI_CORRECTION_REPORT.md`](../docs/71_UI_CORRECTION_REPORT.md)
 - **Functional Completion Audit**: [`docs/72_FUNCTIONAL_COMPLETION_AUDIT.md`](../docs/72_FUNCTIONAL_COMPLETION_AUDIT.md)
 - **Complete English & Hindi Localization**: [`docs/73_COMPLETE_ENGLISH_HINDI_LOCALIZATION.md`](../docs/73_COMPLETE_ENGLISH_HINDI_LOCALIZATION.md)
+- **Voice Button UI Integration**: [`docs/74_VOICE_BUTTON_UI_INTEGRATION.md`](../docs/74_VOICE_BUTTON_UI_INTEGRATION.md)
 - **Physical Device Validation**: [`docs/42_PHYSICAL_DEVICE_E2E.md`](../docs/42_PHYSICAL_DEVICE_E2E.md)
 
 ---

@@ -321,4 +321,82 @@ class DtoSerializationTest {
         assertEquals(1, dto.layers.size)
         assertEquals(1, dto.legend.size)
     }
+
+    @Test
+    fun `serializes and deserializes risk assessment request and response payloads`() {
+        val req = com.weathergpt.data.remote.dto.gis.RiskAssessmentRequestDto(
+            districtName = "New Delhi",
+            precip24hPercentile = 88.5,
+            exposureIndex = 6.8,
+            vulnerabilityIndex = 5.9,
+            hazardType = "heavy_rainfall"
+        )
+        val encodedReq = networkJson.encodeToString(com.weathergpt.data.remote.dto.gis.RiskAssessmentRequestDto.serializer(), req)
+        val decodedReq = networkJson.decodeFromString<com.weathergpt.data.remote.dto.gis.RiskAssessmentRequestDto>(encodedReq)
+        assertEquals("New Delhi", decodedReq.districtName)
+        assertEquals(88.5, decodedReq.precip24hPercentile, 0.01)
+
+        val json = """
+            {
+                "district": "New Delhi",
+                "hazard_type": "heavy_rainfall",
+                "hazard_index": 7.2,
+                "exposure_index": 6.8,
+                "vulnerability_index": 5.9,
+                "composite_risk_score": 6.63,
+                "risk_level": "HIGH",
+                "action_priority": "Immediate drainage clearance and low-lying alert"
+            }
+        """.trimIndent()
+        val dto = networkJson.decodeFromString<com.weathergpt.data.remote.dto.gis.RiskAssessmentResponseDto>(json)
+        assertEquals("New Delhi", dto.district)
+        assertEquals("HIGH", dto.riskLevel)
+        assertEquals(6.63, dto.compositeRiskScore, 0.01)
+    }
+
+    @Test
+    fun `deserializes climate trends and normals payloads`() {
+        val trendsJson = """
+            {
+                "location": "New Delhi",
+                "latitude": 28.6139,
+                "longitude": 77.209,
+                "variable": "rainfall",
+                "trend_slope": 0.024,
+                "p_value": 0.012,
+                "is_significant": true,
+                "direction": "INCREASING",
+                "sample_size": 30,
+                "period": "1991-2020",
+                "method": "Mann-Kendall & Sen's Slope"
+            }
+        """.trimIndent()
+        val trendsDto = networkJson.decodeFromString<com.weathergpt.data.remote.dto.climate.ClimateTrendsResponseDto>(trendsJson)
+        assertEquals("INCREASING", trendsDto.direction)
+        assertEquals(0.024, trendsDto.trendSlope, 0.001)
+        assertTrue(trendsDto.isSignificant)
+
+        val normalsJson = """
+            {
+                "location": "New Delhi",
+                "latitude": 28.6139,
+                "longitude": 77.209,
+                "month": 9,
+                "normal_rainfall_mm": 125.0,
+                "actual_rainfall_mm": 110.0,
+                "rainfall_anomaly_pct": -12.0,
+                "normal_temp_c": 34.2,
+                "actual_temp_c": 33.8,
+                "temp_anomaly_c": -0.4,
+                "category": "Normal",
+                "source": "IMD Climatological Tables of Observatories in India (1991-2020)",
+                "reference_period": "1991-2020"
+            }
+        """.trimIndent()
+        val normalsDto = networkJson.decodeFromString<com.weathergpt.data.remote.dto.climate.ClimateNormalsResponseDto>(normalsJson)
+        assertEquals(125.0, normalsDto.normalRainfallMm ?: 0.0, 0.1)
+        assertEquals(110.0, normalsDto.actualRainfallMm ?: 0.0, 0.1)
+        assertEquals(-12.0, normalsDto.rainfallAnomalyPct ?: 0.0, 0.1)
+        assertEquals("Normal", normalsDto.category)
+    }
 }

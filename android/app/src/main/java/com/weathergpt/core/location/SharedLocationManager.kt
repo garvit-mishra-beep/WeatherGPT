@@ -31,7 +31,19 @@ data class LocationState(
 class SharedLocationManager(
     private val context: Context? = null
 ) {
-    private val _locationState = MutableStateFlow(LocationState())
+    private val _locationState = MutableStateFlow(
+        if (com.weathergpt.core.config.AppConfig.isDemoMode) {
+            LocationState(
+                latitude = DEMO_GWALIOR_LATITUDE,
+                longitude = DEMO_GWALIOR_LONGITUDE,
+                districtName = DEMO_GWALIOR_DISTRICT,
+                stateName = DEMO_GWALIOR_STATE,
+                formattedAddress = DEMO_GWALIOR_LOCATION_NAME
+            )
+        } else {
+            LocationState()
+        }
+    )
     val locationState: StateFlow<LocationState> = _locationState.asStateFlow()
 
     init {
@@ -39,18 +51,30 @@ class SharedLocationManager(
     }
 
     val availableLocations: List<PredefinedLocation> = listOf(
-        PredefinedLocation("Surat", "Gujarat", 21.1702, 72.8311, "सूरत, गुजरात"),
+        PredefinedLocation(DEMO_GWALIOR_DISTRICT, DEMO_GWALIOR_STATE, DEMO_GWALIOR_LATITUDE, DEMO_GWALIOR_LONGITUDE, DEMO_GWALIOR_HINDI_NAME),
+        PredefinedLocation("Indore", "Madhya Pradesh", 22.7196, 75.8577, "इंदौर, मध्य प्रदेश"),
+        PredefinedLocation("Delhi", "Delhi", 28.6139, 77.2090, "दिल्ली, दिल्ली"),
         PredefinedLocation("New Delhi", "Delhi", 28.6139, 77.2090, "नई दिल्ली, दिल्ली"),
         PredefinedLocation("Mumbai", "Maharashtra", 19.0760, 72.8777, "मुंबई, महाराष्ट्र"),
+        PredefinedLocation("Chennai", "Tamil Nadu", 13.0827, 80.2707, "चेन्नई, तमिलनाडु"),
+        PredefinedLocation("Surat", "Gujarat", 21.1702, 72.8311, "सूरत, गुजरात"),
         PredefinedLocation("Pune", "Maharashtra", 18.5204, 73.8567, "पुणे, महाराष्ट्र"),
         PredefinedLocation("Ahmedabad", "Gujarat", 23.0225, 72.5714, "अहमदाबाद, गुजरात"),
         PredefinedLocation("Jaipur", "Rajasthan", 26.9124, 75.7873, "जयपुर, राजस्थान"),
         PredefinedLocation("Lucknow", "Uttar Pradesh", 26.8467, 80.9462, "लखनऊ, उत्तर प्रदेश"),
         PredefinedLocation("Patna", "Bihar", 25.5941, 85.1376, "पटना, बिहार"),
         PredefinedLocation("Kolkata", "West Bengal", 22.5726, 88.3639, "कोलकाता, पश्चिम बंगाल"),
-        PredefinedLocation("Bengaluru", "Karnataka", 12.9716, 77.5946, "बेंगलुरु, कर्नाटक"),
-        PredefinedLocation("Chennai", "Tamil Nadu", 13.0827, 80.2707, "चेन्नई, तमिलनाडु")
+        PredefinedLocation("Bengaluru", "Karnataka", 12.9716, 77.5946, "बेंगलुरु, कर्नाटक")
     )
+
+    fun selectGwaliorDemoLocation() {
+        updateLocation(
+            district = DEMO_GWALIOR_DISTRICT,
+            state = DEMO_GWALIOR_STATE,
+            latitude = DEMO_GWALIOR_LATITUDE,
+            longitude = DEMO_GWALIOR_LONGITUDE
+        )
+    }
 
     fun selectPredefinedLocation(location: PredefinedLocation) {
         updateLocation(
@@ -76,6 +100,18 @@ class SharedLocationManager(
         longitude: Double,
         subDistrict: String? = null
     ) {
+        if (com.weathergpt.core.config.AppConfig.isDemoMode) {
+            _locationState.value = LocationState(
+                latitude = DEMO_GWALIOR_LATITUDE,
+                longitude = DEMO_GWALIOR_LONGITUDE,
+                districtName = DEMO_GWALIOR_DISTRICT,
+                stateName = DEMO_GWALIOR_STATE,
+                subDistrictName = null,
+                formattedAddress = DEMO_GWALIOR_LOCATION_NAME,
+                isResolving = false
+            )
+            return
+        }
         val formatted = if (subDistrict != null) {
             "$subDistrict, $district, $state"
         } else {
@@ -94,6 +130,10 @@ class SharedLocationManager(
     }
 
     suspend fun resolveLocationHierarchy(repository: WeatherGPTRepository) {
+        if (com.weathergpt.core.config.AppConfig.isDemoMode) {
+            selectGwaliorDemoLocation()
+            return
+        }
         _locationState.value = _locationState.value.copy(isResolving = true)
         val lat = _locationState.value.latitude
         val lon = _locationState.value.longitude
@@ -119,6 +159,16 @@ class SharedLocationManager(
     }
 
     private fun loadPersistedLocation() {
+        if (com.weathergpt.core.config.AppConfig.isDemoMode) {
+            _locationState.value = LocationState(
+                latitude = DEMO_GWALIOR_LATITUDE,
+                longitude = DEMO_GWALIOR_LONGITUDE,
+                districtName = DEMO_GWALIOR_DISTRICT,
+                stateName = DEMO_GWALIOR_STATE,
+                formattedAddress = DEMO_GWALIOR_LOCATION_NAME
+            )
+            return
+        }
         if (context == null) return
         try {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -157,6 +207,13 @@ class SharedLocationManager(
     }
 
     companion object {
+        const val DEMO_GWALIOR_LATITUDE = 26.2183
+        const val DEMO_GWALIOR_LONGITUDE = 78.1828
+        const val DEMO_GWALIOR_DISTRICT = "Gwalior"
+        const val DEMO_GWALIOR_STATE = "Madhya Pradesh"
+        const val DEMO_GWALIOR_LOCATION_NAME = "Gwalior, Madhya Pradesh"
+        const val DEMO_GWALIOR_HINDI_NAME = "ग्वालियर, मध्य प्रदेश"
+
         private const val PREFS_NAME = "weathergpt_location_prefs"
         private const val KEY_DISTRICT = "selected_district"
         private const val KEY_STATE = "selected_state"

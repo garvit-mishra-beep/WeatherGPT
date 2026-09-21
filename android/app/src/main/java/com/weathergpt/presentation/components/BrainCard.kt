@@ -163,7 +163,7 @@ fun BrainCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
+                        contentDescription = stringResource(R.string.cd_selected),
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
                     )

@@ -1,0 +1,297 @@
+<resources>
+    <string name="app_name">WeatherGPT</string>
+    <string name="app_tagline">ವಾಯುಬೋಧಕ್</string>
+    <string name="app_subtitle">ಹವಾಮಾನವನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಿ, ಸರಳ ಭಾಷೆಯಲ್ಲಿ</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">ಮುಖಪುಟ</string>
+    <string name="nav_chat">ಚಾಟ್</string>
+    <string name="nav_map">ನಕ್ಷೆ</string>
+    <string name="nav_alerts">ಎಚ್ಚರಿಕೆಗಳು</string>
+    <string name="nav_data">ಡೇಟಾ</string>
+    <string name="nav_profile">ಪ್ರೊಫೈಲ್</string>
+    <string name="nav_weather">ಹವಾಮಾನ</string>
+    <string name="nav_settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    <string name="nav_farmer">ರೈತ</string>
+    <string name="nav_analyst">ವಿಶ್ಲೇಷಕ</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">ನಮಸ್ಕಾರ, %1$s!</string>
+    <string name="home_intro">ನಾನು ವಾಯುಬೋಧಕ್, ನಿಮಗೆ ನಿಖರವಾದ ಹವಾಮಾನ ಮಾರ್ಗದರ್ಶನ ನೀಡುವ AI ಒಡನಾಡಿ.</string>
+    <string name="home_search_placeholder">ಇಂದು ಹವಾಮಾನ ಹೇಗಿದೆ? / ಪ್ರಶ್ನೆ ಕೇಳಿ…</string>
+    <string name="home_quick_actions">ತ್ವರಿತ ಸೇವೆಗಳು</string>
+    <string name="action_will_it_rain">ಮಳೆ ಬರುತ್ತಾ?</string>
+    <string name="action_forecast">ಮುನ್ಸೂಚನೆ</string>
+    <string name="action_alerts">ಎಚ್ಚರಿಕೆಗಳು</string>
+    <string name="action_map">ನಕ್ಷೆ</string>
+    <string name="home_live_badge">ಲೈವ್</string>
+    <string name="today">ಇಂದು</string>
+    <string name="feels_like">ಅನುಭವವಾಗುವ ತಾಪಮಾನ</string>
+    <string name="feels_like_full">ಅನುಭವವಾಗುವ ತಾಪಮಾನ %1$s</string>
+    <string name="humidity">ಆರ್ದ್ರತೆ</string>
+    <string name="humidity_full">ಆರ್ದ್ರತೆ %1$s</string>
+    <string name="wind_speed">ಗಾಳಿ</string>
+    <string name="wind_speed_full">ಗಾಳಿ %1$s</string>
+    <string name="air_quality">ಗಾಳಿಯ ಗುಣಮಟ್ಟ</string>
+    <string name="weather_condition_stable">ಹವಾಮಾನವು ಇದೇ ರೀತಿ ಇರುತ್ತದೆ</string>
+    <string name="weather_summary_default">ಮಧ್ಯಾಹ್ನದ ವೇಳೆಗೆ ಲಘುವಾಗಿ ಮಧ್ಯಮ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ. ಗರಿಷ್ಠ ತಾಪಮಾನವು ಸುಮಾರು 32°C ಇರಲಿದೆ.</string>
+    <string name="weather_see_all_forecast">ಸಂಪೂರ್ಣ ಮುನ್ಸೂಚನೆ ನೋಡಿ →</string>
+
+    <!-- Brain Selection Screen -->
+    <string name="brain_selection_title">ನೀವು ಯಾವ Brain ಬಳಸಲು ಬಯಸುತ್ತೀರಿ?</string>
+    <string name="brain_selection_subtitle">ಪ್ರತಿ Brain ನಿರ್ದಿಷ್ಟ ಡೊಮೇನ್ ಪರಿಣತಿಯನ್ನು ಹೊಂದಿದೆ</string>
+    <string name="brain_auto_title">ಸ್ವಯಂಚಾಲಿತ (ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ)</string>
+    <string name="brain_auto_desc">ನಿಮ್ಮ ಪ್ರಶ್ನೆಗೆ ತಕ್ಕಂತೆ ಸೂಕ್ತವಾದ ಡೊಮೇನ್ ಬ್ರೇನ್‌ಗೆ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನಿರ್ದೇಶಿಸುತ್ತದೆ</string>
+    <string name="brain_general_title">ಸಾಮಾನ್ಯ ಹವಾಮಾನ</string>
+    <string name="brain_general_desc">ದೈನಂದಿನ ಮುನ್ಸೂಚನೆ, ಮಳೆಯ ಸಾಧ್ಯತೆ, ತಾಪಮಾನ ಮತ್ತು ಸ್ಥಳೀಯ ಎಚ್ಚರಿಕೆಗಳು</string>
+    <string name="brain_farmer_title">ರೈತ (ಕೃಷಿ)</string>
+    <string name="brain_farmer_desc">FAO-56 ET0 ನೀರಾವರಿ ನಿರ್ವಹಣೆ, ಔಷಧ ಸಿಂಪಡಣೆ ಸಮಯ ಮತ್ತು ಬೆಳೆ ಅಪಾಯ</string>
+    <string name="brain_researcher_title">ಸಂಶೋಧಕ</string>
+    <string name="brain_researcher_desc">ದಶಕಗಳ ಹವಾಮಾನ ಪ್ರವೃತ್ತಿಗಳು, ಸೆನ್ಸ್ ಸ್ಲೋಪ್ ಮತ್ತು CSV ಡೇಟಾ ರಫ್ತು</string>
+    <string name="brain_analyst_title">ವಿಶ್ಲೇಷಕ (ವಿಪತ್ತು/ಅಪಾಯ)</string>
+    <string name="brain_analyst_desc">ಪ್ರಾದೇಶಿಕ ಅಪಾಯ ಮತ್ತು ದುರ್ಬಲತೆ ಮೌಲ್ಯಮಾಪನ ಹಾಗೂ NWP ಮಾದರಿಗಳ ಹೋಲಿಕೆ</string>
+    <string name="brain_note_title">ಸ್ವಯಂ-ಕಲಿಕೆ ಆಟೋ ಬ್ರೈನ್</string>
+    <string name="brain_note_desc">ಕೃಷಿ, ಸಂಶೋಧನೆ ಅಥವಾ ವಿಪತ್ತು ನಿರ್ವಹಣೆಯ ಪ್ರಶ್ನೆಗಳಿಗೆ ಅನುಗುಣವಾಗಿ ಆಟೋ ಬ್ರೈನ್ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಹೊಂದಿಕೊಳ್ಳುತ್ತದೆ.</string>
+
+    <!-- Weather Screen -->
+    <string name="weather_title">ಹವಾಮಾನ ಮತ್ತು ಮುನ್ಸೂಚನೆ</string>
+    <string name="tab_hourly">ಗಂಟೆವಾರು</string>
+    <string name="tab_3day">3 ದಿನಗಳು</string>
+    <string name="tab_5day">5 ದಿನಗಳು</string>
+    <string name="tab_10day">10 ದಿನಗಳು</string>
+    <string name="summary_title">ಮುನ್ಸೂಚನೆಯ ಸಾರಾಂಶ</string>
+    <string name="rain_chance">ಮಳೆಯ ಸಾಧ್ಯತೆ</string>
+    <string name="rainfall">ಮಳೆ ಪ್ರಮಾಣ</string>
+    <string name="forecast_24h_title">24 ಗಂಟೆಗಳ ಮುನ್ಸೂಚನೆ</string>
+    <string name="change_location">ಸ್ಥಳ ಬದಲಾಯಿಸಿ</string>
+    <string name="now">ಈಗ</string>
+
+    <!-- Map Screen -->
+    <string name="map_title">ಹವಾಮಾನ ನಕ್ಷೆ</string>
+    <string name="map_search_hint">ನಗರ ಅಥವಾ ಜಿಲ್ಲೆಯನ್ನು ಹುಡುಕಿ…</string>
+    <string name="cd_my_location">ನನ್ನ ಸ್ಥಳ</string>
+    <string name="cd_clear_search">ಹುಡುಕಾಟವನ್ನು ತೆರವುಗೊಳಿಸಿ</string>
+    <string name="layer_rain">ಮಳೆ</string>
+    <string name="layer_temp">ತಾಪಮಾನ</string>
+    <string name="layer_wind">ಗಾಳಿ</string>
+    <string name="layer_humidity">ಆರ್ದ್ರತೆ</string>
+    <string name="map_timeline_title">ಡಾಪ್ಲರ್ ರಾಡಾರ್ ಸಮಯ ಸರಣಿ</string>
+    <string name="map_legend_light">ಹಗುರ</string>
+    <string name="map_legend_moderate">ಮಧ್ಯಮ</string>
+    <string name="map_legend_heavy">ಭಾರೀ</string>
+    <string name="map_legend_severe">ಅತ್ಯಂತ ಭಾರೀ</string>
+
+    <!-- Alerts Screen -->
+    <string name="alerts_title">ಅಧಿಕೃತ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆಗಳು</string>
+    <string name="filter_all">ಎಲ್ಲವೂ</string>
+    <string name="filter_weather">ಹವಾಮಾನ</string>
+    <string name="filter_agri">ಕೃಷಿ</string>
+    <string name="filter_govt">ಸರ್ಕಾರ</string>
+    <string name="alert_view_details">ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ →</string>
+    <string name="alert_no_alerts">ಈ ಸ್ಥಳಕ್ಕೆ ಯಾವುದೇ ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳಿಲ್ಲ</string>
+    <string name="alert_modal_title">ಎಚ್ಚರಿಕೆ ವಿವರಗಳು</string>
+    <string name="alert_instructions_label">ಸಲಹೆ / ಮಾರ್ಗಸೂಚಿಗಳು:</string>
+    <string name="alert_default_instruction">ಎಚ್ಚರದಿಂದಿರಿ ಮತ್ತು ಸ್ಥಳೀಯ ಹವಾಮಾನ ಕೇಂದ್ರದ ಅಧಿಕೃತ ಮಾಹಿತಿಯನ್ನು ಪಾಲಿಸಿ.</string>
+    <string name="category_general">ಸಾಮಾನ್ಯ</string>
+    <string name="category_imd">IMD OASIS CAP</string>
+    <string name="category_farmer_brain">ರೈತ ಸಲಹೆ</string>
+    <string name="alert_level_green">ಹಸಿರು ಎಚ್ಚರಿಕೆ</string>
+    <string name="alert_level_yellow">ಹಳದಿ ಎಚ್ಚರಿಕೆ</string>
+    <string name="alert_level_orange">ಕಿತ್ತಳೆ ಎಚ್ಚರಿಕೆ</string>
+    <string name="alert_level_red">ಕೆಂಪು ಎಚ್ಚರಿಕೆ</string>
+    <string name="alert_sample_rain_title">ಮಧ್ಯಮ ಮಳೆಯ ನಿರೀಕ್ಷೆ</string>
+    <string name="alert_sample_rain_body">ಜಿಲ್ಲೆಯಲ್ಲಿ ಮಧ್ಯಮ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.</string>
+    <string name="alert_sample_rain_desc">ಪ್ರದೇಶದಲ್ಲಿ ಮಧ್ಯಮ ಮಳೆ (15.6 mm - 64.4 mm) ಮತ್ತು ಗಂಟೆಗೆ 35-45 km/h ವೇಗದಲ್ಲಿ ಗಾಳಿ ಬೀಸುವ ಸಾಧ್ಯತೆಯಿದೆ.</string>
+    <string name="alert_sample_rain_inst">ಹೊಲಗಳಲ್ಲಿ ನೀರು ಸರಾಗವಾಗಿ ಹರಿದುಹೋಗುವಂತೆ ನೋಡಿಕೊಳ್ಳಿ ಮತ್ತು ಕೊಯ್ಲು ಮಾಡಿದ ಬೆಳೆಯನ್ನು ರಕ್ಷಿಸಿ.</string>
+    <string name="alert_sample_irr_title">ನೀರಾವರಿ ಸಲಹೆ</string>
+    <string name="alert_sample_irr_body">ಮುಂದಿನ 48 ಗಂಟೆಗಳಲ್ಲಿ ಲಘು ಮಳೆಯ ಮುನ್ಸೂಚನೆ ಇದೆ. ನಿಗದಿತ ನೀರಾವರಿಯನ್ನು ಮುಂದೂಡಿ.</string>
+    <string name="alert_sample_irr_desc">ಮಣ್ಣಿನ ತೇವಾಂಶ ಸೂಚ್ಯಂಕ 68% ಇದ್ದು ಸಮರ್ಪಕವಾಗಿದೆ. ನೀರು ನಿಲ್ಲುವುದನ್ನು ತಪ್ಪಿಸಲು ನೀರಾವರಿ ಮುಂದೂಡಿ.</string>
+    <string name="alert_sample_irr_inst">ಅತಿಯಾದ ನೀರು ಕೊಡುವುದನ್ನು ತಪ್ಪಿಸಿ. ಮಳೆ ನಿಂತ ನಂತರ ಗೊಬ್ಬರ ಹಾಕಿ.</string>
+    <string name="alert_sample_temp_title">ತಾಪಮಾನ ನವೀಕರಣ</string>
+    <string name="alert_sample_temp_body">ಮೋಡ ಕವಿದ ವಾತಾವರಣದಿಂದಾಗಿ ಹಗಲಿನ ತಾಪಮಾನವು ಸಾಮಾನ್ಯಕ್ಕಿಂತ 2-3°C ಕಡಿಮೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.</string>
+    <string name="alert_sample_temp_desc">ಗರಿಷ್ಠ ತಾಪಮಾನ 31°C ಮತ್ತು ಕನಿಷ್ಠ ತಾಪಮಾನ 24°C ನಿರೀಕ್ಷಿಸಲಾಗಿದೆ.</string>
+    <string name="alert_sample_temp_inst">ಸಾಮಾನ್ಯ ಕೃಷಿ ಚಟುವಟಿಕೆಗಳನ್ನು ಮುಂದುವರಿಸಬಹುದು.</string>
+
+    <!-- Data Screen & NWP -->
+    <string name="data_title">ಹವಾಮಾನ ವಿಜ್ಞಾನ ಡೇಟಾ</string>
+    <string name="action_historical_data">ಐತಿಹಾಸಿಕ ಮಾಹಿತಿ</string>
+    <string name="action_model_comparison">ಮಾದರಿ ಹೋಲಿಕೆ</string>
+    <string name="action_export_data">ಡೇಟಾ ರಫ್ತು ಮಾಡಿ</string>
+    <string name="data_temp_chart_title">ತಾಪಮಾನ ಪ್ರವೃತ್ತಿ (°C)</string>
+    <string name="quick_access_title">ತ್ವರಿತ ಲಿಂಕ್‌ಗಳು</string>
+    <string name="quick_access_analyst">ವಿಶ್ಲೇಷಕರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
+    <string name="quick_access_analyst_sub">ಪ್ರಾದೇಶಿಕ ಅಪಾಯ ಮತ್ತು ದುರ್ಬಲತೆ ಸೂಚ್ಯಂಕಗಳು</string>
+    <string name="quick_access_gfs">GFS 0.25° NWP ಮಾದರಿ</string>
+    <string name="quick_access_gfs_sub">ಭಾರತೀಯ ಉಪಖಂಡಕ್ಕಾಗಿ 0.25° ಗ್ರಿಡ್ ಮಾದರಿ</string>
+    <string name="quick_access_climate">ಮ್ಯಾನ್-ಕೆಂಡಾಲ್ ಹವಾಮಾನ ಪ್ರವೃತ್ತಿ</string>
+    <string name="quick_access_climate_sub">ಮ್ಯಾನ್-ಕೆಂಡಾಲ್ ಮತ್ತು ಸೆನ್ಸ್ ಸ್ಲೋಪ್ ಅಂಕಿಅಂಶಗಳು</string>
+    <string name="export_success">ಡೇಟಾಸೆಟ್ ಅನ್ನು CSV ಫೈಲ್ ಆಗಿ ಯಶಸ್ವಿಯಾಗಿ ರಫ್ತು ಮಾಡಲಾಗಿದೆ.</string>
+    <string name="export_dialog_title">ಹವಾಮಾನ ಡೇಟಾ ರಫ್ತು ಮಾಡಿ</string>
+    <string name="export_dialog_desc">30 ವರ್ಷಗಳ ಐತಿಹಾಸಿಕ ಹವಾಮಾನ ಮತ್ತು NWP ಡೇಟಾಸೆಟ್ CSV ಫೈಲ್ ರೂಪದಲ್ಲಿ ಸಿದ್ಧವಾಗಿದೆ.\n• ಫೈಲ್: weathergpt_climate_dataset.csv\n• ಒದಗಿಸುವವರು: NOAA GFS 0.25°, Open-Meteo, IMD OASIS\n• ನಿಯತಾಂಕಗಳು: ಮಳೆ, ಕನಿಷ್ಠ/ಗರಿಷ್ಠ ತಾಪಮಾನ, ET0, ಆರ್ದ್ರತೆ</string>
+    <string name="gfs_dialog_title">GFS 0.25° NWP ಗ್ರಿಡ್ ಮಾದರಿ</string>
+    <string name="gfs_dialog_desc">ಭಾರತೀಯ ಉಪಖಂಡವನ್ನು (6°N-38°N, 68°E-98°E) ಒಳಗೊಂಡಿರುವ 2D ಬೈಲಿನಿಯರ್ ಪ್ರಾದೇಶಿಕ ಇಂಟರ್‌ಪೋಲೇಶನ್‌ನೊಂದಿಗೆ ಗ್ಲೋಬಲ್ ಫೋರ್‌ಕಾಸ್ಟ್ ಸಿಸ್ಟಮ್ (GFS) 0.25° ವಾತಾವರಣ ಗ್ರಿಡ್ ಮಾದರಿ.</string>
+    <string name="climate_dialog_title">ಮ್ಯಾನ್-ಕೆಂಡಾಲ್ ಹವಾಮಾನ ಪ್ರವೃತ್ತಿ</string>
+    <string name="climate_dialog_desc">ಮಳೆ ಮತ್ತು ತಾಪಮಾನದ ದೀರ್ಘಕಾಲೀನ ಪ್ರವೃತ್ತಿಗಳನ್ನು ಮೌಲ್ಯಮಾಪನ ಮಾಡುವ ನಾನ್-ಪ್ಯಾರಾಮೆಟ್ರಿಕ್ ಮ್ಯಾನ್-ಕೆಂಡಾಲ್ ಪರೀಕ್ಷೆ ಮತ್ತು ಸೆನ್ಸ್ ಸ್ಲೋಪ್ (95% CI).</string>
+    <string name="nwp_gfs_tab">GFS (0.25°)</string>
+    <string name="nwp_wrf_tab">WRF (ಪ್ರಾದೇಶಿಕ)</string>
+    <string name="nwp_comparison_tab">ಮಾದರಿ ಹೋಲಿಕೆ</string>
+    <string name="nwp_gfs_title">NOAA GFS 0.25° ಮುನ್ಸೂಚನೆ</string>
+    <string name="nwp_gfs_subtitle">ಗ್ಲೋಬಲ್ ಫೋರ್‌ಕಾಸ್ಟ್ ಸಿಸ್ಟಮ್ • 24 ಗಂಟೆ ಮುನ್ನಡೆ</string>
+    <string name="nwp_gfs_resolution">0.25° (~27 ಕಿ.ಮೀ)</string>
+    <string name="nwp_metric_temp">ತಾಪಮಾನ</string>
+    <string name="nwp_metric_precip">ಮಳೆ ಪ್ರಮಾಣ</string>
+    <string name="nwp_metric_wind">ಗಾಳಿಯ ವೇಗ</string>
+    <string name="nwp_metric_humidity">ಆರ್ದ್ರತೆ</string>
+    <string name="nwp_metric_pressure">ಒತ್ತಡ</string>
+    <string name="nwp_metric_cloud">ಮೋಡದ ಹೊದಿಕೆ</string>
+    <string name="nwp_metric_cape">CAPE ಸೂಚ್ಯಂಕ</string>
+    <string name="nwp_wrf_title">WRF ಪ್ರಾದೇಶಿಕ ಮಾಡೆಲಿಂಗ್</string>
+    <string name="nwp_wrf_subtitle">ಉನ್ನತ-ರೆಸಲ್ಯೂಶನ್ ಪ್ರಾದೇಶಿಕ ಭೌತಶಾಸ್ತ್ರ • 3-9 ಕಿ.ಮೀ</string>
+    <string name="nwp_wrf_badge">ಪ್ರಾದೇಶಿಕ</string>
+    <string name="nwp_wrf_unavailable_title">WRF ಪ್ರಾದೇಶಿಕ ಡೇಟಾ ಲಭ್ಯವಿಲ್ಲ</string>
+    <string name="nwp_wrf_unavailable_desc">ಲೈವ್ WRF ಡೇಟಾ ಸ್ಟ್ರೀಮ್ ಅನ್ನು ಪ್ರಸ್ತುತ ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ. ಪ್ರಾದೇಶಿಕ WRF ಮಾಡೆಲಿಂಗ್ ಸಕ್ರಿಯಗೊಳಿಸಲು ಬ್ಯಾಕೆಂಡ್‌ನಲ್ಲಿ WRF_BASE_URL ಹೊಂದಿಸಿ.</string>
+    <string name="nwp_comparison_title">ಮಲ್ಟಿ-ಮಾದರಿ NWP ಹೋಲಿಕೆ</string>
+    <string name="nwp_comparison_subtitle">GFS 0.25° vs ECMWF IFS vs WRF ಪ್ರಾದೇಶಿಕ</string>
+    <string name="nwp_comparison_badge">ವ್ಯತ್ಯಾಸ</string>
+    <string name="nwp_gfs_forecast">GFS ಮುನ್ಸೂಚನೆ</string>
+    <string name="nwp_ecmwf_ifs">ECMWF IFS</string>
+    <string name="nwp_dr_spread">DR ಹರಡುವಿಕೆ</string>
+    <string name="nwp_confidence_high">ಹೆಚ್ಚಿನ ವಿಶ್ವಾಸಾರ್ಹತೆ</string>
+    <string name="nwp_confidence_moderate">ಮಧ್ಯಮ ಹರಡುವಿಕೆ</string>
+    <string name="nwp_wrf_status_label">WRF ಸ್ಥಿತಿ: %1$s</string>
+    <string name="nwp_loading_gfs">GFS ಡೇಟಾ ಲೋಡ್ ಆಗುತ್ತಿದೆ…</string>
+    <string name="nwp_loading_wrf">WRF ಡೇಟಾ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <string name="nwp_loading_comparison">ಮಾದರಿ ವ್ಯತ್ಯಾಸವನ್ನು ಲೆಕ್ಕಹಾಕಲಾಗುತ್ತಿದೆ…</string>
+    <string name="nwp_day_label">ದಿನ %1$d</string>
+
+    <!-- Farmer Screen -->
+    <string name="farmer_title">ರೈತ ಪ್ರೊಫೈಲ್</string>
+    <string name="farmer_step_progress">1/4</string>
+    <string name="farmer_crop_header">ನಿಮ್ಮ ಬೆಳೆಯ ವಿವರ ನೀಡಿ</string>
+    <string name="farmer_crop_subheader">ನಿಖರವಾದ ಕೃಷಿ ಸಲಹೆಗಳನ್ನು ಸಿದ್ಧಪಡಿಸಲು ಈ ಮಾಹಿತಿ ಸಹಾಯ ಮಾಡುತ್ತದೆ.</string>
+    <string name="label_crop">ಮುಖ್ಯ ಬೆಳೆ</string>
+    <string name="label_stage">ಬೆಳವಣಿಗೆಯ ಹಂತ</string>
+    <string name="label_soil">ಮಣ್ಣಿನ ಪ್ರಕಾರ</string>
+    <string name="label_area">ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ (ಎಕರೆ)</string>
+    <string name="btn_next">ಮುಂದೆ →</string>
+    <string name="advisory_irrigation_title">ನೀರಾವರಿ ಸಲಹೆ (FAO-56)</string>
+    <string name="advisory_spray_title">ಔಷಧ ಸಿಂಪಡಣೆ ಸೂಕ್ತ ಸಮಯ</string>
+    <string name="crop_wheat">ಗೋಧಿ</string>
+    <string name="crop_rice">ಭತ್ತ (ಅಕ್ಕಿ)</string>
+    <string name="crop_cotton">ಹತ್ತಿ</string>
+    <string name="crop_mustard">ಸಾಸಿವೆ</string>
+    <string name="crop_sugarcane">ಕಬ್ಬು</string>
+    <string name="crop_maize">ಮೆಕ್ಕೆಜೋಳ</string>
+    <string name="stage_sowing">ಬಿತ್ತನೆ / ಮೊಳಕೆಯೊಡೆಯುವಿಕೆ</string>
+    <string name="stage_vegetative">ಸಸ್ಯೀಯ ಬೆಳವಣಿಗೆ</string>
+    <string name="stage_flowering">ಹೂ ಬಿಡುವ ಹಂತ / ತೆನೆ ಕಟ್ಟುವುದು</string>
+    <string name="stage_maturity">ಪಕ್ವತೆ / ಕೊಯ್ಲು ಹಂತ</string>
+    <string name="soil_alluvial">ಮೆಕ್ಕಲು / ಮರಳು ಮಿಶ್ರಿತ ಮಣ್ಣು</string>
+    <string name="soil_black_cotton">ಕಪ್ಪು ಹತ್ತಿ ಮಣ್ಣು</string>
+    <string name="soil_red_sandy">ಕೆಂಪು ಮರಳು ಮಿಶ್ರಿತ ಮಣ್ಣು</string>
+    <string name="soil_clay">ಜೇಡಿಮಣ್ಣು</string>
+    <string name="error_invalid_area">ದಯವಿಟ್ಟು ಸರಿಯಾದ ಧನಾತ್ಮಕ ವಿಸ್ತೀರ್ಣವನ್ನು ನಮೂದಿಸಿ</string>
+
+    <!-- Analyst Screen -->
+    <string name="analyst_title">ವಿಶ್ಲೇಷಕರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
+    <string name="analyst_spatial_report">ಪ್ರಾದೇಶಿಕ ಅಪಾಯ ವರದಿ</string>
+    <string name="analyst_rainfall_total">ಒಟ್ಟು ಮಳೆ</string>
+    <string name="analyst_temp_avg">ಸರಾಸರಿ ತಾಪಮಾನ</string>
+    <string name="risk_indicators_title">ಅಪಾಯ ಸೂಚಕಗಳು</string>
+    <string name="risk_flood">ಪ್ರವಾಹ ಅಪಾಯ</string>
+    <string name="risk_drought">ಬರಗಾಲ ಅಪಾಯ</string>
+    <string name="risk_squall">ಬಿರುಗಾಳಿ ಅಪಾಯ</string>
+    <string name="risk_level_low">ಕಡಿಮೆ</string>
+    <string name="risk_level_moderate">ಮಧ್ಯಮ</string>
+    <string name="risk_level_high">ಹೆಚ್ಚು</string>
+    <string name="btn_detailed_report">ವಿವರವಾದ ವರದಿ →</string>
+    <string name="dialog_select_period">ವಿಶ್ಲೇಷಣಾ ಅವಧಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="period_7days">7 ದಿನಗಳು</string>
+    <string name="period_15days">15 ದಿನಗಳು</string>
+    <string name="period_30days">30 ದಿನಗಳು</string>
+    <string name="period_90days">90 ದಿನಗಳು</string>
+    <string name="compared_to_past">ಕಳೆದ 30 ದಿನಗಳಿಗೆ ಹೋಲಿಸಿದರೆ</string>
+    <string name="from_normal">ಸಾಮಾನ್ಯಕ್ಕಿಂತ</string>
+    <string name="analyst_report_body">• ಒಟ್ಟಾರೆ ಪರಿಣಾಮ ಸೂಚ್ಯಂಕ (I): 3.2 / 10.0 (ಕಡಿಮೆ-ಮಧ್ಯಮ)\n• ಅಪಾಯ (H): 2.8 / 10.0\n• ಮಾನ್ಯತೆ (E): 3.5 / 10.0\n• ದುರ್ಬಲತೆ (V): 3.6 / 10.0\n• NWP ಮಾದರಿ ವ್ಯತ್ಯಾಸ (DR): 0.14 (ಉನ್ನತ ಮಾದರಿ ಒಮ್ಮತ)\n• IMD OASIS ಎಚ್ಚರಿಕೆ ಸ್ಥಿತಿ: ಹಸಿರು (ಸಾಮಾನ್ಯ)</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">ಪ್ರೊಫೈಲ್</string>
+    <string name="user_name_default">Garvit Mishra</string>
+    <string name="user_district_default">ಬೆಂಗಳೂರು, ಕರ್ನಾಟಕ</string>
+    <string name="plan_badge">Vayubodhak Free</string>
+    <string name="your_plan">ನಿಮ್ಮ ಪ್ಲಾನ್</string>
+    <string name="btn_upgrade">👑 ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ →</string>
+    <string name="menu_farmer_profile">ರೈತ ಪ್ರೊಫೈಲ್</string>
+    <string name="menu_saved_regions">ಉಳಿಸಿದ ಸ್ಥಳಗಳು</string>
+    <string name="menu_app_settings">ಅಪ್ಲಿಕೇಶನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    <string name="menu_help_feedback">ಸಹಾಯ ಮತ್ತು ಪ್ರತಿಕ್ರಿಯೆ</string>
+    <string name="menu_about">ವಾಯುಬೋಧಕ್ ಬಗ್ಗೆ</string>
+    <string name="status_active">ಸಕ್ರಿಯ</string>
+    <string name="dialog_edit_profile_title">ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ</string>
+    <string name="dialog_enter_name_prompt">ನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ:</string>
+    <string name="dialog_pro_features_title">ವಾಯುಬೋಧಕ್ ಪ್ರೊ ವೈಶಿಷ್ಟ್ಯಗಳು:</string>
+    <string name="dialog_pro_features_body">• ಅನಿಯಮಿತ ಹೈ-ರೆಸಲ್ಯೂಶನ್ NWP ಗ್ರಿಡ್ ಡೇಟಾ\n• ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತ ಹವಾಮಾನ ಮತ್ತು ಕೀಟ ಎಚ್ಚರಿಕೆಗಳು\n• ಉಪಗ್ರಹ ಆಧಾರಿತ ಮಣ್ಣಿನ ತೇವಾಂಶ ಮ್ಯಾಪಿಂಗ್\n• ಮಲ್ಟಿ-ಮಾದರಿ AI ವ್ಯತ್ಯಾಸ ವಿಶ್ಲೇಷಣೆ</string>
+    <string name="dialog_support_center_title">ವಾಯುಬೋಧಕ್ ಬೆಂಬಲ ಕೇಂದ್ರ:</string>
+    <string name="dialog_support_center_body">• ಇಮೇಲ್: support@weathergpt.in\n• ಸಹಾಯವಾಣಿ: 1800-WEATHER-GPT (ಟೋಲ್ ಫ್ರೀ)\n• ದಾಖಲೆಗಳು: docs.weathergpt.in</string>
+    <string name="dialog_about_text">ಭಾರತದ ಪ್ರಮುಖ ಹವಾಮಾನ ನಿರ್ಧಾರ ಗುಪ್ತಚರ ವೇದಿಕೆ. IMD, NOAA GFS, Open-Meteo, ECMWF ಮತ್ತು PostGIS ನಿಂದ ನಡೆಸಲ್ಪಡುತ್ತಿದೆ.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    <string name="setting_language">ಭಾಷೆ (Language)</string>
+    <string name="setting_units">ಅಳತೆ ಘಟಕಗಳು (Units)</string>
+    <string name="setting_notifications">ತೀವ್ರ ಹವಾಮಾನ ಅಧಿಸೂಚನೆಗಳು</string>
+    <string name="setting_location">ಪ್ರಾಥಮಿಕ ಸ್ಥಳ</string>
+    <string name="setting_server_url">ಬ್ಯಾಕೆಂಡ್ ಸರ್ವರ್ URL</string>
+    <string name="setting_about">ಮಾಹಿತಿ ಮತ್ತು ಪರವಾನಗಿಗಳು</string>
+    <string name="dialog_select_language">ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="dialog_select_units">ಅಳತೆ ಘಟಕಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="dialog_server_url_title">ಬ್ಯಾಕೆಂಡ್ ಸರ್ವರ್ URL ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</string>
+    <string name="dialog_server_url_desc">LAN URL ನಮೂದಿಸಿ (ಉದಾ. http://192.168.1.100:8000/) ಅಥವಾ QR ಕೋಡ್ ಲಿಂಕ್ ಅಂಟಿಸಿ:</string>
+    <string name="dialog_about_title">WeatherGPT / ವಾಯುಬೋಧಕ್ v1.0.0</string>
+    <string name="dialog_about_subtitle">ಭಾರತಕ್ಕಾಗಿ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ AI-ಆಧಾರಿತ ಹವಾಮಾನ ನಿರ್ಧಾರ ಗುಪ್ತಚರ ವೇದಿಕೆ.</string>
+    <string name="dialog_about_details">• ಹವಾಮಾನ ಮೂಲಗಳು: IMD OASIS CAP, NOAA GFS 0.25°, Open-Meteo, ECMWF\n• ವಿಶ್ಲೇಷಣೆ: FAO-56 Penman-Monteith, Mann-Kendall, Sen\'s slope\n• ಪ್ರಾದೇಶಿಕ: PostgreSQL 16 + PostGIS 3.4\n• ಆಫ್‌ಲೈನ್ ಸಾಮರ್ಥ್ಯ ಮತ್ತು ಸುರಕ್ಷಿತ ಮಾರ್ಗದರ್ಶನ</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">WeatherGPT ಚಾಟ್</string>
+    <string name="chat_empty_title">ವಾಯುಬೋಧಕ್ (WeatherGPT) ಬಳಿ ಕೇಳಿ</string>
+    <string name="chat_empty_message">ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ, ನೀರಾವರಿ ನಿರ್ವಹಣೆ (FAO-56), ಕ್ರಿಮಿನಾಶಕ ಸಿಂಪಡಣೆ ಅಥವಾ ವಿಪತ್ತು ವಿಶ್ಲೇಷಣೆಯ ಕುರಿತು ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ.</string>
+    <string name="chat_input_placeholder">ಹವಾಮಾನ, ಬೆಳೆಗಳು, ಮಳೆಯ ಬಗ್ಗೆ ಪ್ರಶ್ನೆ ಕೇಳಿ…</string>
+    <string name="chat_analyzing_message">ವಾಯುಬೋಧಕ್ ಹವಾಮಾನ ಡೇಟಾವನ್ನು ವಿಶ್ಲೇಷಿಸುತ್ತಿದೆ…</string>
+    <string name="chat_brain_label">Brain: %1$s</string>
+    <string name="chat_assistant_label">ವಾಯುಬೋಧಕ್ (%1$s)</string>
+    <string name="recommendation_label">ಶಿಫಾರಸು / ಸಲಹೆ</string>
+    <string name="sources_label">ಮೂಲಗಳು</string>
+
+    <!-- Common UI States & Dialogs -->
+    <string name="loading_weather">ಹವಾಮಾನ ವೀಕ್ಷಣೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…</string>
+    <string name="loading_forecast">ಹವಾಮಾನ ಮುನ್ಸೂಚನೆಯನ್ನು ಪಡೆಯಲಾಗುತ್ತಿದೆ…</string>
+    <string name="loading_alerts">ಅಧಿಕೃತ ಎಚ್ಚರಿಕೆಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…</string>
+    <string name="loading_data">ಹವಾಮಾನ ಡೇಟಾವನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…</string>
+    <string name="loading_general">ಮಾಹಿತಿಯನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…</string>
+    <string name="error_offline">ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕವಿಲ್ಲ. ಸಂಗ್ರಹಿಸಿದ ಡೇಟಾವನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ.</string>
+    <string name="error_no_internet_title">ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕವಿಲ್ಲ</string>
+    <string name="error_unable_to_load">ಡೇಟಾ ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ</string>
+    <string name="error_code_label">ಕೋಡ್: %1$s</string>
+    <string name="error_request_id_label">ವಿನಂತಿ ID: %1$s</string>
+    <string name="empty_state_title">ಡೇಟಾ ಲಭ್ಯವಿಲ್ಲ</string>
+    <string name="empty_state_message">ಪ್ರಸ್ತುತ ಈ ವಿಭಾಗಕ್ಕೆ ಯಾವುದೇ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ.</string>
+    <string name="location_select_title">ಸ್ಥಳವನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="location_select_subtitle">ಭಾರತದ ಪ್ರಮುಖ ಜಿಲ್ಲೆಗಳು ಮತ್ತು ಕೃಷಿ ಪ್ರದೇಶಗಳು:</string>
+    <string name="btn_apply_save">ಅನ್ವಯಿಸಿ ಮತ್ತು ಉಳಿಸಿ</string>
+    <string name="btn_cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="btn_close">ಮುಚ್ಚಿ</string>
+    <string name="btn_retry">ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ</string>
+    <string name="btn_check_connection">ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="cd_menu">ಮೆನು</string>
+    <string name="cd_notifications">ಅಧಿಸೂಚನೆಗಳು</string>
+    <string name="cd_send">ಕಳುಹಿಸಿ</string>
+    <string name="cd_back">ಹಿಂದಕ್ಕೆ</string>
+    <string name="cd_settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    <string name="cd_dropdown">ಡ್ರಾಪ್‌ಡೌನ್</string>
+    <string name="cd_more">ಇನ್ನಷ್ಟು</string>
+    <string name="cd_selected">ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ</string>
+    <string name="cd_navigate">ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ</string>
+    <string name="cd_edit_name">ಹೆಸರು ಸಂಪಾದಿಸಿ</string>
+</resources>

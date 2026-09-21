@@ -1,0 +1,297 @@
+<resources>
+    <string name="app_name">WeatherGPT</string>
+    <string name="app_tagline">வாயுபோதக்</string>
+    <string name="app_subtitle">வானிலை அறிவை எளிய மொழியில் பெறுங்கள்</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">முகப்பு</string>
+    <string name="nav_chat">அரட்டை</string>
+    <string name="nav_map">வரைபடம்</string>
+    <string name="nav_alerts">எச்சரிக்கைகள்</string>
+    <string name="nav_data">தரவு</string>
+    <string name="nav_profile">சுயவிவரம்</string>
+    <string name="nav_weather">வானிலை</string>
+    <string name="nav_settings">அமைப்புகள்</string>
+    <string name="nav_farmer">விவசாயி</string>
+    <string name="nav_analyst">பகுப்பாய்வாளர்</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">வணக்கம், %1$s!</string>
+    <string name="home_intro">நான் வாயுபோதக், உங்களுக்கு துல்லியமான வானிலை வழிகாட்டுதலை வழங்கும் AI துணைவன்.</string>
+    <string name="home_search_placeholder">இன்றைய வானிலை எப்படி உள்ளது? / கேள்வி கேளுங்கள்…</string>
+    <string name="home_quick_actions">விரைவு சேவைகள்</string>
+    <string name="action_will_it_rain">மழை பெய்யுமா?</string>
+    <string name="action_forecast">முன்னறிவிப்பு</string>
+    <string name="action_alerts">எச்சரிக்கைகள்</string>
+    <string name="action_map">வரைபடம்</string>
+    <string name="home_live_badge">நேரலை</string>
+    <string name="today">இன்று</string>
+    <string name="feels_like">உணரப்படும் வெப்பநிலை</string>
+    <string name="feels_like_full">உணரப்படும் வெப்பநிலை %1$s</string>
+    <string name="humidity">ஈரப்பதம்</string>
+    <string name="humidity_full">ஈரப்பதம் %1$s</string>
+    <string name="wind_speed">காற்று</string>
+    <string name="wind_speed_full">காற்று %1$s</string>
+    <string name="air_quality">காற்றின் தரம்</string>
+    <string name="weather_condition_stable">வானிலை மாறாமல் தொடரும்</string>
+    <string name="weather_summary_default">மதிய வேளையில் லேசானது முதல் மிதமான மழை பெய்ய வாய்ப்புள்ளது. அதிகபட்ச வெப்பநிலை சுமார் 32°C ஆக இருக்கும்.</string>
+    <string name="weather_see_all_forecast">முழு முன்னறிவிப்பைக் காண்க →</string>
+
+    <!-- Brain Selection Screen -->
+    <string name="brain_selection_title">எந்த Brain-ஐ பயன்படுத்த விரும்புகிறீர்கள்?</string>
+    <string name="brain_selection_subtitle">ஒவ்வொரு Brain-ம் குறிப்பிட்ட துறைக்கான நிபுணத்துவம் கொண்டது</string>
+    <string name="brain_auto_title">தானியங்கி (பரிந்துரைக்கப்படுகிறது)</string>
+    <string name="brain_auto_desc">உங்கள் கேள்விக்கு ஏற்ப பொருத்தமான டொமைன் மூளைக்கு தானாக வழிநடத்தும்</string>
+    <string name="brain_general_title">பொது வானிலை</string>
+    <string name="brain_general_desc">தினசரி முன்னறிவிப்பு, மழை வாய்ப்பு, வெப்பநிலை மற்றும் உள்ளூர் எச்சரிக்கைகள்</string>
+    <string name="brain_farmer_title">விவசாயி (வேளாண்)</string>
+    <string name="brain_farmer_desc">FAO-56 ET0 பாசன நீர் இருப்பு, தெளிப்பு நேரம் மற்றும் பயிர் ஆபத்து</string>
+    <string name="brain_researcher_title">ஆராய்ச்சியாளர்</string>
+    <string name="brain_researcher_desc">பல்வேறு தசாப்த காலநிலை மாற்றங்கள், சென்ஸ் ஸ்லோப் மற்றும் CSV தரவு ஏற்றுமதி</string>
+    <string name="brain_analyst_title">பகுப்பாய்வாளர் (பேரிடர்/ஆபத்து)</string>
+    <string name="brain_analyst_desc">இடஞ்சார்ந்த ஆபத்து மதிப்பீடு மற்றும் NWP மாதிரிகள் ஒப்பீடு</string>
+    <string name="brain_note_title">சுய-கற்றல் ஆட்டோ பிரைன்</string>
+    <string name="brain_note_desc">விவசாயம், ஆராய்ச்சி அல்லது பேரிடர் தொடர்பான கேள்விகளுக்கு ஏற்ப ஆட்டோ பிரைன் தானாகவே பொருந்துகிறது.</string>
+
+    <!-- Weather Screen -->
+    <string name="weather_title">வானிலை மற்றும் முன்னறிவிப்பு</string>
+    <string name="tab_hourly">மணிநேர</string>
+    <string name="tab_3day">3 நாட்கள்</string>
+    <string name="tab_5day">5 நாட்கள்</string>
+    <string name="tab_10day">10 நாட்கள்</string>
+    <string name="summary_title">முன்னறிவிப்பு சுருக்கம்</string>
+    <string name="rain_chance">மழை வாய்ப்பு</string>
+    <string name="rainfall">மழைப்பொழிவு</string>
+    <string name="forecast_24h_title">24 மணிநேர முன்னறிவிப்பு</string>
+    <string name="change_location">இடத்தை மாற்று</string>
+    <string name="now">இப்போது</string>
+
+    <!-- Map Screen -->
+    <string name="map_title">வானிலை வரைபடம்</string>
+    <string name="map_search_hint">நகரம் அல்லது மாவட்டத்தைத் தேடுங்கள்…</string>
+    <string name="cd_my_location">எனது இருப்பிடம்</string>
+    <string name="cd_clear_search">தேடலை அழிக்கவும்</string>
+    <string name="layer_rain">மழை</string>
+    <string name="layer_temp">வெப்பநிலை</string>
+    <string name="layer_wind">காற்று</string>
+    <string name="layer_humidity">ஈரப்பதம்</string>
+    <string name="map_timeline_title">டாப்ளர் ரேடார் காலவரிசை</string>
+    <string name="map_legend_light">லேசான</string>
+    <string name="map_legend_moderate">மிதமான</string>
+    <string name="map_legend_heavy">கனமழை</string>
+    <string name="map_legend_severe">மிகக் கனமழை</string>
+
+    <!-- Alerts Screen -->
+    <string name="alerts_title">அதிகாரப்பூர்வ வானிலை எச்சரிக்கைகள்</string>
+    <string name="filter_all">அனைத்தும்</string>
+    <string name="filter_weather">வானிலை</string>
+    <string name="filter_agri">விவசாயம்</string>
+    <string name="filter_govt">அரசு</string>
+    <string name="alert_view_details">விவரங்களைக் காண்க →</string>
+    <string name="alert_no_alerts">இந்த இடத்திற்கு தீவிர எச்சரிக்கைகள் எதுவும் இல்லை</string>
+    <string name="alert_modal_title">எச்சரிக்கை விவரங்கள்</string>
+    <string name="alert_instructions_label">ஆலோசனை / வழிகாட்டுதல்கள்:</string>
+    <string name="alert_default_instruction">விழிப்புடன் இருங்கள் மற்றும் உள்ளூர் வானிலை மையத்தின் அறிவுறுத்தல்களைப் பின்பற்றுங்கள்.</string>
+    <string name="category_general">பொது</string>
+    <string name="category_imd">IMD OASIS CAP</string>
+    <string name="category_farmer_brain">விவசாய ஆலோசனை</string>
+    <string name="alert_level_green">பச்சை எச்சரிக்கை</string>
+    <string name="alert_level_yellow">மஞ்சள் எச்சரிக்கை</string>
+    <string name="alert_level_orange">ஆரஞ்சு எச்சரிக்கை</string>
+    <string name="alert_level_red">சிவப்பு எச்சரிக்கை</string>
+    <string name="alert_sample_rain_title">மிதமான மழை எதிர்பார்க்கப்படுகிறது</string>
+    <string name="alert_sample_rain_body">மாவட்டத்தில் மிதமான மழை பெய்ய வாய்ப்புள்ளது.</string>
+    <string name="alert_sample_rain_desc">பகுதியில் மிதமான மழை (15.6 mm - 64.4 mm) மற்றும் 35-45 km/h வேகத்தில் காற்று வீசக்கூடும்.</string>
+    <string name="alert_sample_rain_inst">விவசாய நிலங்களில் நீர் வடிகால் வசதியை உறுதிசெய்து, அறுவடை செய்த பயிர்களைப் பாதுகாக்கவும்.</string>
+    <string name="alert_sample_irr_title">பாசன ஆலோசனை</string>
+    <string name="alert_sample_irr_body">அடுத்த 48 மணிநேரத்தில் லேசான மழை முன்னறிவிப்பு. திட்டமிடப்பட்ட பாசனத்தை ஒத்திவைக்கவும்.</string>
+    <string name="alert_sample_irr_desc">மண் ஈரப்பதம் 68% ஆக போதுமான அளவில் உள்ளது. நீர் தேங்குவதைத் தவிர்க்க பாசனத்தை ஒத்திவைக்கவும்.</string>
+    <string name="alert_sample_irr_inst">அதிகப்படியான பாசனத்தைத் தவிர்க்கவும். மழை நின்ற பிறகு உரங்களைப் பயன்படுத்துங்கள்.</string>
+    <string name="alert_sample_temp_title">வெப்பநிலை அப்டேட்</string>
+    <string name="alert_sample_temp_body">மேகமூட்டம் காரணமாக பகல் வெப்பநிலை இயல்பை விட 2-3°C குறைவாக இருக்கும்.</string>
+    <string name="alert_sample_temp_desc">அதிகபட்சம் 31°C மற்றும் குறைந்தபட்சம் 24°C வெப்பநிலை எதிர்பார்க்கப்படுகிறது.</string>
+    <string name="alert_sample_temp_inst">வழக்கமான விவசாயப் பணிகளைத் தொடரலாம்.</string>
+
+    <!-- Data Screen & NWP -->
+    <string name="data_title">வானிலை அறிவியல் தரவு</string>
+    <string name="action_historical_data">வரலாற்றுத் தரவு</string>
+    <string name="action_model_comparison">மாதிரி ஒப்பீடு</string>
+    <string name="action_export_data">தரவு ஏற்றுமதி</string>
+    <string name="data_temp_chart_title">வெப்பநிலை போக்கு (°C)</string>
+    <string name="quick_access_title">விரைவு அணுகல்</string>
+    <string name="quick_access_analyst">பகுப்பாய்வாளர் டாஷ்போர்டு</string>
+    <string name="quick_access_analyst_sub">இடஞ்சார்ந்த ஆபத்து மற்றும் பாதிப்பு குறிகாட்டிகள்</string>
+    <string name="quick_access_gfs">GFS 0.25° NWP மாதிரி</string>
+    <string name="quick_access_gfs_sub">இந்திய துணைக் கண்டத்திற்கான 0.25° கிரிட் மாதிரி</string>
+    <string name="quick_access_climate">மேன்-கெண்டல் காலநிலை போக்கு</string>
+    <string name="quick_access_climate_sub">மேன்-கெண்டல் மற்றும் சென்ஸ் ஸ்லோப் புள்ளிவிவரங்கள்</string>
+    <string name="export_success">CSV கோப்பாக தரவுத்தொகுப்பு வெற்றிகரமாக ஏற்றுமதி செய்யப்பட்டது.</string>
+    <string name="export_dialog_title">வானிலை தரவை ஏற்றுமதி செய்</string>
+    <string name="export_dialog_desc">30 ஆண்டுகால வரலாற்று காலநிலை மற்றும் NWP தரவுத்தொகுப்பு CSV கோப்பாக தயார் செய்யப்பட்டுள்ளது.\n• கோப்பு: weathergpt_climate_dataset.csv\n• வழங்குநர்கள்: NOAA GFS 0.25°, Open-Meteo, IMD OASIS\n• காரணிகள்: மழைப்பொழிவு, குறைந்தபட்ச/அதிகபட்ச வெப்பநிலை, ET0, ஈரப்பதம்</string>
+    <string name="gfs_dialog_title">GFS 0.25° NWP கிரிட் மாதிரி</string>
+    <string name="gfs_dialog_desc">இந்திய துணைக் கண்டத்தை (6°N-38°N, 68°E-98°E) உள்ளடக்கிய 2D பிலைனியர் இடஞ்சார்ந்த இடைச்செருகலுடன் கூடிய குளோபல் போர்காஸ்ட் சிஸ்டம் (GFS) 0.25° வளிமண்டல கிரிட் மாதிரி.</string>
+    <string name="climate_dialog_title">மேன்-கெண்டல் காலநிலை போக்கு</string>
+    <string name="climate_dialog_desc">மழைப்பொழிவு மற்றும் வெப்பநிலையின் நீண்டகால மாற்றங்களை மதிப்பிடும் மேன்-கெண்டல் சோதனை மற்றும் சென்ஸ் ஸ்லோப் மதிப்பீட்டாளர் (95% CI).</string>
+    <string name="nwp_gfs_tab">GFS (0.25°)</string>
+    <string name="nwp_wrf_tab">WRF (மண்டலம்)</string>
+    <string name="nwp_comparison_tab">மாதிரி ஒப்பீடு</string>
+    <string name="nwp_gfs_title">NOAA GFS 0.25° முன்னறிவிப்பு</string>
+    <string name="nwp_gfs_subtitle">குளோபல் போர்காஸ்ட் சிஸ்டம் • 24 மணிநேர முன்னிலை</string>
+    <string name="nwp_gfs_resolution">0.25° (~27 கிமீ)</string>
+    <string name="nwp_metric_temp">வெப்பநிலை</string>
+    <string name="nwp_metric_precip">மழைப்பொழிவு</string>
+    <string name="nwp_metric_wind">காற்றின் வேகம்</string>
+    <string name="nwp_metric_humidity">ஈரப்பதம்</string>
+    <string name="nwp_metric_pressure">காற்றழுத்தம்</string>
+    <string name="nwp_metric_cloud">மேக மூட்டம்</string>
+    <string name="nwp_metric_cape">CAPE குறியீடு</string>
+    <string name="nwp_wrf_title">WRF மண்டல மாதிரியாக்கம்</string>
+    <string name="nwp_wrf_subtitle">உயர் தெளிவுத்திறன் கொண்ட மண்டல இயற்பியல் • 3-9 கிமீ</string>
+    <string name="nwp_wrf_badge">மண்டலம்</string>
+    <string name="nwp_wrf_unavailable_title">WRF மண்டல தரவு கிடைக்கவில்லை</string>
+    <string name="nwp_wrf_unavailable_desc">நேரடி WRF தரவு ஸ்ட்ரீம் உள்ளமைக்கப்படவில்லை. நேரலை WRF மாடலிங்கை இயக்க பேக்கெண்டில் WRF_BASE_URL-ஐ அமைக்கவும்.</string>
+    <string name="nwp_comparison_title">பல்-மாதிரி NWP ஒப்பீடு</string>
+    <string name="nwp_comparison_subtitle">GFS 0.25° vs ECMWF IFS vs WRF மண்டலம்</string>
+    <string name="nwp_comparison_badge">வேறுபாடு</string>
+    <string name="nwp_gfs_forecast">GFS கணிப்பு</string>
+    <string name="nwp_ecmwf_ifs">ECMWF IFS</string>
+    <string name="nwp_dr_spread">DR பரவல்</string>
+    <string name="nwp_confidence_high">அதிக நம்பிக்கை</string>
+    <string name="nwp_confidence_moderate">மிதமான பரவல்</string>
+    <string name="nwp_wrf_status_label">WRF நிலை: %1$s</string>
+    <string name="nwp_loading_gfs">GFS தரவு ஏற்றப்படுகிறது…</string>
+    <string name="nwp_loading_wrf">WRF தரவு சரிபார்க்கப்படுகிறது…</string>
+    <string name="nwp_loading_comparison">மாதிரி வேறுபாடு கணக்கிடப்படுகிறது…</string>
+    <string name="nwp_day_label">நாள் %1$d</string>
+
+    <!-- Farmer Screen -->
+    <string name="farmer_title">விவசாயி சுயவிவரம்</string>
+    <string name="farmer_step_progress">1/4</string>
+    <string name="farmer_crop_header">உங்கள் பயிர் பற்றி தெரிவிக்கவும்</string>
+    <string name="farmer_crop_subheader">துல்லியமான விவசாய ஆலோசனைகளை கணக்கிட இந்தத் தகவல் உதவுகிறது.</string>
+    <string name="label_crop">முதன்மை பயிர்</string>
+    <string name="label_stage">வளர்ச்சி நிலை</string>
+    <string name="label_soil">மண் வகை</string>
+    <string name="label_area">நிலத்தின் பரப்பளவு (ஏக்கர்)</string>
+    <string name="btn_next">அடுத்து →</string>
+    <string name="advisory_irrigation_title">பாசன ஆலோசனை (FAO-56)</string>
+    <string name="advisory_spray_title">பூச்சிக்கொல்லி தெளிப்பு நேரம்</string>
+    <string name="crop_wheat">கோதுமை</string>
+    <string name="crop_rice">நெல் (அரிசி)</string>
+    <string name="crop_cotton">பருத்தி</string>
+    <string name="crop_mustard">கடுகு</string>
+    <string name="crop_sugarcane">கரும்பு</string>
+    <string name="crop_maize">மக்காச்சோளம்</string>
+    <string name="stage_sowing">விதைத்தல் / முளைத்தல்</string>
+    <string name="stage_vegetative">தாவர வளர்ச்சி</string>
+    <string name="stage_flowering">பூக்கும் பருவம் / கதிர் வருதல்</string>
+    <string name="stage_maturity">முதிர்ச்சி / அறுவடை</string>
+    <string name="soil_alluvial">வண்டல் / களிமண் மண்</string>
+    <string name="soil_black_cotton">கரிசல் மண்</string>
+    <string name="soil_red_sandy">செம்மண்</string>
+    <string name="soil_clay">களிமண்</string>
+    <string name="error_invalid_area">சரியான நேர்மறை பரப்பளவை உள்ளிடவும்</string>
+
+    <!-- Analyst Screen -->
+    <string name="analyst_title">பகுப்பாய்வாளர் டாஷ்போர்டு</string>
+    <string name="analyst_spatial_report">இடஞ்சார்ந்த ஆபத்து அறிக்கை</string>
+    <string name="analyst_rainfall_total">மொத்த மழை</string>
+    <string name="analyst_temp_avg">சராசரி வெப்பநிலை</string>
+    <string name="risk_indicators_title">ஆபத்து குறிகாட்டிகள்</string>
+    <string name="risk_flood">வெள்ள ஆபத்து</string>
+    <string name="risk_drought">வறட்சி ஆபத்து</string>
+    <string name="risk_squall">புயல் ஆபத்து</string>
+    <string name="risk_level_low">குறைவு</string>
+    <string name="risk_level_moderate">மிதமானது</string>
+    <string name="risk_level_high">அதிகம்</string>
+    <string name="btn_detailed_report">விரிவான அறிக்கை →</string>
+    <string name="dialog_select_period">பகுப்பாய்வு காலத்தைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="period_7days">7 நாட்கள்</string>
+    <string name="period_15days">15 நாட்கள்</string>
+    <string name="period_30days">30 நாட்கள்</string>
+    <string name="period_90days">90 நாட்கள்</string>
+    <string name="compared_to_past">கடந்த 30 நாட்களுடன் ஒப்பிடும்போது</string>
+    <string name="from_normal">இயல்பை விட</string>
+    <string name="analyst_report_body">• ஒட்டுமொத்த தாக்கக் குறியீடு (I): 3.2 / 10.0 (குறைவு-மிதம்)\n• ஆபத்து (H): 2.8 / 10.0\n• வெளிப்பாடு (E): 3.5 / 10.0\n• பாதிப்பு (V): 3.6 / 10.0\n• NWP மாதிரி வேறுபாடு (DR): 0.14 (உயர் மாதிரி உடன்பாடு)\n• IMD OASIS எச்சரிக்கை நிலை: பச்சை (இயல்பு)</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">சுயவிவரம்</string>
+    <string name="user_name_default">Garvit Mishra</string>
+    <string name="user_district_default">சென்னை, தமிழ்நாடு</string>
+    <string name="plan_badge">Vayubodhak Free</string>
+    <string name="your_plan">உங்கள் திட்டம்</string>
+    <string name="btn_upgrade">👑 மேம்படுத்து →</string>
+    <string name="menu_farmer_profile">விவசாயி சுயவிவரம்</string>
+    <string name="menu_saved_regions">சேமிக்கப்பட்ட இடங்கள்</string>
+    <string name="menu_app_settings">பயன்பாட்டு அமைப்புகள்</string>
+    <string name="menu_help_feedback">உதவி &amp; கருத்துகள்</string>
+    <string name="menu_about">வாயுபோதக் பற்றி</string>
+    <string name="status_active">செயலில் உள்ளது</string>
+    <string name="dialog_edit_profile_title">சுயவிவரத்தைத் திருத்து</string>
+    <string name="dialog_enter_name_prompt">உங்கள் பெயரை உள்ளிடவும்:</string>
+    <string name="dialog_pro_features_title">வாயுபோதக் புரோ அம்சங்கள்:</string>
+    <string name="dialog_pro_features_body">• வரம்பற்ற உயர்-தெளிவுத்திறன் NWP கிரிட் தரவு\n• வாட்ஸ்அப்பில் தானியங்கி வானிலை மற்றும் பூச்சி எச்சரிக்கைகள்\n• செயற்கைக்கோள் மண் ஈரப்பதம் வரைபடம்\n• பல மாதிரி AI வேறுபாடு பகுப்பாய்வு</string>
+    <string name="dialog_support_center_title">வாயுபோதக் உதவி மையம்:</string>
+    <string name="dialog_support_center_body">• மின்னஞ்சல்: support@weathergpt.in\n• உதவி எண்: 1800-WEATHER-GPT (கட்டணமில்லா எண்)\n• ஆவணங்கள்: docs.weathergpt.in</string>
+    <string name="dialog_about_text">இந்தியாவின் முதன்மையான வானிலை நுண்ணறிவு தளம். IMD, NOAA GFS, Open-Meteo, ECMWF மற்றும் PostGIS மூலம் இயக்கப்படுகிறது.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">அமைப்புகள்</string>
+    <string name="setting_language">மொழி (Language)</string>
+    <string name="setting_units">அளவீட்டு அலகுகள் (Units)</string>
+    <string name="setting_notifications">கடுமையான வானிலை அறிவிப்புகள்</string>
+    <string name="setting_location">முதன்மை இடம்</string>
+    <string name="setting_server_url">பின்தள சேவையக URL</string>
+    <string name="setting_about">தகவல் &amp; உரிமங்கள்</string>
+    <string name="dialog_select_language">பயன்பாட்டு மொழியைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="dialog_select_units">அளவீட்டு அலகுகளைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="dialog_server_url_title">பின்தள சேவையக URL ஐ உள்ளமைக்கவும்</string>
+    <string name="dialog_server_url_desc">LAN URL-ஐ உள்ளிடவும் (எ.கா. http://192.168.1.100:8000/) அல்லது QR குறியீடு இணைப்பை ஒட்டவும்:</string>
+    <string name="dialog_about_title">WeatherGPT / வாயுபோதக் v1.0.0</string>
+    <string name="dialog_about_subtitle">இந்தியாவிற்காக உருவாக்கப்பட்ட AI-அடிப்படையிலான வானிலை முடிவு நுண்ணறிவு தளம்.</string>
+    <string name="dialog_about_details">• வானிலை ஆதாரங்கள்: IMD OASIS CAP, NOAA GFS 0.25°, Open-Meteo, ECMWF\n• பகுப்பாய்வு: FAO-56 Penman-Monteith, Mann-Kendall, Sen\'s slope\n• இடஞ்சார்ந்தவை: PostgreSQL 16 + PostGIS 3.4\n• ஆஃப்லைன் பின்னடைவு மற்றும் துல்லியமான வழிகாட்டுதல்</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">WeatherGPT அரட்டை</string>
+    <string name="chat_empty_title">வாயுபோதக்கிடம் (WeatherGPT) கேளுங்கள்</string>
+    <string name="chat_empty_message">வானிலை முன்னறிவிப்பு, பாசன மேலாண்மை (FAO-56), பூச்சிக்கொல்லி தெளிப்பு அல்லது பேரிடர் பகுப்பாய்வு குறித்து கேளுங்கள்.</string>
+    <string name="chat_input_placeholder">வானிலை, பயிர்கள், மழைப்பொழிவு குறித்து கேளுங்கள்…</string>
+    <string name="chat_analyzing_message">வாயுபோதக் வானிலை தகவல்களை பகுப்பாய்வு செய்கிறது…</string>
+    <string name="chat_brain_label">Brain: %1$s</string>
+    <string name="chat_assistant_label">வாயுபோதக் (%1$s)</string>
+    <string name="recommendation_label">பரிந்துரை</string>
+    <string name="sources_label">ஆதாரங்கள்</string>
+
+    <!-- Common UI States & Dialogs -->
+    <string name="loading_weather">வானிலை தகவல்கள் ஏற்றப்படுகின்றன…</string>
+    <string name="loading_forecast">வானிலை முன்னறிவிப்பு பெறப்படுகிறது…</string>
+    <string name="loading_alerts">அதிகாரப்பூர்வ எச்சரிக்கைகள் சரிபார்க்கப்படுகின்றன…</string>
+    <string name="loading_data">வானிலை தரவு ஏற்றப்படுகிறது…</string>
+    <string name="loading_general">தகவல்கள் ஏற்றப்படுகின்றன…</string>
+    <string name="error_offline">இணைய இணைப்பு இல்லை. சேமிக்கப்பட்ட தரவு காட்டப்படுகிறது.</string>
+    <string name="error_no_internet_title">இணைய இணைப்பு இல்லை</string>
+    <string name="error_unable_to_load">தரவை ஏற்றுவதில் பிழை</string>
+    <string name="error_code_label">குறியீடு: %1$s</string>
+    <string name="error_request_id_label">கோரிக்கை ID: %1$s</string>
+    <string name="empty_state_title">தகவல்கள் எதுவும் இல்லை</string>
+    <string name="empty_state_message">தற்போது இந்தப் பிரிவில் தகவல்கள் எதுவும் கிடைக்கவில்லை.</string>
+    <string name="location_select_title">இடத்தைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="location_select_subtitle">இந்தியாவின் முக்கிய மாவட்டங்கள் மற்றும் விவசாய பகுதிகள்:</string>
+    <string name="btn_apply_save">பயன்படுத்தி சேமிக்கவும்</string>
+    <string name="btn_cancel">ரத்து செய்</string>
+    <string name="btn_close">மூடு</string>
+    <string name="btn_retry">மீண்டும் முயற்சி செய்</string>
+    <string name="btn_check_connection">இணைப்பைச் சரிபார்க்கவும்</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="cd_menu">பட்டி</string>
+    <string name="cd_notifications">அறிவிப்புகள்</string>
+    <string name="cd_send">அனுப்பு</string>
+    <string name="cd_back">பின்செல்</string>
+    <string name="cd_settings">அமைப்புகள்</string>
+    <string name="cd_dropdown">கீழிறங்கு பட்டியல்</string>
+    <string name="cd_more">மேலும்</string>
+    <string name="cd_selected">தேர்ந்தெடுக்கப்பட்டது</string>
+    <string name="cd_navigate">வழிசெலுத்து</string>
+    <string name="cd_edit_name">பெயரைத் திருத்து</string>
+</resources>

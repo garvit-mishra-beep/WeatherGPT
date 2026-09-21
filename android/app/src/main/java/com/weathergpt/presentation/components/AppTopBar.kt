@@ -16,7 +16,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.weathergpt.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +55,7 @@ fun AppTopBar(
                 IconButton(onClick = onNavigationClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.cd_back),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -61,7 +63,7 @@ fun AppTopBar(
                 IconButton(onClick = onNavigationClick) {
                     Icon(
                         imageVector = Icons.Default.Menu,
-                        contentDescription = "Menu",
+                        contentDescription = stringResource(R.string.cd_menu),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -75,7 +77,7 @@ fun AppTopBar(
                     IconButton(onClick = onNotificationClick) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
+                            contentDescription = stringResource(R.string.cd_notifications),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -84,7 +86,7 @@ fun AppTopBar(
                     IconButton(onClick = onSettingsClick) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = stringResource(R.string.cd_settings),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }

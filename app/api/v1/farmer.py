@@ -5,15 +5,25 @@ irrigation advisories, and pesticide/fertilizer spray window suitability.
 """
 
 import logging
-from typing import Any, Dict, Optional
-from pydantic import BaseModel, Field
-from fastapi import APIRouter
+from typing import Any, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.analytics.et0 import calculate_et0
 from app.analytics.water_balance import (
     calculate_crop_water_balance,
     evaluate_spray_window,
 )
+from app.dependencies.providers import (
+    get_farmer_intelligence_service,
+    get_farmer_plot_repository,
+)
+from app.farmer.models import (
+    DailyFarmPlan,
+    FarmerAdvisoryRequest,
+    FarmerAdvisoryResponse,
+)
+from app.farmer.service import FarmerIntelligenceService
 
 logger = logging.getLogger(__name__)
 
@@ -97,3 +107,137 @@ async def get_spray_window_advisory(request: SprayWindowRequest) -> Dict[str, An
             "engine_version": "1.0.0",
         },
     }
+
+
+@router.post(
+    "/advisory",
+    response_model=FarmerAdvisoryResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Evaluate comprehensive agricultural advisory (NirnayCard)",
+    description=(
+        "Transforms verified meteorological evidence and farmer field context into a deterministic "
+        "operational advisory. Evaluates irrigation, spraying, harvesting, field work, or crop-weather risk "
+        "without hallucination, emitting an audit-grade NirnayCard and optional Gemma explanation."
+    ),
+)
+async def get_farmer_advisory(
+    request: FarmerAdvisoryRequest,
+    service: FarmerIntelligenceService = Depends(get_farmer_intelligence_service),
+) -> FarmerAdvisoryResponse:
+    """Evaluates an agricultural question against live meteorological evidence deterministically."""
+    logger.info(
+        "FarmerAPI: Evaluating advisory for crop='%s' stage='%s' operation='%s'",
+        request.crop,
+        request.crop_stage,
+        request.operation,
+    )
+    return await service.evaluate_advisory(request)
+
+
+@router.post(
+    "/plan",
+    response_model=DailyFarmPlan,
+    status_code=status.HTTP_200_OK,
+    summary="Generate Daily Farm Action Plan",
+    description=(
+        "Synthesizes a multi-operation Daily Farm Action Plan ranking spraying, irrigation, "
+        "field work, and harvesting based on verified atmospheric conditions and active alerts."
+    ),
+)
+async def get_daily_farm_plan_endpoint(
+    request: FarmerAdvisoryRequest,
+    service: FarmerIntelligenceService = Depends(get_farmer_intelligence_service),
+) -> DailyFarmPlan:
+    """Generates a ranked Daily Farm Action Plan for all major field operations."""
+    request.operation = "daily_plan"
+    advisory = await service.evaluate_advisory(request)
+    if advisory.daily_plan is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate daily farm plan.",
+        )
+    return advisory.daily_plan
+
+
+class FarmerPlotCreateRequest(BaseModel):
+    user_id: str = Field(..., description="User ID of the farmer")
+    plot_name: str = Field(..., description="Name of the plot")
+    crop_name: str = Field(..., description="Name of the crop planted")
+    centroid_lat: float = Field(..., description="Latitude of plot centroid")
+    centroid_lon: float = Field(..., description="Longitude of plot centroid")
+    area_acres: Optional[float] = Field(None, description="Area in acres")
+
+
+class FarmerPlotResponse(BaseModel):
+    plot_id: str
+    user_id: str
+    plot_name: str
+    crop_name: str
+    area_acres: Optional[float]
+    centroid_lat: float
+    centroid_lon: float
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+@router.post(
+    "/plots",
+    response_model=FarmerPlotResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a new farmer plot",
+    description="Creates a new spatial farmer plot for alert intersection pipelines.",
+)
+async def register_plot(
+    request: FarmerPlotCreateRequest,
+    repo: Any = Depends(get_farmer_plot_repository),
+) -> FarmerPlotResponse:
+    if repo is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database service is offline or unconfigured."
+        )
+
+    try:
+        plot = await repo.create_plot(
+            user_id=request.user_id,
+            plot_name=request.plot_name,
+            crop_name=request.crop_name,
+            centroid_lat=request.centroid_lat,
+            centroid_lon=request.centroid_lon,
+            area_acres=request.area_acres,
+        )
+        return FarmerPlotResponse.model_validate(plot)
+    except Exception as exc:
+        logger.error("Failed to register plot: %s", str(exc))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to register farmer plot."
+        )
+
+
+@router.get(
+    "/plots/{user_id}",
+    response_model=List[FarmerPlotResponse],
+    summary="Get farmer plots",
+    description="Retrieves all registered plots for a specific farmer.",
+)
+async def get_plots(
+    user_id: str,
+    repo: Any = Depends(get_farmer_plot_repository),
+) -> List[FarmerPlotResponse]:
+    if repo is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database service is offline or unconfigured."
+        )
+
+    try:
+        plots = await repo.get_by_user(user_id)
+        return [FarmerPlotResponse.model_validate(p) for p in plots]
+    except Exception as exc:
+        logger.error("Failed to fetch plots: %s", str(exc))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch farmer plots."
+        )
+

@@ -1,0 +1,70 @@
+{
+  "scenario_id": "SCENARIO-GWALIOR-MONSOON-2026",
+  "geography": "Gwalior District",
+  "source_authority": "E2",
+  "total_population": 2032000,
+  "hospitals": [
+    {
+      "asset_id": "HOSP-GWL-001",
+      "name": "Jaya Arogya Hospital",
+      "asset_type": "HOSPITAL",
+      "coordinates": { "latitude": 26.2085, "longitude": 78.1630 },
+      "bed_capacity": 1200,
+      "icu_units": 85,
+      "elevation_m": 198.5,
+      "backup_power": true
+    },
+    {
+      "asset_id": "HOSP-GWL-002",
+      "name": "District Civil Hospital Morar",
+      "asset_type": "HOSPITAL",
+      "coordinates": { "latitude": 26.2230, "longitude": 78.2250 },
+      "bed_capacity": 300,
+      "icu_units": 20,
+      "elevation_m": 195.0,
+      "backup_power": true
+    }
+  ],
+  "schools": [
+    {
+      "asset_id": "SCH-GWL-001",
+      "name": "Government Higher Secondary School Maharaj Bada",
+      "asset_type": "SCHOOL",
+      "coordinates": { "latitude": 26.2110, "longitude": 78.1690 },
+      "student_capacity": 850,
+      "designated_shelter": true
+    },
+    {
+      "asset_id": "SCH-GWL-002",
+      "name": "Kendriya Vidyalaya No. 1 AFS Gwalior",
+      "asset_type": "SCHOOL",
+      "coordinates": { "latitude": 26.2950, "longitude": 78.2290 },
+      "student_capacity": 1400,
+      "designated_shelter": false
+    }
+  ],
+  "roads": [
+    {
+      "road_id": "ROAD-NH-44-GWL",
+      "name": "National Highway 44 (North-South Corridor)",
+      "road_category": "NATIONAL_HIGHWAY",
+      "length_km": 32.5,
+      "criticality": "HIGH",
+      "drainage_quality": "MODERATE"
+    },
+    {
+      "road_id": "ROAD-SH-19-GWL",
+      "name": "State Highway 19 (Gwalior-Jhansi Link)",
+      "road_category": "STATE_HIGHWAY",
+      "length_km": 18.2,
+      "criticality": "HIGH",
+      "drainage_quality": "POOR"
+    }
+  ],
+  "agriculture": {
+    "district_crop_acreage_ha": 184500,
+    "primary_crops": ["Soybean", "Paddy", "Bajara", "Sesame"],
+    "current_stage": "Kharif Maturation / Harvest Window",
+    "waterlogging_vulnerability": "HIGH"
+  }
+}

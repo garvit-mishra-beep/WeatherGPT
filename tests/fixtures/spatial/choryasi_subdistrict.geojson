@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "subdistrict_code": "IN-GJ-24-001",
+        "district_code": "IN-GJ-24",
+        "subdistrict_name": "Choryasi",
+        "area_sqkm": 286.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [72.75, 21.10],
+            [72.90, 21.10],
+            [72.90, 21.25],
+            [72.75, 21.25],
+            [72.75, 21.10]
+          ]
+        ]
+      }
+    }
+  ]
+}

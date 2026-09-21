@@ -53,30 +53,87 @@ class WeatherViewModel(
     val intelligenceState: StateFlow<ResultState<WeatherIntelligence>> = _intelligenceState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            locationManager.locationState.collectLatest { loc ->
-                _uiState.value = _uiState.value.copy(
-                    locationName = loc.formattedAddress,
-                    latitude = loc.latitude,
-                    longitude = loc.longitude
-                )
-                loadData()
+        if (com.weathergpt.core.config.AppConfig.isDemoMode) {
+            _uiState.value = _uiState.value.copy(
+                locationName = com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LOCATION_NAME,
+                latitude = com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LATITUDE,
+                longitude = com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LONGITUDE,
+                selectedInterval = ForecastInterval.TEN_DAYS
+            )
+            loadData()
+        } else {
+            viewModelScope.launch {
+                locationManager.locationState.collectLatest { loc ->
+                    _uiState.value = _uiState.value.copy(
+                        locationName = loc.formattedAddress,
+                        latitude = loc.latitude,
+                        longitude = loc.longitude
+                    )
+                    loadData()
+                }
             }
         }
     }
 
     fun loadData() {
         viewModelScope.launch {
-            val lat = _uiState.value.latitude
-            val lon = _uiState.value.longitude
+            val isDemo = com.weathergpt.core.config.AppConfig.isDemoMode
+            val lat = if (isDemo) com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LATITUDE else _uiState.value.latitude
+            val lon = if (isDemo) com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LONGITUDE else _uiState.value.longitude
 
-            _currentWeatherState.value = ResultState.Loading
-            _forecastState.value = ResultState.Loading
+            if (isDemo) {
+                _uiState.value = _uiState.value.copy(
+                    locationName = com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LOCATION_NAME,
+                    latitude = lat,
+                    longitude = lon
+                )
+            }
+
+            val prevWeather = (_currentWeatherState.value as? ResultState.Success<CurrentWeather>)?.data
+            val prevForecast = (_forecastState.value as? ResultState.Success<WeatherForecast>)?.data
+
+            if (prevWeather == null) _currentWeatherState.value = ResultState.Loading
+            if (prevForecast == null) _forecastState.value = ResultState.Loading
             _intelligenceState.value = ResultState.Loading
 
-            _currentWeatherState.value = repository.getCurrentWeather(lat, lon)
-            _forecastState.value = repository.getWeatherForecast(lat, lon, days = 7, hourly = true)
-            _intelligenceState.value = repository.getWeatherIntelligence(lat, lon, leadHours = 24, includeNwp = true)
+            val weatherRes = repository.getCurrentWeather(lat, lon)
+            val finalWeatherRes = if (weatherRes is ResultState.Success) {
+                if (weatherRes.data.sourceMode == com.weathergpt.domain.model.weather.WeatherDataSourceMode.LIVE) {
+                    weatherRes
+                } else {
+                    weatherRes
+                }
+            } else if (prevWeather != null && isGwaliorLocation(prevWeather.location.latitude, prevWeather.location.longitude)) {
+                ResultState.Success(
+                    prevWeather.copy(sourceMode = com.weathergpt.domain.model.weather.WeatherDataSourceMode.DEMO_MODE)
+                )
+            } else {
+                repository.getCurrentWeather(
+                    com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LATITUDE,
+                    com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LONGITUDE
+                )
+            }
+            _currentWeatherState.value = finalWeatherRes
+            if (finalWeatherRes is ResultState.Success && finalWeatherRes.data.sourceMode == com.weathergpt.domain.model.weather.WeatherDataSourceMode.DEMO_MODE) {
+                _uiState.value = _uiState.value.copy(
+                    locationName = com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LOCATION_NAME,
+                    latitude = com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LATITUDE,
+                    longitude = com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LONGITUDE
+                )
+            }
+
+            val targetLat = _uiState.value.latitude
+            val targetLon = _uiState.value.longitude
+            val forecastRes = repository.getWeatherForecast(targetLat, targetLon, days = 10, hourly = true)
+            if (forecastRes is ResultState.Error && prevForecast != null) {
+                _forecastState.value = ResultState.Success(
+                    prevForecast.copy(sourceMode = com.weathergpt.domain.model.weather.WeatherDataSourceMode.DEMO_MODE)
+                )
+            } else {
+                _forecastState.value = forecastRes
+            }
+
+            _intelligenceState.value = repository.getWeatherIntelligence(targetLat, targetLon, leadHours = 24, includeNwp = true)
         }
     }
 
@@ -97,6 +154,11 @@ class WeatherViewModel(
             latitude = lat,
             longitude = lon
         )
+    }
+
+    private fun isGwaliorLocation(lat: Double, lon: Double): Boolean {
+        return kotlin.math.abs(lat - com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LATITUDE) < 0.05 &&
+               kotlin.math.abs(lon - com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LONGITUDE) < 0.05
     }
 
     companion object {

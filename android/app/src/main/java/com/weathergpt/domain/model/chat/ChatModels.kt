@@ -16,15 +16,20 @@ enum class DomainBrain(val value: String) {
 }
 
 enum class ChatLanguage(val code: String) {
-    HINDI("hi"),
     ENGLISH("en"),
+    HINDI("hi"),
     MARATHI("mr"),
+    BENGALI("bn"),
+    TAMIL("ta"),
+    TELUGU("te"),
     GUJARATI("gu"),
-    BENGALI("bn");
+    KANNADA("kn"),
+    MALAYALAM("ml"),
+    PUNJABI("pa");
 
     companion object {
         fun fromCode(code: String): ChatLanguage =
-            entries.firstOrNull { it.code.equals(code, ignoreCase = true) } ?: HINDI
+            entries.firstOrNull { it.code.equals(code, ignoreCase = true) } ?: ENGLISH
     }
 }
 

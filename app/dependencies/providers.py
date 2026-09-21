@@ -5,7 +5,7 @@ to FastAPI's dependency injection. Each returns a concrete service instance that
 was built during application startup — reusing existing WeatherGPT classes.
 """
 
-from typing import AsyncGenerator
+from typing import Any, AsyncGenerator
 
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -97,6 +97,47 @@ def get_gis_analysis_engine(request: Request):
     return request.app.state.container.gis_analysis_engine
 
 
+def get_voice_service(request: Request):
+    """Return the application-wide ``VoiceService`` from ``app.state``."""
+    return request.app.state.container.voice_service
+
+
+def get_decision_engine(request: Request):
+    """Return the application-wide ``DeterministicDecisionEngine`` from ``app.state``."""
+    return request.app.state.container.decision_engine
+
+
+def get_evidence_bundle_builder(request: Request):
+    """Return the application-wide ``EvidenceBundleBuilder`` from ``app.state``."""
+    return request.app.state.container.evidence_bundle_builder
+
+
+def get_decision_explanation_bridge(request: Request):
+    """Return the application-wide ``DecisionExplanationBridge`` from ``app.state``."""
+    return request.app.state.container.decision_explanation_bridge
+
+
+def get_climate_intelligence_service(request: Request):
+    """Return the application-wide ``ClimateIntelligenceService`` from ``app.state``."""
+    return request.app.state.container.climate_intelligence_service
+
+
+def get_climate_explanation_bridge(request: Request):
+    """Return the application-wide ``ClimateExplanationBridge`` from ``app.state``."""
+    return request.app.state.container.climate_explanation_bridge
+
+
+def get_farmer_intelligence_service(request: Request):
+    """Return the application-wide ``FarmerIntelligenceService`` from ``app.state``."""
+    return request.app.state.container.farmer_intelligence_service
+
+
+def get_farmer_explanation_bridge(request: Request):
+    """Return the application-wide ``FarmerExplanationBridge`` from ``app.state``."""
+    return request.app.state.container.farmer_explanation_bridge
+
+
+
 async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession, None]:
     """Provide a request-scoped ``AsyncSession`` for a single HTTP request.
 
@@ -124,3 +165,138 @@ async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession, None]
         except Exception:
             await session.rollback()
             raise
+
+async def get_farmer_plot_repository(request: Request) -> AsyncGenerator[Any, None]:
+    """Provide a request-scoped FarmerPlotRepository."""
+    from app.db.repositories.farmer import FarmerPlotRepository
+    async for session in get_db_session(request):
+        if session:
+            yield FarmerPlotRepository(session)
+        else:
+            yield None
+
+async def get_alert_pipeline_service(request: Request) -> AsyncGenerator[Any, None]:
+    """Provide a request-scoped AlertPipelineService."""
+    from app.services.alert_pipeline import AlertPipelineService
+    from app.db.repositories.farmer import FarmerPlotRepository
+    container: AppContainer = request.app.state.container
+    async for session in get_db_session(request):
+        if session:
+            repo = FarmerPlotRepository(session)
+            yield AlertPipelineService(
+                session=session,
+                farmer_repo=repo,
+                evidence_builder=container.evidence_bundle_builder,
+                decision_engine=container.decision_engine,
+            )
+        else:
+            yield None
+
+
+async def get_proactive_decision_service(request: Request) -> AsyncGenerator[Any, None]:
+    """Provide a request-scoped ProactiveDecisionService with DB session repository."""
+    from app.db.repositories.farmer import FarmerPlotRepository
+    from app.db.repositories.outbox import OutboxRepository
+    from app.proactive.delivery import DurableNotificationDeliveryService
+    from app.proactive.service import ProactiveDecisionService
+
+    container: AppContainer = request.app.state.container
+    async for session in get_db_session(request):
+        repo = FarmerPlotRepository(session) if session else None
+        outbox_repo = OutboxRepository(session) if session else None
+        delivery_svc = (
+            DurableNotificationDeliveryService(
+                outbox_repo=outbox_repo,
+                fallback_service=container.notification_delivery_service,
+            )
+            if outbox_repo
+            else container.notification_delivery_service
+        )
+        yield ProactiveDecisionService(
+            evidence_builder=container.evidence_bundle_builder,
+            decision_engine=container.decision_engine,
+            farmer_repo=repo,
+            dedup_registry=container.event_deduplication_registry,
+            delivery_service=delivery_svc,
+            explanation_bridge=container.decision_explanation_bridge,
+        )
+
+
+def get_fcm_provider(request: Request):
+    """Return the application-wide FCMProvider from container."""
+    return request.app.state.container.fcm_provider
+
+
+async def get_outbox_repository(request: Request) -> AsyncGenerator[Any, None]:
+    """Provide a request-scoped OutboxRepository."""
+    from app.db.repositories.outbox import OutboxRepository
+    async for session in get_db_session(request):
+        if session:
+            yield OutboxRepository(session)
+        else:
+            yield None
+
+
+async def get_device_token_repository(request: Request) -> AsyncGenerator[Any, None]:
+    """Provide a request-scoped DeviceTokenRepository."""
+    from app.db.repositories.device import DeviceTokenRepository
+    async for session in get_db_session(request):
+        if session:
+            yield DeviceTokenRepository(session)
+        else:
+            yield None
+
+
+async def get_outbox_delivery_worker(request: Request) -> AsyncGenerator[Any, None]:
+    """Provide a request-scoped OutboxDeliveryWorker."""
+    from app.db.repositories.device import DeviceTokenRepository
+    from app.db.repositories.outbox import OutboxRepository
+    from app.proactive.worker import OutboxDeliveryWorker
+
+    container: AppContainer = request.app.state.container
+    async for session in get_db_session(request):
+        if session:
+            outbox_repo = OutboxRepository(session)
+            device_repo = DeviceTokenRepository(session)
+            yield OutboxDeliveryWorker(
+                outbox_repo=outbox_repo,
+                device_repo=device_repo,
+                fcm_provider=container.fcm_provider,
+                max_retries=container.settings.outbox_max_retries,
+                batch_size=container.settings.outbox_worker_batch_size,
+                base_backoff_seconds=container.settings.outbox_retry_backoff_seconds,
+            )
+        else:
+            yield None
+
+
+async def get_personalization_service(request: Request) -> AsyncGenerator[Any, None]:
+    """Provide a request-scoped PersonalizationService with injected repositories."""
+    from app.db.repositories.farmer import FarmerPlotRepository
+    from app.db.repositories.personalization import (
+        DecisionHistoryRepository,
+        DecisionOutcomeRepository,
+        ForecastVerificationRepository,
+        UserActionRepository,
+        UserPreferencesRepository,
+    )
+    from app.personalization.service import PersonalizationService
+
+    container: AppContainer = request.app.state.container
+    async for session in get_db_session(request):
+        pref_repo = UserPreferencesRepository(session) if session else None
+        hist_repo = DecisionHistoryRepository(session) if session else None
+        act_repo = UserActionRepository(session) if session else None
+        outc_repo = DecisionOutcomeRepository(session) if session else None
+        verif_repo = ForecastVerificationRepository(session) if session else None
+        farmer_repo = FarmerPlotRepository(session) if session else None
+
+        yield PersonalizationService(
+            preferences_repo=pref_repo,
+            history_repo=hist_repo,
+            action_repo=act_repo,
+            outcome_repo=outc_repo,
+            verification_repo=verif_repo,
+            farmer_repo=farmer_repo,
+            proactive_service=container.proactive_decision_service,
+        )

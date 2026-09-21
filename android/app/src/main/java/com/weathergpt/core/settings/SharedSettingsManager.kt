@@ -8,11 +8,27 @@ import kotlinx.coroutines.flow.asStateFlow
 
 enum class AppLanguage(val code: String, val englishName: String, val nativeName: String) {
     ENGLISH("en", "English", "English"),
-    HINDI("hi", "Hindi", "हिन्दी");
+    HINDI("hi", "Hindi", "हिन्दी"),
+    MARATHI("mr", "Marathi", "मराठी"),
+    BENGALI("bn", "Bengali", "বাংলা"),
+    TAMIL("ta", "Tamil", "தமிழ்"),
+    TELUGU("te", "Telugu", "తెలుగు"),
+    GUJARATI("gu", "Gujarati", "ગુજરાતી"),
+    KANNADA("kn", "Kannada", "ಕನ್ನಡ"),
+    MALAYALAM("ml", "Malayalam", "മലയാളം"),
+    PUNJABI("pa", "Punjabi", "ਪੰਜਾਬੀ");
 
     fun toChatLanguage(): ChatLanguage = when (this) {
         ENGLISH -> ChatLanguage.ENGLISH
         HINDI -> ChatLanguage.HINDI
+        MARATHI -> ChatLanguage.MARATHI
+        BENGALI -> ChatLanguage.BENGALI
+        TAMIL -> ChatLanguage.TAMIL
+        TELUGU -> ChatLanguage.TELUGU
+        GUJARATI -> ChatLanguage.GUJARATI
+        KANNADA -> ChatLanguage.KANNADA
+        MALAYALAM -> ChatLanguage.MALAYALAM
+        PUNJABI -> ChatLanguage.PUNJABI
     }
 
     companion object {

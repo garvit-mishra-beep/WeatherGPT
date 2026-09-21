@@ -28,9 +28,13 @@ Version `v1` of the WeatherGPT REST API, mounted by the application factory at `
 | **Map** | `GET /api/v1/map/point` | Declarative Map Specification for point weather. |
 | **Map** | `GET /api/v1/map/warnings` | Declarative Map Specification for active severe alerts. |
 | **Map** | `GET /api/v1/map/risk` | Declarative Map Specification for spatial hazard risk. |
+| **Voice** | `POST /api/v1/voice/stt` | Speech-to-Text audio transcription (Google Cloud STT V2). |
+| **Voice** | `POST /api/v1/voice/tts` | Text-to-Speech audio synthesis (Google Cloud TTS). |
+| **Voice** | `POST /api/v1/voice/query` | End-to-end voice query transcription, reasoning, and audio response. |
 
 ## 3. Router Structure
 - `router.py`: Aggregates all domain sub-routers into the top-level `/api/v1` APIRouter.
 - `chat.py`: Multi-turn conversational endpoint orchestrating context, routing, tools, grounding, and response synthesis.
+- `voice.py`: Voice ingress/egress endpoints (STT transcription, TTS synthesis, voice query).
 - `weather.py`, `farmer.py`, `gis.py`, `nwp.py`, `map.py`: Domain-specific REST endpoints.
 - `system.py`: Liveness, readiness, and root metadata endpoints.

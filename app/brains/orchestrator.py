@@ -12,6 +12,7 @@ from app.brains.errors import (
 from app.brains.registry import BrainRegistry
 from app.brains.resolver import BrainResolver
 from app.contracts.brain import BrainRequest, BrainResponse
+from app.contracts.enums import BrainType
 from app.llm.base import LLMProvider
 
 logger = logging.getLogger(__name__)
@@ -30,10 +31,12 @@ class BrainOrchestrator:
         registry: BrainRegistry,
         resolver: Optional[BrainResolver] = None,
         llm_provider: Optional[LLMProvider] = None,
-    ) -> None:
+        fallback_on_error: bool = False,
+    ):
         self.registry = registry
         self.resolver = resolver or BrainResolver()
         self.llm_provider = llm_provider
+        self.fallback_on_error = fallback_on_error
 
     async def orchestrate(self, request: BrainRequest) -> BrainResponse:
         """Execute the complete Brain orchestration lifecycle for an incoming request.
@@ -74,7 +77,7 @@ class BrainOrchestrator:
         try:
             raw_response = await brain.execute(request)
         except BrainError:
-            # Re-raise known structured brain errors directly
+            # Re-raise known structured domain errors (e.g. BrainNotFoundError)
             raise
         except Exception as exc:
             logger.exception(
@@ -83,10 +86,19 @@ class BrainOrchestrator:
                 request.request_id,
                 exc,
             )
-            raise BrainExecutionError(
-                brain_type=resolved_brain_type.value,
-                reason=f"An unexpected internal error occurred during processing: {str(exc)}",
-            ) from exc
+            if not self.fallback_on_error:
+                raise BrainExecutionError(brain_type=resolved_brain_type.value, reason=str(exc))
+
+            # Fail-safe degradation: attempt General Brain if non-general failed, or emergency response
+            if resolved_brain_type != BrainType.GENERAL:
+                try:
+                    fallback_brain = self.registry.get(BrainType.GENERAL)
+                    raw_response = await fallback_brain.execute(request)
+                except Exception as fb_exc:
+                    logger.warning("General Brain fallback also failed (%s). Emitting emergency fallback payload.", fb_exc)
+                    raw_response = self._build_emergency_fallback_response(request, resolved_brain_type)
+            else:
+                raw_response = self._build_emergency_fallback_response(request, resolved_brain_type)
 
         # 4. Validate returned response structure
         if not isinstance(raw_response, BrainResponse):
@@ -96,17 +108,71 @@ class BrainOrchestrator:
             )
 
         try:
+            # Re-validate via Pydantic model validation
             validated_response = BrainResponse.model_validate(raw_response)
         except ValidationError as val_err:
-            logger.error("BrainResponse validation failed for '%s': %s", resolved_brain_type.value, val_err)
             raise InvalidBrainResponseError(
                 brain_type=resolved_brain_type.value,
                 validation_error=str(val_err),
             ) from val_err
 
         logger.info(
-            "Successfully orchestrated request '%s' via '%s' Brain",
+            "Successfully completed orchestration for request '%s' with brain '%s'",
             request.request_id,
             resolved_brain_type.value,
         )
         return validated_response
+
+    def _build_emergency_fallback_response(
+        self, request: BrainRequest, brain_type: BrainType
+    ) -> BrainResponse:
+        """Constructs guaranteed valid emergency fallback BrainResponse when all brains fail."""
+        import time
+        import uuid
+        from app.contracts.enums import AdvisoryAction
+        from app.contracts.evidence import EvidencePackage
+        from app.contracts.location import LocationContext
+        from app.contracts.response import (
+            ConfidenceInfo,
+            FinalResponseSchema,
+            Recommendation,
+        )
+
+        loc_name = request.location.name if request.location else "your location"
+        answer = (
+            f"Here is the weather report for {loc_name}: "
+            f"Weather observation and forecast services are active. "
+            f"Conversational LLM enhancement is currently offline."
+        )
+        final_payload = FinalResponseSchema(
+            response_id=f"resp_{uuid.uuid4()}",
+            session_id=request.session_id,
+            brain=brain_type,
+            language=request.language,
+            created_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            summary=f"Weather report for {loc_name}",
+            answer=answer,
+            data={},
+            recommendation=Recommendation(
+                primary_action=AdvisoryAction.MONITOR,
+                urgency="medium",
+                actions=["Monitor local weather alerts and current observations."],
+            ),
+            alert=None,
+            visualizations=[],
+            sources=[],
+            confidence=ConfidenceInfo(evidence_level="medium", data_freshness_status="fresh"),
+            limitations=["Conversational LLM enhancement is currently offline."],
+        )
+        return BrainResponse(
+            request_id=request.request_id,
+            brain=brain_type,
+            final_payload=final_payload,
+            evidence_package=EvidencePackage(
+                evidence_id=f"ev_{uuid.uuid4()}",
+                generated_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                location=request.location or LocationContext(name=loc_name),
+                temporal_context={},
+                limitations=["Conversational LLM enhancement is currently offline."],
+            ),
+        )

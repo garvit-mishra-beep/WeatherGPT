@@ -10,6 +10,11 @@ from app.multilingual.models import LanguageDetectionResult
 DEVANAGARI_RANGE = re.compile(r"[\u0900-\u097F]")
 BENGALI_RANGE = re.compile(r"[\u0980-\u09FF]")
 GUJARATI_RANGE = re.compile(r"[\u0A80-\u0AFF]")
+GURMUKHI_RANGE = re.compile(r"[\u0A00-\u0A7F]")
+TAMIL_RANGE = re.compile(r"[\u0B80-\u0BFF]")
+TELUGU_RANGE = re.compile(r"[\u0C00-\u0C7F]")
+KANNADA_RANGE = re.compile(r"[\u0C80-\u0CFF]")
+MALAYALAM_RANGE = re.compile(r"[\u0D00-\u0D7F]")
 
 # Marathi-specific Devanagari markers
 MARATHI_DEVANAGARI_MARKERS = [
@@ -34,6 +39,30 @@ MARATHLISH_KEYWORDS = [
     "pikasathi", "shetat",
 ]
 
+BANGLISH_KEYWORDS = [
+    "kalke", "brishti", "hobe", "ki", "aajke", "tumi", "emon", "weather",
+]
+
+TAMGLISH_KEYWORDS = [
+    "nalaiku", "mazhai", "varuma", "eppadi", "irukkum", "kaathu", "veppam",
+]
+
+TELGLISH_KEYWORDS = [
+    "repu", "varsham", "paduthunda", "ela", "undhi", "gaali", "vaathavaranam",
+]
+
+KANGGLISH_KEYWORDS = [
+    "naale", "male", "barutha", "hegide", "havamana", "gaali",
+]
+
+MALGLISH_KEYWORDS = [
+    "naale", "mazha", "peyyumo", "engane", "und", "kaattu", "kaalavastha",
+]
+
+PUNGLISH_KEYWORDS = [
+    "kal", "meehan", "paini", "kivein", "mausam", "kisaan", "hovega",
+]
+
 
 class LanguageDetector:
     """Detects primary language, script, code-mixing, and confidence for user inputs."""
@@ -44,15 +73,7 @@ class LanguageDetector:
         text: str,
         preferred_fallback: SupportedLanguage = SupportedLanguage.ENGLISH,
     ) -> LanguageDetectionResult:
-        """Analyzes text to determine script, code-mixing status, and target language code.
-
-        Args:
-            text: Raw user query string.
-            preferred_fallback: Fallback language if text is ambiguous.
-
-        Returns:
-            LanguageDetectionResult: Detailed detection analysis with confidence score.
-        """
+        """Analyzes text to determine script, code-mixing status, and target language code."""
         raw_text = text.strip()
         if not raw_text:
             return LanguageDetectionResult(
@@ -63,7 +84,52 @@ class LanguageDetector:
                 raw_query=text,
             )
 
-        # 1. Check Bengali Script
+        # 1. Check Specific Indic Scripts
+        if TAMIL_RANGE.search(raw_text):
+            return LanguageDetectionResult(
+                detected_language=SupportedLanguage.TAMIL,
+                confidence=0.98,
+                is_code_mixed=False,
+                detected_script="Tamil",
+                raw_query=text,
+            )
+
+        if TELUGU_RANGE.search(raw_text):
+            return LanguageDetectionResult(
+                detected_language=SupportedLanguage.TELUGU,
+                confidence=0.98,
+                is_code_mixed=False,
+                detected_script="Telugu",
+                raw_query=text,
+            )
+
+        if KANNADA_RANGE.search(raw_text):
+            return LanguageDetectionResult(
+                detected_language=SupportedLanguage.KANNADA,
+                confidence=0.98,
+                is_code_mixed=False,
+                detected_script="Kannada",
+                raw_query=text,
+            )
+
+        if MALAYALAM_RANGE.search(raw_text):
+            return LanguageDetectionResult(
+                detected_language=SupportedLanguage.MALAYALAM,
+                confidence=0.98,
+                is_code_mixed=False,
+                detected_script="Malayalam",
+                raw_query=text,
+            )
+
+        if GURMUKHI_RANGE.search(raw_text):
+            return LanguageDetectionResult(
+                detected_language=SupportedLanguage.PUNJABI,
+                confidence=0.98,
+                is_code_mixed=False,
+                detected_script="Gurmukhi",
+                raw_query=text,
+            )
+
         if BENGALI_RANGE.search(raw_text):
             return LanguageDetectionResult(
                 detected_language=SupportedLanguage.BENGALI,
@@ -73,7 +139,6 @@ class LanguageDetector:
                 raw_query=text,
             )
 
-        # 2. Check Gujarati Script
         if GUJARATI_RANGE.search(raw_text):
             return LanguageDetectionResult(
                 detected_language=SupportedLanguage.GUJARATI,
@@ -83,7 +148,7 @@ class LanguageDetector:
                 raw_query=text,
             )
 
-        # 3. Check Devanagari Script (Hindi vs. Marathi)
+        # 2. Check Devanagari Script (Hindi vs. Marathi)
         if DEVANAGARI_RANGE.search(raw_text):
             is_marathi = any(marker in raw_text for marker in MARATHI_DEVANAGARI_MARKERS)
             lang = SupportedLanguage.MARATHI if is_marathi else SupportedLanguage.HINDI
@@ -95,42 +160,33 @@ class LanguageDetector:
                 raw_query=text,
             )
 
-        # 4. Latin Script: Check for Code-Mixing
+        # 3. Latin Script: Check for Code-Mixing
         lower_tokens = re.findall(r"\b\w+\b", raw_text.lower())
         
-        hinglish_matches = sum(1 for t in lower_tokens if t in HINGLISH_KEYWORDS)
-        gujlish_matches = sum(1 for t in lower_tokens if t in GUJLISH_KEYWORDS)
-        marathlish_matches = sum(1 for t in lower_tokens if t in MARATHLISH_KEYWORDS)
+        matches = {
+            SupportedLanguage.HINDI: sum(1 for t in lower_tokens if t in HINGLISH_KEYWORDS),
+            SupportedLanguage.GUJARATI: sum(1 for t in lower_tokens if t in GUJLISH_KEYWORDS),
+            SupportedLanguage.MARATHI: sum(1 for t in lower_tokens if t in MARATHLISH_KEYWORDS),
+            SupportedLanguage.BENGALI: sum(1 for t in lower_tokens if t in BANGLISH_KEYWORDS),
+            SupportedLanguage.TAMIL: sum(1 for t in lower_tokens if t in TAMGLISH_KEYWORDS),
+            SupportedLanguage.TELUGU: sum(1 for t in lower_tokens if t in TELGLISH_KEYWORDS),
+            SupportedLanguage.KANNADA: sum(1 for t in lower_tokens if t in KANGGLISH_KEYWORDS),
+            SupportedLanguage.MALAYALAM: sum(1 for t in lower_tokens if t in MALGLISH_KEYWORDS),
+            SupportedLanguage.PUNJABI: sum(1 for t in lower_tokens if t in PUNGLISH_KEYWORDS),
+        }
 
-        max_matches = max(hinglish_matches, gujlish_matches, marathlish_matches)
+        best_lang, match_count = max(matches.items(), key=lambda x: x[1])
 
-        if max_matches > 0:
-            if max_matches == hinglish_matches:
-                return LanguageDetectionResult(
-                    detected_language=SupportedLanguage.HINDI,
-                    confidence=0.88,
-                    is_code_mixed=True,
-                    detected_script="Latin",
-                    raw_query=text,
-                )
-            elif max_matches == gujlish_matches:
-                return LanguageDetectionResult(
-                    detected_language=SupportedLanguage.GUJARATI,
-                    confidence=0.88,
-                    is_code_mixed=True,
-                    detected_script="Latin",
-                    raw_query=text,
-                )
-            else:
-                return LanguageDetectionResult(
-                    detected_language=SupportedLanguage.MARATHI,
-                    confidence=0.88,
-                    is_code_mixed=True,
-                    detected_script="Latin",
-                    raw_query=text,
-                )
+        if match_count > 0:
+            return LanguageDetectionResult(
+                detected_language=best_lang,
+                confidence=0.88,
+                is_code_mixed=True,
+                detected_script="Latin",
+                raw_query=text,
+            )
 
-        # 5. Default Pure English
+        # 4. Default Pure English
         return LanguageDetectionResult(
             detected_language=SupportedLanguage.ENGLISH,
             confidence=0.95,

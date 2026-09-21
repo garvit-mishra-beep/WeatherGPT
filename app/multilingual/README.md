@@ -1,14 +1,19 @@
 # Multilingual Support Layer (`app/multilingual/`)
 
 ## 1. Purpose
-Provides robust language handling, script detection, code-mixed query understanding, Indic numeral normalization, and standardized meteorological terminology mapping across 5 Indian languages.
+Provides robust language handling, script detection, code-mixed query understanding, Indic numeral normalization, and standardized meteorological terminology mapping across 10 Indian languages.
 
 ## 2. Supported Languages
 1. **English (`en`)**
 2. **Hindi (`hi` — हिन्दी)**
-3. **Bengali (`bn` — বাংলা)**
-4. **Marathi (`mr` — मराठी)**
-5. **Gujarati (`gu` — ગુજરાતી)**
+3. **Marathi (`mr` — मराठी)**
+4. **Bengali (`bn` — বাংলা)**
+5. **Tamil (`ta` — தமிழ்)**
+6. **Telugu (`te` — తెలుగు)**
+7. **Gujarati (`gu` — ગુજરાતી)**
+8. **Kannada (`kn` — ಕನ್ನಡ)**
+9. **Malayalam (`ml` — മലയാളം)**
+10. **Punjabi (`pa` — ਪੰਜਾਬੀ)**
 
 ## 3. Responsibilities
 - Detect language and script from Unicode character ranges and romanized transliteration keywords.
@@ -18,8 +23,8 @@ Provides robust language handling, script detection, code-mixed query understand
 
 ## 4. Important Files
 - `detector.py`: `LanguageDetector` combining Unicode script analysis with code-mixed keyword matching.
-- `numerals.py`: `NumeralNormalizer` converting bidirectionally between Indic digits and ASCII numerals.
-- `catalog.py`: `TerminologyCatalog` providing standardized meteorological glossaries for 5 languages.
+- `normalizer.py`: `NumeralNormalizer` converting bidirectionally between Indic digits and ASCII numerals.
+- `glossaries.py`: Standardized meteorological glossaries across 10 Indian languages.
 - `service.py`: `MultilingualService` unifying normalization, system prompt generation, and terminology resolution.
 
 ## 5. Invariants

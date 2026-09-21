@@ -23,7 +23,10 @@ def normalize_route(request: Request) -> str:
     """
     route = request.scope.get("route")
     if route and hasattr(route, "path"):
-        return str(route.path)
+        r_path = str(route.path)
+        if not r_path.startswith("/api/v1") and request.url.path.startswith("/api/v1/"):
+            return f"/api/v1{r_path}"
+        return r_path
     # If route was not matched (e.g., 404), return a static low-cardinality placeholder
     path = request.url.path
     if path.startswith("/api/v1/"):

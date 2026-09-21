@@ -27,14 +27,17 @@ logger = logging.getLogger(__name__)
 ROUTER_SYSTEM_PROMPT = """You are the WeatherGPT Semantic Auto Router.
 Your sole job is to classify the user's intent to one of the 4 domain brains:
 
-1. 'general': Everyday weather forecasts, temperature, precipitation probability, official IMD alerts, lifestyle weather queries.
+1. 'general': Everyday weather forecasts, temperature, precipitation probability, official IMD alerts, lifestyle weather queries, travel weather, or location inquiries.
 2. 'farmer': Agricultural decision support including irrigation scheduling (ET0/water balance), pesticide/fertilizer spray windows, crop risk, sowing/harvesting timing.
 3. 'researcher': Multi-decadal historical climate trends, statistical analysis (Mann-Kendall, Sen's slope, anomalies), period comparisons, data export requests (CSV/JSON).
 4. 'analyst': Operational hazard exposure, infrastructure risk quantification, disaster management alerts, supply chain weather risks, multi-model NWP divergence.
 
 Context Guidelines:
-- Consider conversation history, crop context, farm details, and research preferences when provided.
-- If the user query is fundamentally ambiguous or equally matches multiple domains (e.g. "Tell me about rain"), set 'needs_clarification': true and lower confidence < 0.60.
+- If the user query is a location name or asks for everyday weather, forecast, rain chance, or temperature without agricultural, historical, or disaster keywords, classify as 'general'.
+- Only classify as 'farmer' if the user explicitly asks about crops, farming, irrigation, or agriculture.
+- Only classify as 'researcher' if the user explicitly asks about multi-decadal historical climate trends, long-term statistics, or research data.
+- Only classify as 'analyst' if the user explicitly asks about disaster hazard, infrastructure vulnerability, or flood/cyclone exposure analysis.
+- If the user query is fundamentally ambiguous or equally matches multiple domains, set 'needs_clarification': true and lower confidence < 0.60.
 - Return a valid JSON object matching the RoutingClassification schema.
 """
 
@@ -59,21 +62,34 @@ class LLMAutoRouter(BaseAutoRouter):
         """
         # 1. Check for manual / explicit Brain selection override
         if request.target_brain != BrainType.AUTO:
-            logger.info(
-                "Explicit Brain '%s' requested. Bypassing Auto Router.",
-                request.target_brain.value,
-            )
+            logger.info("Explicit Brain override detected: %s", request.target_brain.value)
             return RouterResult(
                 selected_brain=request.target_brain,
                 confidence=1.0,
                 confidence_level="high",
-                intent_category="explicit_selection",
-                rationale=f"User explicitly selected the '{request.target_brain.value}' Brain.",
+                intent_category="explicit_override",
+                rationale="User manually selected target brain.",
                 needs_clarification=False,
                 is_explicit_override=True,
             )
 
-        # 2. Build prompt context for LLM routing
+        # 2. Pure location query check (e.g. "gwalior", "bihar", "ग्वालियर")
+        # When user provides only a location name, it is an everyday weather lookup for General Brain.
+        from app.tools.catalog import INDIAN_LOCATIONS
+        q_clean = request.normalized_query.strip().lower().rstrip(".?!,")
+        words = q_clean.split()
+        if len(words) <= 2 and (q_clean in INDIAN_LOCATIONS or " ".join(words) in INDIAN_LOCATIONS):
+            logger.info("Deterministic Auto Router: Location-only query '%s' mapped to GENERAL Brain", request.normalized_query)
+            return RouterResult(
+                selected_brain=BrainType.GENERAL,
+                confidence=0.95,
+                confidence_level="high",
+                intent_category="everyday_weather",
+                rationale="Location-only query routed to General Brain for weather report.",
+                needs_clarification=False,
+            )
+
+        # 3. Build prompt context for LLM routing fallback
         user_prompt = self._build_classification_prompt(request)
         messages = [
             ChatMessage(role=ChatRole.SYSTEM, content=ROUTER_SYSTEM_PROMPT),

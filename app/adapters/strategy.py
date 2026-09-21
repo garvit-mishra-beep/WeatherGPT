@@ -9,7 +9,7 @@ Coordinates primary and secondary meteorological providers, enforcing:
 """
 
 import logging
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from app.adapters.circuit_breaker import CircuitBreaker
 from app.adapters.metrics import ProviderMetricsRegistry, provider_metrics as default_provider_metrics
@@ -183,7 +183,7 @@ class WeatherProviderManager:
                 if self.cache:
                     await self.cache.set(cache_key, obs, ttl_seconds=TTL_CURRENT_WEATHER)
                 return obs
-            except AdapterError as e:
+            except (AdapterError, Exception) as e:
                 logger.warning(
                     "Primary weather provider '%s' failed: %s; attempting fallback cascade",
                     self.primary_weather_provider.name,
@@ -206,7 +206,7 @@ class WeatherProviderManager:
                     if self.cache:
                         await self.cache.set(cache_key, res, ttl_seconds=TTL_CURRENT_WEATHER)
                     return res
-                except AdapterError as e:
+                except (AdapterError, Exception) as e:
                     logger.warning("Fallback weather provider '%s' failed: %s", fallback_provider.name, e)
                     last_failed = fallback_provider.name
 
@@ -239,7 +239,7 @@ class WeatherProviderManager:
                 if self.cache:
                     await self.cache.set(cache_key, fc, ttl_seconds=TTL_FORECAST)
                 return fc
-            except AdapterError as e:
+            except (AdapterError, Exception) as e:
                 logger.warning("Primary forecast provider '%s' failed: %s; attempting fallback", self.primary_weather_provider.name, e)
 
             # 2. Iterate through configured fallback providers
@@ -258,7 +258,7 @@ class WeatherProviderManager:
                     if self.cache:
                         await self.cache.set(cache_key, res, ttl_seconds=TTL_FORECAST)
                     return res
-                except AdapterError as e:
+                except (AdapterError, Exception) as e:
                     logger.warning("Fallback forecast provider '%s' failed: %s", fallback_provider.name, e)
                     last_failed = fallback_provider.name
 

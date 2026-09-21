@@ -73,6 +73,9 @@ class CheckHealthUseCaseTest {
         override suspend fun getPointWeatherMap(latitude: Double, longitude: Double): ResultState<MapSpecification> = throw NotImplementedError()
         override suspend fun getWarningMap(warningGeometry: JsonObject, alertId: String, event: String, severity: String): ResultState<MapSpecification> = throw NotImplementedError()
         override suspend fun getRiskMap(latitude: Double?, longitude: Double?, districtCode: String?, observedRainMm: Double?, observedWindKmh: Double?): ResultState<MapSpecification> = throw NotImplementedError()
+        override suspend fun evaluateDecision(question: String, locationName: String?, latitude: Double?, longitude: Double?, requestedTime: String?, domain: String?, context: Map<String, String>?): ResultState<com.weathergpt.domain.model.decision.NirnayCard> = throw NotImplementedError()
+        override suspend fun getFarmerProfile(): ResultState<com.weathergpt.domain.model.farmer.FarmerProfile> = ResultState.Success(com.weathergpt.domain.model.farmer.FarmerProfile())
+        override suspend fun saveFarmerProfile(profile: com.weathergpt.domain.model.farmer.FarmerProfile): ResultState<Unit> = ResultState.Success(Unit)
     }
 
     @Test

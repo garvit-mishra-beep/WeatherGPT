@@ -68,6 +68,8 @@ import com.weathergpt.domain.model.weather.WeatherForecast
 import com.weathergpt.domain.model.weather.WeatherIntelligence
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
 /**
@@ -188,7 +190,17 @@ object Mappers {
         precipitationSumMm = precipitationSumMm,
         precipitationProbabilityPct = precipitationProbabilityPct,
         windSpeedMaxKmh = windSpeedMaxKmh,
-        dominantCondition = dominantCondition
+        dominantCondition = dominantCondition,
+        tempAvgC = tempAvgC,
+        feelsLikeC = feelsLikeC,
+        windGustKmh = windGustKmh,
+        windDirectionDeg = windDirectionDeg,
+        humidityPct = humidityPct,
+        weatherCode = weatherCode,
+        source = source,
+        retrievedAt = retrievedAt,
+        forecastValidFrom = forecastValidFrom,
+        forecastValidUntil = forecastValidUntil
     )
 
     fun HourlyForecastDto.toDomain(): HourlyForecast = HourlyForecast(
@@ -206,9 +218,22 @@ object Mappers {
         generatedAt = generatedAt,
         forecastStart = forecastStart,
         forecastEnd = forecastEnd,
-        dailyForecast = dailyForecast.map { it.toDomain() },
+        dailyForecast = dailyForecast.map { dto ->
+            val domain = dto.toDomain()
+            if (domain.source == null || domain.retrievedAt == null) {
+                domain.copy(
+                    source = domain.source ?: provenance?.provider ?: "Open-Meteo",
+                    retrievedAt = domain.retrievedAt ?: provenance?.retrievalTimestamp ?: generatedAt,
+                    forecastValidFrom = domain.forecastValidFrom ?: forecastStart,
+                    forecastValidUntil = domain.forecastValidUntil ?: forecastEnd
+                )
+            } else {
+                domain
+            }
+        },
         hourlyForecast = hourlyForecast?.map { it.toDomain() },
-        provider = provenance?.provider
+        provider = provenance?.provider,
+        retrievedAt = provenance?.retrievalTimestamp ?: generatedAt
     )
 
     fun OfficialAlertItemDto.toDomain(): OfficialAlert = OfficialAlert(
@@ -557,6 +582,187 @@ object Mappers {
                 if (v is JsonPrimitive) v.content else v.toString()
             } ?: emptyMap(),
             quality = quality
+        )
+    }
+
+    // ========================================================================
+    // 8. Vayubodhak Decision Intelligence (NirnayCard & ActionWindow Phase 2)
+    // ========================================================================
+
+    fun com.weathergpt.data.remote.dto.decision.CandidateHourEvaluationDto.toDomain(): com.weathergpt.domain.model.decision.CandidateHourEvaluation =
+        com.weathergpt.domain.model.decision.CandidateHourEvaluation(
+            timeIso = timeIso,
+            windSpeedKmh = windSpeedKmh,
+            rainProbabilityPct = rainProbabilityPct,
+            precipitationMm = precipitationMm,
+            temperatureC = temperatureC,
+            passed = passed,
+            failedReasons = failedReasons
+        )
+
+    fun com.weathergpt.data.remote.dto.decision.ActionWindowPeriodDto.toDomain(): com.weathergpt.domain.model.decision.ActionWindowPeriod =
+        com.weathergpt.domain.model.decision.ActionWindowPeriod(
+            windowId = windowId,
+            startTimeIso = startTimeIso,
+            endTimeIso = endTimeIso,
+            durationHours = durationHours,
+            score = score,
+            avgWindSpeedKmh = avgWindSpeedKmh,
+            maxWindSpeedKmh = maxWindSpeedKmh,
+            maxRainProbabilityPct = maxRainProbabilityPct,
+            totalRainfallMm = totalRainfallMm,
+            summary = summary,
+            recommended = recommended
+        )
+
+    fun com.weathergpt.data.remote.dto.decision.ActionWindowDto.toDomain(): com.weathergpt.domain.model.decision.ActionWindow =
+        com.weathergpt.domain.model.decision.ActionWindow(
+            status = status,
+            isAvailable = status.equals("available", ignoreCase = true),
+            bestWindow = bestWindow?.toDomain(),
+            fallbackWindows = fallbackWindows.map { it.toDomain() },
+            score = score,
+            constraints = constraints?.mapValues { (_, v) ->
+                if (v is JsonPrimitive) v.content else v.toString()
+            } ?: emptyMap(),
+            confidence = com.weathergpt.domain.model.decision.DecisionConfidence.fromRaw(confidence ?: "high"),
+            reason = reason,
+            hourlyEvaluations = hourlyEvaluations?.map { it.toDomain() }
+        )
+
+    fun com.weathergpt.data.remote.dto.decision.LedgerRuleEvaluationDto.toDomain(): com.weathergpt.domain.model.decision.LedgerRuleEvaluation =
+        com.weathergpt.domain.model.decision.LedgerRuleEvaluation(
+            ruleName = ruleName,
+            threshold = threshold?.let { if (it is JsonPrimitive) it.content else it.toString() } ?: "",
+            observedValue = observedValue?.let { if (it is JsonPrimitive) it.content else it.toString() } ?: "",
+            unit = unit,
+            operator = operator,
+            satisfied = satisfied,
+            rationale = rationale
+        )
+
+    fun com.weathergpt.data.remote.dto.decision.EvidenceLedgerDto.toDomain(): com.weathergpt.domain.model.decision.EvidenceLedger =
+        com.weathergpt.domain.model.decision.EvidenceLedger(
+            decisionId = decisionId,
+            timestamp = timestamp,
+            question = question,
+            rules = rules.map { it.toDomain() },
+            inputs = inputs?.mapValues { (_, v) ->
+                if (v is JsonPrimitive) v.content else v.toString()
+            } ?: emptyMap(),
+            sources = sources?.map { it.toString() } ?: emptyList()
+        )
+
+    fun com.weathergpt.data.remote.dto.decision.NirnayCardDto.toDomain(): com.weathergpt.domain.model.decision.NirnayCard {
+        val uncGfs = uncertainty?.get("gfs_confidence")?.let { if (it is JsonPrimitive) it.content else it.toString() } ?: "high"
+        val uncWrf = uncertainty?.get("wrf_status")?.let { if (it is JsonPrimitive) it.content else it.toString() } ?: "unavailable"
+        val uncNote = uncertainty?.get("statement")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: uncertainty?.get("uncertainty_note")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: "Guidance based on numerical forecast; independent WRF comparison is unavailable"
+        val uncLead = uncertainty?.get("lead_time_hours")?.let {
+            if (it is JsonPrimitive) it.content.toDoubleOrNull() else null
+        }
+
+        val riskStr = impact?.get("primary_risk")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: impact?.get("operational_risk")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+        val lossStr = impact?.get("loss_potential")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+
+        val evidenceMap = evidence?.mapValues { (_, v) ->
+            if (v is JsonPrimitive) v.content else v.toString()
+        } ?: emptyMap()
+
+        // Phase 3 Alert-to-Impact Intelligence extraction
+        val alertId = evidence?.get("primary_alert_id")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+        val hazard = evidence?.get("hazard_type")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: impact?.get("hazard")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+        val issuingOffice = evidence?.get("issuing_office")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: impact?.get("issuing_office")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: evidenceMap["sources"]?.split(",")?.firstOrNull()?.trim()?.removePrefix("[")?.removeSuffix("]")?.replace("\"", "")
+        val isOfficial = evidence?.get("is_official")?.let {
+            if (it is JsonPrimitive) it.booleanOrNull ?: true else true
+        } ?: true
+        val alertSeverity = evidence?.get("primary_warning_level")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: severity
+
+        val rawExp = evidence?.get("exposure_state")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: impact?.get("exposure_state")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+        val affectedAreaStatus = com.weathergpt.domain.model.decision.ExposureState.fromRaw(rawExp)
+
+        val affectedAreaName = evidence?.get("affected_area_name")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: impact?.get("affected_area_name")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+
+        val exposureStatus = if (rawExp == null || rawExp.equals("UNKNOWN", ignoreCase = true) || rawExp.equals("NONE", ignoreCase = true)) {
+            "UNAVAILABLE"
+        } else {
+            "AVAILABLE"
+        }
+
+        val exposureSummary = when (affectedAreaStatus) {
+            com.weathergpt.domain.model.decision.ExposureState.INSIDE -> "Directly inside active warning area"
+            com.weathergpt.domain.model.decision.ExposureState.BUFFER -> "Near warning boundary (within 25 km buffer)"
+            com.weathergpt.domain.model.decision.ExposureState.OUTSIDE -> "Outside active warning area"
+            com.weathergpt.domain.model.decision.ExposureState.UNKNOWN -> "Affected area could not be verified"
+        }
+
+        val exposedAreaSqkm = impact?.get("exposed_area_sqkm")?.let {
+            if (it is JsonPrimitive) it.doubleOrNull else null
+        }
+
+        val compositeImpactScore = evidence?.get("composite_impact_score")?.let {
+            if (it is JsonPrimitive) it.doubleOrNull else null
+        } ?: impact?.get("composite_impact_score")?.let {
+            if (it is JsonPrimitive) it.content.replace("/10.0", "").toDoubleOrNull() else null
+        }
+
+        val riskCategory = impact?.get("risk_category")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+            ?: impact?.get("risk_tier")?.let { if (it is JsonPrimitive) it.content else it.toString() }
+
+        val hasAlert = !alertId.isNullOrBlank() || !hazard.isNullOrBlank() || (rawExp != null && !rawExp.equals("NONE", ignoreCase = true))
+
+        val alertImpactInfo = if (hasAlert) {
+            com.weathergpt.domain.model.decision.AlertImpactInfo(
+                alertId = alertId,
+                hazard = hazard,
+                issuingOffice = issuingOffice,
+                isOfficial = isOfficial,
+                alertSeverity = alertSeverity,
+                affectedAreaStatus = affectedAreaStatus,
+                affectedAreaName = affectedAreaName,
+                exposureStatus = exposureStatus,
+                exposureSummary = exposureSummary,
+                exposedAreaSqkm = exposedAreaSqkm,
+                potentialImpact = riskStr ?: lossStr,
+                compositeImpactScore = compositeImpactScore,
+                riskCategory = riskCategory
+            )
+        } else {
+            null
+        }
+
+        val parsedUncertainty = com.weathergpt.domain.model.decision.DecisionUncertainty(
+            gfsConfidence = uncGfs,
+            wrfStatus = uncWrf,
+            uncertaintyNote = uncNote,
+            leadTimeHours = uncLead,
+            exposureDataAvailable = (exposureStatus != "UNAVAILABLE")
+        )
+
+        return com.weathergpt.domain.model.decision.NirnayCard(
+            question = question,
+            verdict = com.weathergpt.domain.model.decision.DecisionVerdict.fromRaw(verdict),
+            severity = com.weathergpt.domain.model.decision.DecisionSeverity.fromRaw(severity),
+            recommendedAction = recommendedAction,
+            actionWindow = actionWindow.toDomain(),
+            confidence = com.weathergpt.domain.model.decision.DecisionConfidence.fromRaw(confidence),
+            uncertainty = parsedUncertainty,
+            why = why,
+            primaryRisk = riskStr,
+            lossPotential = lossStr,
+            alternatives = alternatives,
+            evidenceMetrics = evidenceMap,
+            ledger = ledger?.toDomain(),
+            alertImpact = alertImpactInfo,
+            explanation = explanation
         )
     }
 }

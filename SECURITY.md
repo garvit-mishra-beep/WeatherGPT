@@ -1,13 +1,34 @@
-# Security Policy
+# Security Policy — VAYUBODHAK
 
-## Supported Versions
-Security updates are actively maintained on the main branch.
+## 1. Supported Versions
 
-## Reporting a Vulnerability
-If you discover a potential security vulnerability in WeatherGPT, please report it responsibly by contacting the project maintainers privately rather than opening a public issue.
+| Version | Supported | Security Maintenance |
+| :--- | :--- | :--- |
+| 1.0.x (Current) | **Yes** | Active security patches and vulnerability remediation |
 
-## Key Security Practices
-- **Credential Protection:** Never commit `.env` files, API keys, database passwords, or private access tokens to source control.
-- **Role Isolation:** User prompts and conversation history are isolated in user-role messages to prevent prompt injection and system override attacks.
-- **Input Validation:** All input payloads and tool arguments are strictly validated against Pydantic v2 schemas and JSON parameter schemas.
-- **Output Grounding:** All LLM outputs are checked against deterministic evidence packages to prevent fabrication of severe weather warnings.
+---
+
+## 2. Reporting a Vulnerability
+
+The VAYUBODHAK team takes security, source authority integrity, and data privacy seriously. If you discover a security vulnerability or authority bypass issue, please follow our responsible disclosure process:
+
+1. **Do NOT open a public GitHub issue.**
+2. Send a detailed report to the security maintainers at: `security@vayubodhak.internal` (or repository owner contact).
+3. Include:
+   * Type of vulnerability (e.g. Authentication bypass, SQL injection, RBAC privilege escalation, Source spoofing).
+   * Steps to reproduce the issue.
+   * Proof-of-concept payload or execution trace.
+   * Potential impact assessment.
+4. You will receive an acknowledgment within 48 hours, followed by regular status updates as a patch is developed and verified.
+
+---
+
+## 3. Core Security & Authority Principles
+
+1. **Prohibition of Fabricated Statutory Authority**:
+   * Any mechanism or code that attempts to falsely impersonate government statutory bodies (IMD, CWC, NDMA) or falsely certify non-statutory data as an official emergency warning is classified as a Critical Severity Security Defect.
+2. **Credential & Secret Protection**:
+   * No API keys, JWT secrets, passwords, or production database credentials may be committed to version control.
+   * The repository strictly uses environment variables loaded through `.env` with a non-sensitive `.env.example` template.
+3. **Role-Based Access Control (RBAC)**:
+   * Internal showcase scenarios, administrative endpoints, and manual override capabilities are strictly gated by cryptographic token authorization.

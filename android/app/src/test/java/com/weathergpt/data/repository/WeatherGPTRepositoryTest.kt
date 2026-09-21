@@ -44,6 +44,7 @@ class WeatherGPTRepositoryTest {
 
     @Before
     fun setup() {
+        com.weathergpt.core.config.AppConfig.setDemoMode(false)
         mockWebServer = MockWebServer()
         mockWebServer.start()
 
@@ -67,6 +68,7 @@ class WeatherGPTRepositoryTest {
     @After
     fun tearDown() {
         mockWebServer.shutdown()
+        com.weathergpt.core.config.AppConfig.resetToDefault()
     }
 
     // ========================================================================
@@ -633,5 +635,78 @@ class WeatherGPTRepositoryTest {
         assertEquals(429, rateLimitError.statusCode)
         assertEquals(60L, rateLimitError.retryAfterSeconds)
         assertEquals("req-rate-429", rateLimitError.requestId)
+    }
+
+    @Test
+    fun `evaluateDecision returns typed NirnayCard with ActionWindow`() = runTest(testDispatcher) {
+        val decisionJson = """
+            {
+                "question": "Should I spray my cotton tonight?",
+                "verdict": "POSTPONE",
+                "severity": "high",
+                "recommended_action": "Do not spray tonight. Wait for favorable morning window.",
+                "action_window": {
+                    "status": "available",
+                    "best_window": {
+                        "window_id": "win_01",
+                        "start_time_iso": "2026-09-08T06:00:00+05:30",
+                        "end_time_iso": "2026-09-08T09:00:00+05:30",
+                        "duration_hours": 3,
+                        "score": 63.89,
+                        "avg_wind_speed_kmh": 9.33,
+                        "max_wind_speed_kmh": 11.0,
+                        "max_rain_probability_pct": 15.0,
+                        "total_rainfall_mm": 0.0,
+                        "summary": "Tomorrow 06:00 - 09:00 IST",
+                        "recommended": true
+                    },
+                    "fallback_windows": [],
+                    "score": 63.89,
+                    "reason": "Optimal 3-hour spray window identified tomorrow morning"
+                },
+                "confidence": "high",
+                "uncertainty": {
+                    "gfs_confidence": "high",
+                    "wrf_status": "unavailable",
+                    "uncertainty_note": "Guidance based on GFS numerical forecast; independent WRF comparison is unavailable"
+                },
+                "why": ["Tonight wind 18.0 km/h exceeds 15.0 km/h drift threshold"],
+                "impact": {
+                    "primary_risk": "Wind drift hazard causing chemical loss",
+                    "loss_potential": "High"
+                },
+                "alternatives": ["Wait for tomorrow morning window"],
+                "evidence": {
+                    "wind_speed_kmh": 18.0
+                }
+            }
+        """.trimIndent()
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setHeader("Content-Type", "application/json")
+                .setBody(decisionJson)
+        )
+
+        val result = repository.evaluateDecision(
+            question = "Should I spray my cotton tonight?",
+            locationName = "Gwalior",
+            latitude = 26.2183,
+            longitude = 78.1828,
+            domain = "farmer"
+        )
+
+        assertTrue(result is ResultState.Success)
+        val card = (result as ResultState.Success).data
+        assertEquals("Should I spray my cotton tonight?", card.question)
+        assertEquals(com.weathergpt.domain.model.decision.DecisionVerdict.POSTPONE, card.verdict)
+        assertEquals(com.weathergpt.domain.model.decision.DecisionSeverity.HIGH, card.severity)
+        assertTrue(card.actionWindow.isAvailable)
+        assertEquals("win_01", card.actionWindow.bestWindow?.windowId)
+        assertEquals(3, card.actionWindow.bestWindow?.durationHours)
+        assertEquals("Tomorrow 06:00 - 09:00 IST", card.actionWindow.bestWindow?.summary)
+        assertEquals("unavailable", card.uncertainty.wrfStatus)
+        assertTrue(card.uncertainty.uncertaintyNote.contains("independent WRF comparison is unavailable"))
     }
 }

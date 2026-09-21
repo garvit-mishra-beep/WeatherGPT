@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vayubodhak"
+version = "1.0.0"
+description = "Hyperlocal Weather & Climate Decision Intelligence System"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "REVIEW REQUIRED" }
+authors = [
+    { name = "VAYUBODHAK Engineering Team" }
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.28.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.0",
+    "sqlalchemy>=2.0.25",
+    "alembic>=1.13.1",
+    "asyncpg>=0.29.0",
+    "geoalchemy2>=0.14.0",
+    "httpx>=0.27.0",
+    "requests>=2.31.0",
+    "pyjwt[crypto]>=2.8.0",
+    "cryptography>=42.0.0",
+    "python-multipart>=0.0.9",
+    "python-dotenv>=1.0.1",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "anyio>=4.3.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    "ignore::DeprecationWarning:datetime.*",
+    "ignore::pydantic.PydanticDeprecatedSince20",
+]

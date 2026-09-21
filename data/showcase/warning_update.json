@@ -1,0 +1,32 @@
+{
+  "record_id": "SHOWCASE-WARN-001",
+  "scenario_id": "SCENARIO-GWALIOR-MONSOON-2026",
+  "source_id": "IMD",
+  "source_authority": "E1",
+  "evidence_class": "OFFICIAL_WARNING",
+  "is_live": false,
+  "data_mode": "CONTROLLED_SCENARIO",
+  "published_at": "2026-09-21T09:45:00Z",
+  "ingested_at": "2026-09-21T09:45:30Z",
+  "valid_from": "2026-09-21T09:45:00Z",
+  "valid_until": "2026-09-22T06:00:00Z",
+  "geography": "Gwalior District",
+  "coordinates": {
+    "latitude": 26.2183,
+    "longitude": 78.1828
+  },
+  "alert_details": {
+    "identifier": "SCENARIO-CAP-GWL-20260921-01",
+    "headline": "Controlled Scenario: Red Warning (Extreme Localized Downpour Benchmark)",
+    "warning_level": "Red",
+    "severity": "Extreme",
+    "urgency": "Immediate",
+    "certainty": "Observed",
+    "event_title": "Controlled Scenario: Extreme Rain & Flood Risk",
+    "issuing_authority": "India Meteorological Department (Controlled Reference)",
+    "instruction": "Controlled Scenario Guidance: Halt agricultural spray and field operations. Suspend outdoor transit. Move assets to elevated ground."
+  },
+  "quality_state": "VALID",
+  "freshness_state": "FRESH",
+  "payload_hash": "c3d4e5f6a1b20718293a4b5c6d7e8f90123456789abcdef0123456789abcdef2"
+}

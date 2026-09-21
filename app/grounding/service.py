@@ -58,8 +58,17 @@ class GroundingService:
 
         for attempt in range(max_retries + 1):
             logger.info("Executing grounded LLM generation (attempt %d/%d)", attempt + 1, max_retries + 1)
-            response = await llm_provider.generate_chat_completion(current_messages)
-            content = response.content or ""
+            try:
+                response = await llm_provider.generate_chat_completion(current_messages)
+                content = response.content or ""
+            except Exception as exc:
+                logger.warning("Grounded LLM generation failed (%s: %s). Serving deterministic fallback.", type(exc).__name__, exc)
+                fallback_text = (
+                    f"Verified weather details for {evidence.location.name}: "
+                    f"{self._format_fallback_summary(evidence)}"
+                )
+                final_val = self.validate_response(fallback_text, evidence)
+                return fallback_text, final_val
 
             val_res = self.validate_response(content, evidence)
             if val_res.is_grounded:

@@ -12,6 +12,7 @@ Provides an abstract, provider-agnostic interface for interacting with Large Lan
 ## 3. Important Files
 - `base.py`: Abstract `LLMProvider` base class.
 - `openai_compatible.py`: Asynchronous HTTP client using `httpx` for OpenAI-compatible APIs (vLLM, Ollama, OpenRouter).
+- `providers/ollama_provider.py`: Dedicated Ollama LLM provider supporting local or remote hosts (e.g., remote LLM laptop `http://UJJWAL:11434` running `gemma4:e2b`) with native tags and version health checking.
 - `mock.py`: Deterministic mock provider for local unit and integration testing.
 - `types.py`: Pydantic models for chat messages, roles, tool calls, and responses.
 - `factory.py`: Instantiation factory selecting providers based on application configuration.

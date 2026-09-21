@@ -11,6 +11,7 @@ from app.llm.types import (
     LLMProviderError,
     LLMResponse,
     LLMTimeoutError,
+    ToolCall,
 )
 from app.tool_calling.adapter import ToolCallingAdapter
 from app.tool_calling.errors import (

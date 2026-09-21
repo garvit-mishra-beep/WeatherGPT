@@ -74,17 +74,23 @@ class ViewModelsTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        com.weathergpt.core.config.AppConfig.setDemoMode(false)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        com.weathergpt.core.config.AppConfig.resetToDefault()
     }
 
-    private fun createFakeRepository(
-        shouldFailChat: Boolean = false,
-        chatError: AppError = AppError.ServerUnavailable(500, "req-123")
-    ): WeatherGPTRepository {
+    companion object {
+        fun createFakeRepository(
+            shouldFailChat: Boolean = false,
+            chatError: AppError = AppError.ServerUnavailable(500, "req-123"),
+            analystRiskMatrixResult: ResultState<OperationalRisk>? = null,
+            climateTrendsResult: ResultState<com.weathergpt.domain.model.climate.ClimateTrends>? = null,
+            climateNormalsResult: ResultState<com.weathergpt.domain.model.climate.ClimateNormals>? = null
+        ): WeatherGPTRepository {
         return object : WeatherGPTRepository {
             override suspend fun checkHealth() = ResultState.Success(
                 com.weathergpt.domain.model.HealthStatus("healthy", "WeatherGPT", "test", "v1", "v1", "now")
@@ -383,8 +389,81 @@ class ViewModelsTest {
                     )
                 )
             }
+            override suspend fun evaluateDecision(question: String, locationName: String?, latitude: Double?, longitude: Double?, requestedTime: String?, domain: String?, context: Map<String, String>?): ResultState<com.weathergpt.domain.model.decision.NirnayCard> = throw NotImplementedError()
+            override suspend fun getFarmerProfile(): ResultState<com.weathergpt.domain.model.farmer.FarmerProfile> = ResultState.Success(com.weathergpt.domain.model.farmer.FarmerProfile())
+            override suspend fun saveFarmerProfile(profile: com.weathergpt.domain.model.farmer.FarmerProfile): ResultState<Unit> = ResultState.Success(Unit)
+
+            override suspend fun getAnalystRiskMatrix(
+                districtName: String,
+                precip24hPercentile: Double,
+                exposureIndex: Double,
+                vulnerabilityIndex: Double,
+                hazardType: String
+            ): ResultState<OperationalRisk> {
+                return analystRiskMatrixResult ?: ResultState.Success(
+                    OperationalRisk(
+                        district = districtName,
+                        hazardType = hazardType,
+                        hazardIndex = 6.5,
+                        exposureIndex = exposureIndex,
+                        vulnerabilityIndex = vulnerabilityIndex,
+                        compositeRiskScore = 7.05,
+                        riskLevel = "HIGH",
+                        actionPriority = "Immediate drainage clearance"
+                    )
+                )
+            }
+
+            override suspend fun getClimateTrends(
+                latitude: Double,
+                longitude: Double,
+                location: String?,
+                variable: String
+            ): ResultState<com.weathergpt.domain.model.climate.ClimateTrends> {
+                return climateTrendsResult ?: ResultState.Success(
+                    com.weathergpt.domain.model.climate.ClimateTrends(
+                        location = location ?: "Delhi",
+                        latitude = latitude,
+                        longitude = longitude,
+                        variable = variable,
+                        trendSlope = 0.024,
+                        pValue = 0.012,
+                        isSignificant = true,
+                        direction = "INCREASING",
+                        sampleSize = 30,
+                        period = "1991-2020",
+                        method = "Mann-Kendall / Sen's Slope"
+                    )
+                )
+            }
+
+            override suspend fun getClimateNormals(
+                latitude: Double,
+                longitude: Double,
+                location: String?,
+                month: Int?
+            ): ResultState<com.weathergpt.domain.model.climate.ClimateNormals> {
+                return climateNormalsResult ?: ResultState.Success(
+                    com.weathergpt.domain.model.climate.ClimateNormals(
+                        location = location ?: "Delhi",
+                        latitude = latitude,
+                        longitude = longitude,
+                        month = month ?: 9,
+                        normalRainfallMm = 125.0,
+                        actualRainfallMm = 110.0,
+                        rainfallAnomalyPct = -12.0,
+                        normalTempC = 34.2,
+                        actualTempC = 33.8,
+                        tempAnomalyC = -0.4,
+                        category = "Normal",
+                        source = "IMD_CLIMATOLOGICAL_NORMALS_1991_2020",
+                        referencePeriod = "1991-2020"
+                    )
+                )
+            }
         }
     }
+}
 
     @Test
     fun chatViewModel_successFlow_storesUserAndAssistantMessage() = runTest {
@@ -422,6 +501,35 @@ class ViewModelsTest {
         val err = (vm.chatState.value as ResultState.Error).error
         assertTrue(err.isRetryable)
         assertEquals("What is the monsoon forecast?", vm.uiState.value.lastFailedQuery)
+
+        // Verify exactly ONE user message exists after the initial failed send
+        assertEquals(1, vm.uiState.value.messages.size)
+        assertTrue(vm.uiState.value.messages[0] is ChatMessage.User)
+
+        // Call retryLast()
+        vm.retryLast()
+        advanceUntilIdle()
+
+        // Verify retry did NOT add a duplicate user message
+        assertEquals(1, vm.uiState.value.messages.size)
+    }
+
+    @Test
+    fun chatViewModel_preventDuplicateSubmissionsWhileSending() = runTest {
+        val repo = createFakeRepository()
+        val locManager = SharedLocationManager()
+        val vm = ChatViewModel(repository = repo, locationManager = locManager)
+
+        vm.setInputText("क्या में बिहार जा सकती हु कल")
+        vm.sendMessage()
+        // Immediate second call while sending
+        vm.sendMessage()
+        advanceUntilIdle()
+
+        // Should contain exactly ONE user message and ONE assistant message
+        val userMessages = vm.uiState.value.messages.filterIsInstance<ChatMessage.User>()
+        assertEquals(1, userMessages.size)
+        assertEquals("क्या में बिहार जा सकती हु कल", userMessages[0].text)
     }
 
     @Test
@@ -627,28 +735,84 @@ class ViewModelsTest {
 
     @Test
     fun alertsViewModel_loadsRealAlertsAndFiltersByCategory() = runTest {
-        val repo = createFakeRepository()
+        val repo = object : WeatherGPTRepository by createFakeRepository() {
+            override suspend fun getWeatherAlerts(district: String?, latitude: Double?, longitude: Double?): ResultState<WeatherAlertsReport> {
+                return ResultState.Success(
+                    WeatherAlertsReport(
+                        authority = "IMD",
+                        retrievedAt = "2026-08-31T12:00:00Z",
+                        activeAlertsCount = 3,
+                        alerts = listOf(
+                            OfficialAlert(
+                                alertId = "ALERT-001",
+                                warningColor = "Orange",
+                                hazard = "Heavy Rainfall Warning",
+                                severity = "Severe",
+                                areaDescription = "Surat District",
+                                headline = "Heavy Rainfall Warning",
+                                description = "Heavy to very heavy rainfall expected across low-lying areas",
+                                effectiveFrom = "2026-08-31T12:00:00Z",
+                                expiresAt = "2026-09-01T12:00:00Z",
+                                instructions = "Stay indoors and avoid waterlogged roads"
+                            ),
+                            OfficialAlert(
+                                alertId = "ALERT-002",
+                                warningColor = "Yellow",
+                                hazard = "Crop Advisory",
+                                severity = "Moderate",
+                                areaDescription = "Surat Rural",
+                                headline = "Pest Alert & Crop Protection",
+                                description = "Postpone fertilizer application and pesticide spraying for cotton crop",
+                                effectiveFrom = "2026-08-31T12:00:00Z",
+                                expiresAt = "2026-09-01T12:00:00Z",
+                                instructions = "Drain excess water from crop fields"
+                            ),
+                            OfficialAlert(
+                                alertId = "ALERT-003",
+                                warningColor = "Red",
+                                hazard = "Disaster Management Advisory",
+                                severity = "Extreme",
+                                areaDescription = "Surat Coastal",
+                                headline = "NDMA Evacuation Order",
+                                description = "District Administration orders immediate evacuation of coastal settlements",
+                                effectiveFrom = "2026-08-31T12:00:00Z",
+                                expiresAt = "2026-09-01T12:00:00Z",
+                                instructions = "Move to designated relief shelters"
+                            )
+                        )
+                    )
+                )
+            }
+        }
         val locManager = SharedLocationManager()
         val vm = AlertsViewModel(repository = repo, locationManager = locManager)
         advanceUntilIdle()
 
         assertTrue(vm.alertsState.value is ResultState.Success)
         val report = (vm.alertsState.value as ResultState.Success).data
-        assertEquals(1, report.activeAlertsCount)
-        assertEquals("Orange", report.alerts[0].warningColor)
-        assertEquals("IMD", report.authority)
+        assertEquals(3, report.activeAlertsCount)
 
-        // All category
+        // All category: must show all 3 alerts
         vm.selectCategoryIndex(0)
-        assertEquals(1, vm.getFilteredAlerts(report).size)
+        assertEquals(3, vm.getFilteredAlerts(report).size)
 
-        // Weather category
+        // Weather category: must only show Rainfall alert (ALERT-001)
         vm.selectCategoryIndex(1)
-        assertEquals(1, vm.getFilteredAlerts(report).size)
+        val weatherAlerts = vm.getFilteredAlerts(report)
+        assertEquals(1, weatherAlerts.size)
+        assertEquals("ALERT-001", weatherAlerts[0].alertId)
 
-        // Government category
+        // Agriculture category: must only show Crop Advisory (ALERT-002)
+        vm.selectCategoryIndex(2)
+        val agriAlerts = vm.getFilteredAlerts(report)
+        assertEquals(1, agriAlerts.size)
+        assertEquals("ALERT-002", agriAlerts[0].alertId)
+
+        // Government category: must only show NDMA Evacuation Order (ALERT-003)
         vm.selectCategoryIndex(3)
-        assertEquals(1, vm.getFilteredAlerts(report).size)
+        val govtAlerts = vm.getFilteredAlerts(report)
+        assertEquals(1, govtAlerts.size)
+        assertEquals("ALERT-003", govtAlerts[0].alertId)
     }
 
     @Test
@@ -749,6 +913,30 @@ class ViewModelsTest {
         assertTrue(vm.uiState.value.gisAnalysisState is ResultState.Success)
         assertEquals(7.05, vm.uiState.value.compositeRiskScore, 0.01)
         assertEquals("HIGH", vm.uiState.value.riskCategory)
+    }
+
+    @Test
+    fun analystDashboardViewModel_locationSwitchRefreshesAllMetrics() = runTest {
+        val repo = createFakeRepository()
+        val locManager = SharedLocationManager()
+        val vm = AnalystDashboardViewModel(repository = repo, locationManager = locManager)
+        advanceUntilIdle()
+
+        assertEquals("Surat", vm.uiState.value.districtName)
+        assertEquals(21.1702, vm.uiState.value.latitude, 0.001)
+
+        // Select New Delhi from availableLocations
+        val newDelhi = vm.availableLocations.first { it.districtName == "New Delhi" }
+        vm.selectPredefinedLocation(newDelhi)
+        advanceUntilIdle()
+
+        assertEquals("New Delhi", vm.uiState.value.districtName)
+        assertEquals(28.6139, vm.uiState.value.latitude, 0.001)
+        assertEquals(77.2090, vm.uiState.value.longitude, 0.001)
+        assertTrue(vm.uiState.value.riskAssessmentState is ResultState.Success)
+        assertTrue(vm.uiState.value.gisAnalysisState is ResultState.Success)
+        assertTrue(vm.uiState.value.weatherState is ResultState.Success)
+        assertTrue(vm.uiState.value.gfsState is ResultState.Success)
     }
 
     @Test
@@ -889,5 +1077,100 @@ class ViewModelsTest {
         assertEquals(2, vm.uiState.value.messages.size)
         assertTrue(vm.uiState.value.messages[0] is ChatMessage.User)
         assertTrue(vm.uiState.value.messages[1] is ChatMessage.Assistant)
+    }
+
+    @Test
+    fun analystDashboardViewModel_liveRiskMatrixApiSuccess_updatesUiState() = runTest {
+        val customRisk = OperationalRisk(
+            district = "Pune",
+            hazardType = "FLASH_FLOOD",
+            hazardIndex = 8.1,
+            exposureIndex = 7.4,
+            vulnerabilityIndex = 6.2,
+            compositeRiskScore = 7.35,
+            riskLevel = "VERY_HIGH",
+            actionPriority = "Deploy NDRF and evacuate low lying areas"
+        )
+        val repo = createFakeRepository(analystRiskMatrixResult = ResultState.Success(customRisk))
+        val locManager = SharedLocationManager()
+        val vm = AnalystDashboardViewModel(repository = repo, locationManager = locManager)
+        advanceUntilIdle()
+
+        assertTrue(vm.uiState.value.riskAssessmentState is ResultState.Success)
+        assertEquals(7.35, vm.uiState.value.compositeRiskScore, 0.01)
+        assertEquals("VERY_HIGH", vm.uiState.value.riskCategory)
+        assertEquals("Deploy NDRF and evacuate low lying areas", vm.uiState.value.actionPriority)
+    }
+
+    @Test
+    fun analystDashboardViewModel_riskMatrixApiFailure_setsErrorStateWithoutFakeNumbers() = runTest {
+        val networkErr = AppError.NetworkUnavailable("Live risk matrix backend timeout")
+        val repo = createFakeRepository(analystRiskMatrixResult = ResultState.Error(networkErr))
+        val locManager = SharedLocationManager()
+        val vm = AnalystDashboardViewModel(repository = repo, locationManager = locManager)
+        advanceUntilIdle()
+
+        assertTrue(vm.uiState.value.riskAssessmentState is ResultState.Error)
+    }
+
+    @Test
+    fun dataViewModel_climateApisSuccess_updatesClimateState() = runTest {
+        val customTrends = com.weathergpt.domain.model.climate.ClimateTrends(
+            location = "Surat",
+            latitude = 21.1702,
+            longitude = 72.8311,
+            variable = "rainfall",
+            trendSlope = 0.035,
+            pValue = 0.005,
+            isSignificant = true,
+            direction = "INCREASING",
+            sampleSize = 30,
+            period = "1991-2020",
+            method = "Mann-Kendall / Sen's Slope"
+        )
+        val customNormals = com.weathergpt.domain.model.climate.ClimateNormals(
+            location = "Surat",
+            latitude = 21.1702,
+            longitude = 72.8311,
+            month = 9,
+            normalRainfallMm = 180.0,
+            actualRainfallMm = 210.0,
+            rainfallAnomalyPct = 16.7,
+            normalTempC = 33.5,
+            actualTempC = 34.0,
+            tempAnomalyC = 0.5,
+            category = "Above Normal",
+            source = "IMD_CLIMATOLOGICAL_NORMALS_1991_2020",
+            referencePeriod = "1991-2020"
+        )
+        val repo = createFakeRepository(
+            climateTrendsResult = ResultState.Success(customTrends),
+            climateNormalsResult = ResultState.Success(customNormals)
+        )
+        val locManager = SharedLocationManager()
+        val vm = DataViewModel(repository = repo, locationManager = locManager)
+        advanceUntilIdle()
+
+        assertEquals(0.035, vm.uiState.value.historicalTrendSlope ?: 0.0, 0.001)
+        assertEquals("INCREASING", vm.uiState.value.trendDirection)
+        assertEquals(180.0, vm.uiState.value.normalRainfallMm ?: 0.0, 0.1)
+        assertEquals(210.0, vm.uiState.value.actualRainfallMm ?: 0.0, 0.1)
+        assertEquals(16.7, vm.uiState.value.rainfallAnomalyPct ?: 0.0, 0.1)
+        assertTrue(vm.uiState.value.climateTrendsState is ResultState.Success)
+        assertTrue(vm.uiState.value.climateNormalsState is ResultState.Success)
+    }
+
+    @Test
+    fun dataViewModel_climateApisFailure_handlesGracefully() = runTest {
+        val repo = createFakeRepository(
+            climateTrendsResult = ResultState.Error(AppError.NetworkUnavailable("Trends offline")),
+            climateNormalsResult = ResultState.Error(AppError.NetworkUnavailable("Normals offline"))
+        )
+        val locManager = SharedLocationManager()
+        val vm = DataViewModel(repository = repo, locationManager = locManager)
+        advanceUntilIdle()
+
+        assertTrue(vm.uiState.value.climateTrendsState is ResultState.Error)
+        assertTrue(vm.uiState.value.climateNormalsState is ResultState.Error)
     }
 }

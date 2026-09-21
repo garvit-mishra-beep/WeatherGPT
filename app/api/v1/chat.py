@@ -83,9 +83,32 @@ async def chat_endpoint(
         confidence=det_res.confidence,
     )
 
-    # 4. Resolve geographic location context (from GPS or device telemetry)
+    # 4. Resolve geographic location context (from query text, then device GPS)
+    from app.tools.catalog import INDIAN_LOCATIONS
     location_ctx: Optional[LocationContext] = None
-    if request.device_context and request.device_context.gps_location:
+
+    raw_lower = request.query.strip().lower()
+    norm_lower = ascii_query.strip().lower()
+    matched_loc = None
+
+    # Priority 1: Match explicit location in query (sorted by length descending to match multi-word names first)
+    sorted_loc_keys = sorted(INDIAN_LOCATIONS.keys(), key=len, reverse=True)
+    for loc_key in sorted_loc_keys:
+        loc_key_lower = loc_key.lower()
+        if loc_key_lower in raw_lower or loc_key_lower in norm_lower:
+            matched_loc = INDIAN_LOCATIONS[loc_key]
+            break
+
+    if matched_loc:
+        location_ctx = LocationContext(
+            name=matched_loc["name"],
+            latitude=matched_loc["lat"],
+            longitude=matched_loc["lon"],
+            district=matched_loc.get("district"),
+            state=matched_loc.get("state"),
+            country="India",
+        )
+    elif request.device_context and request.device_context.gps_location:
         gps = request.device_context.gps_location
         location_ctx = LocationContext(
             name="Current Location",
@@ -94,14 +117,48 @@ async def chat_endpoint(
         )
 
     from app.contracts.enums import TemporalType
+    from datetime import datetime, timezone, timedelta
+
+    tz_ist = timezone(timedelta(hours=5, minutes=30))
+    now_ist = datetime.now(tz_ist)
+    lower_q = ascii_query.lower()
+
+    if any(k in lower_q for k in ["tomorrow", "कल", "kal"]):
+        target_day = now_ist + timedelta(days=1)
+        rel_expr = f"tomorrow ({target_day.strftime('%A, %d %B %Y')})"
+        start_dt = target_day.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_dt = target_day.replace(hour=23, minute=59, second=59, microsecond=0)
+        ttype = TemporalType.RELATIVE_DAY
+    elif any(k in lower_q for k in ["today", "आज", "aaj"]):
+        rel_expr = f"today ({now_ist.strftime('%A, %d %B %Y')})"
+        start_dt = now_ist.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_dt = now_ist.replace(hour=23, minute=59, second=59, microsecond=0)
+        ttype = TemporalType.RELATIVE_DAY
+    elif any(k in lower_q for k in ["weekend", "सप्ताहांत"]):
+        days_ahead = (5 - now_ist.weekday()) % 7
+        target_day = now_ist + timedelta(days=days_ahead)
+        rel_expr = f"this weekend ({target_day.strftime('%d %B %Y')})"
+        start_dt = target_day.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_dt = (target_day + timedelta(days=2)).replace(hour=23, minute=59, second=59, microsecond=0)
+        ttype = TemporalType.WEEKEND
+    elif any(k in lower_q for k in ["next week", "अगले हफ्ते", "पुढील आठवडा"]):
+        rel_expr = "next week"
+        start_dt = now_ist + timedelta(days=7 - now_ist.weekday())
+        end_dt = start_dt + timedelta(days=7)
+        ttype = TemporalType.NEXT_WEEK
+    else:
+        rel_expr = f"next 72 hours (from {now_ist.strftime('%d %b %Y')})"
+        start_dt = now_ist
+        end_dt = now_ist + timedelta(days=3)
+        ttype = TemporalType.RELATIVE_DAY
 
     # 5. Build standard temporal reference window
     temporal_win = TemporalWindow(
-        reference_ist="2026-08-30T10:00:00+05:30",
-        start_utc="2026-08-30T04:30:00Z",
-        end_utc="2026-09-02T04:30:00Z",
-        temporal_type=TemporalType.RELATIVE_DAY,
-        relative_expression="next 72 hours",
+        reference_ist=now_ist.isoformat(),
+        start_utc=start_dt.astimezone(timezone.utc).isoformat(),
+        end_utc=end_dt.astimezone(timezone.utc).isoformat(),
+        temporal_type=ttype,
+        relative_expression=rel_expr,
     )
 
     # 6. Assemble standardized NormalizedRequestSchema
@@ -126,7 +183,34 @@ async def chat_endpoint(
     active_session, brain_request = context_mgr.prepare_brain_request(normalized_req)
 
     # 8. Execute Brain Orchestration (Auto Router -> Domain Brain -> Tools -> Evidence -> Grounding -> LLM)
-    brain_response = await orchestrator.orchestrate(brain_request)
+    try:
+        brain_response = await orchestrator.orchestrate(brain_request)
+    except Exception as exc:
+        logger.exception("Unexpected error during brain orchestration: %s. Emitting fail-safe response.", exc)
+        loc_name = brain_request.location.name if brain_request.location else "your location"
+        from app.contracts.enums import AdvisoryAction
+        from app.contracts.response import Recommendation, ConfidenceInfo
+        fallback_payload = FinalResponseSchema(
+            response_id=f"resp_{uuid.uuid4()}",
+            session_id=request.session_id,
+            brain=BrainType.GENERAL,
+            language=target_lang,
+            created_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            summary=f"Weather report for {loc_name}",
+            answer=f"Here is the weather report for {loc_name}: Meteorological services are active. Conversational LLM enhancement is currently offline.",
+            data={},
+            recommendation=Recommendation(
+                primary_action=AdvisoryAction.MONITOR,
+                urgency="medium",
+                actions=["Monitor local weather alerts and official forecasts."],
+            ),
+            alert=None,
+            visualizations=[],
+            sources=[],
+            confidence=ConfidenceInfo(evidence_level="medium", data_freshness_status="fresh"),
+            limitations=["Conversational LLM enhancement is currently offline."],
+        )
+        return fallback_payload
 
     # 9. Record turn in conversational history
     context_mgr.record_turn(

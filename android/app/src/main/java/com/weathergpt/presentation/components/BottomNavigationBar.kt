@@ -4,12 +4,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
@@ -38,7 +38,7 @@ enum class BottomNavTab(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 ) {
-    HOME("home", R.string.nav_chat, Icons.Filled.Email, Icons.Outlined.Email),
+    HOME("home", R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home),
     MAP("map", R.string.nav_map, Icons.Filled.LocationOn, Icons.Outlined.LocationOn),
     ALERTS("alerts", R.string.nav_alerts, Icons.Filled.Notifications, Icons.Outlined.Notifications),
     DATA("data", R.string.nav_data, Icons.Filled.Info, Icons.Outlined.Info),

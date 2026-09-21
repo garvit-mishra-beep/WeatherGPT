@@ -26,6 +26,7 @@ interface AppContainer {
     val sharedLocationManager: SharedLocationManager
     val sharedBrainManager: SharedBrainManager
     val sharedSettingsManager: com.weathergpt.core.settings.SharedSettingsManager
+    val localWeatherDataSource: com.weathergpt.data.local.LocalWeatherDataSource
     val repository: WeatherGPTRepository
     val checkHealthUseCase: CheckHealthUseCase
     val checkReadinessUseCase: CheckReadinessUseCase
@@ -56,6 +57,10 @@ class DefaultAppContainer(
         com.weathergpt.core.settings.SharedSettingsManager(context = applicationContext)
     }
 
+    override val localWeatherDataSource: com.weathergpt.data.local.LocalWeatherDataSource by lazy {
+        com.weathergpt.data.local.SQLiteLocalWeatherDataSource(context = applicationContext)
+    }
+
     override val okHttpClient: OkHttpClient by lazy {
         HttpClientFactory.createOkHttpClient()
     }
@@ -71,7 +76,9 @@ class DefaultAppContainer(
     override val repository: WeatherGPTRepository by lazy {
         WeatherGPTRepositoryImpl(
             apiService = apiService,
-            networkMonitor = networkMonitor
+            networkMonitor = networkMonitor,
+            localWeatherDataSource = localWeatherDataSource,
+            okHttpClient = okHttpClient
         )
     }
 

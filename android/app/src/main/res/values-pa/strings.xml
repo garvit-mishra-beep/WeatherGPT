@@ -1,0 +1,297 @@
+<resources>
+    <string name="app_name">WeatherGPT</string>
+    <string name="app_tagline">ਵਾਯੂਬੋਧਕ</string>
+    <string name="app_subtitle">ਮੌਸਮ ਨੂੰ ਸਮਝੋ, ਸੌਖੀ ਭਾਸ਼ਾ ਵਿੱਚ</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">ਮੁੱਖ</string>
+    <string name="nav_chat">ਗੱਲਬਾਤ</string>
+    <string name="nav_map">ਨਕਸ਼ਾ</string>
+    <string name="nav_alerts">ਚਿਤਾਵਨੀਆਂ</string>
+    <string name="nav_data">ਡਾਟਾ</string>
+    <string name="nav_profile">ਪ੍ਰੋਫਾਈਲ</string>
+    <string name="nav_weather">ਮੌਸਮ</string>
+    <string name="nav_settings">ਸੈਟਿੰਗਾਂ</string>
+    <string name="nav_farmer">ਕਿਸਾਨ</string>
+    <string name="nav_analyst">ਵਿਸ਼ਲੇਸ਼ਕ</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ, %1$s!</string>
+    <string name="home_intro">ਮੈਂ ਵਾਯੂਬੋਧਕ ਹਾਂ, ਤੁਹਾਡਾ AI ਮੌਸਮ ਸਾਥੀ ਜੋ ਤੁਹਾਨੂੰ ਸਹੀ ਕਾਰਵਾਈ ਸੰਬੰਧੀ ਸਲਾਹ ਦਿੰਦਾ ਹੈ।</string>
+    <string name="home_search_placeholder">ਅੱਜ ਮੌਸਮ ਕਿਵੇਂ ਹੈ? / ਸਵਾਲ ਪੁੱਛੋ…</string>
+    <string name="home_quick_actions">ਤੁਰੰਤ ਸੇਵਾਵਾਂ</string>
+    <string name="action_will_it_rain">ਕੀ ਮੀਂਹ ਪਵੇਗਾ?</string>
+    <string name="action_forecast">ਪੂਰਵ ਅਨੁਮਾਨ</string>
+    <string name="action_alerts">ਚਿਤਾਵਨੀਆਂ</string>
+    <string name="action_map">ਨਕਸ਼ਾ</string>
+    <string name="home_live_badge">ਲਾਈਵ</string>
+    <string name="today">ਅੱਜ</string>
+    <string name="feels_like">ਮਹਿਸੂਸ ਹੋਣ ਵਾਲਾ ਤਾਪਮਾਨ</string>
+    <string name="feels_like_full">ਮਹਿਸੂਸ ਹੋਣ ਵਾਲਾ ਤਾਪਮਾਨ %1$s</string>
+    <string name="humidity">ਨਮੀ</string>
+    <string name="humidity_full">ਨਮੀ %1$s</string>
+    <string name="wind_speed">ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ</string>
+    <string name="wind_speed_full">ਹਵਾ %1$s</string>
+    <string name="air_quality">ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ</string>
+    <string name="weather_condition_stable">ਮੌਸਮ ਇਸੇ ਤਰ੍ਹਾਂ ਬਣਿਆ ਰਹੇਗਾ</string>
+    <string name="weather_summary_default">ਦੁਪਹਿਰ ਵੇਲੇ ਹਲਕੀ ਤੋਂ ਦਰਮਿਆਨੀ ਬਾਰਿਸ਼ ਹੋਣ ਦੀ ਸੰਭਾਵਨਾ ਹੈ। ਵੱਧ ਤੋਂ ਵੱਧ ਤਾਪਮਾਨ ਲਗਭਗ 32°C ਰਹੇਗਾ।</string>
+    <string name="weather_see_all_forecast">ਪੂਰਾ ਪੂਰਵ ਅਨੁਮਾਨ ਦੇਖੋ →</string>
+
+    <!-- Brain Selection Screen -->
+    <string name="brain_selection_title">ਤੁਸੀਂ ਕਿਹੜਾ Brain ਵਰਤਣਾ ਚਾਹੁੰਦੇ ਹੋ?</string>
+    <string name="brain_selection_subtitle">ਹਰ Brain ਇੱਕ ਵਿਸ਼ੇਸ਼ ਖੇਤਰ ਵਿੱਚ ਮਾਹਿਰ ਹੈ</string>
+    <string name="brain_auto_title">ਆਟੋ (ਸਿਫ਼ਾਰਸ਼ੀ)</string>
+    <string name="brain_auto_desc">ਤੁਹਾਡੇ ਸਵਾਲ ਮੁਤਾਬਕ ਸਭ ਤੋਂ ਢੁਕਵੇਂ ਡੋਮੇਨ ਬ੍ਰੇਨ ਵੱਲ ਆਪਣੇ ਆਪ ਰੀਡਾਇਰੈਕਟ ਕਰਦਾ ਹੈ</string>
+    <string name="brain_general_title">ਆਮ ਮੌਸਮ</string>
+    <string name="brain_general_desc">ਰੋਜ਼ਾਨਾ ਭਵਿੱਖਬਾਣੀ, ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ, ਤਾਪਮਾਨ ਅਤੇ ਸਥਾਨਕ ਚਿਤਾਵਨੀਆਂ</string>
+    <string name="brain_farmer_title">ਕਿਸਾਨ (ਖੇਤੀਬਾੜੀ)</string>
+    <string name="brain_farmer_desc">FAO-56 ET0 ਸਿੰਚਾਈ ਸੰਤੁਲਨ, ਸਪਰੇਅ ਕਰਨ ਦੇ ਸਮੇਂ ਅਤੇ ਫ਼ਸਲ ਦਾ ਜੋਖਮ</string>
+    <string name="brain_researcher_title">ਖੋਜਕਰਤਾ</string>
+    <string name="brain_researcher_desc">ਦਹਾਕਿਆਂ ਦੇ ਜਲਵਾਯੂ ਰੁਝਾਨ, ਸੇਨ ਸਲੋਪ ਅਤੇ CSV ਡਾਟਾ ਐਕਸਪੋਰਟ</string>
+    <string name="brain_analyst_title">ਵਿਸ਼ਲੇਸ਼ਕ (ਆਫ਼ਤ/ਜੋਖਮ)</string>
+    <string name="brain_analyst_desc">ਖੇਤਰੀ ਆਫ਼ਤ ਜੋਖਮ ਮੁਲਾਂਕਣ ਅਤੇ NWP ਮਾਡਲ ਅੰਤਰ ਵਿਸ਼ਲੇਸ਼ਣ</string>
+    <string name="brain_note_title">ਸਵੈ-ਸਿੱਖਿਅਤ ਆਟੋ ਬ੍ਰੇਨ</string>
+    <string name="brain_note_desc">ਖੇਤੀ, ਖੋਜ ਜਾਂ ਆਫ਼ਤ ਪ੍ਰਬੰਧਨ ਦੇ ਸਵਾਲਾਂ ਅਨੁਸਾਰ ਆਟੋ ਬ੍ਰੇਨ ਆਪਣੇ ਆਪ ਅਨੁਕੂਲ ਹੁੰਦਾ ਹੈ।</string>
+
+    <!-- Weather Screen -->
+    <string name="weather_title">ਮੌਸਮ ਅਤੇ ਪੂਰਵ ਅਨੁਮਾਨ</string>
+    <string name="tab_hourly">ਘੰਟੇਵਾਰ</string>
+    <string name="tab_3day">3 ਦਿਨ</string>
+    <string name="tab_5day">5 ਦਿਨ</string>
+    <string name="tab_10day">10 ਦਿਨ</string>
+    <string name="summary_title">ਭਵਿੱਖਬਾਣੀ ਸਾਰਾਂਸ਼</string>
+    <string name="rain_chance">ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ</string>
+    <string name="rainfall">ਮੀਂਹ ਦੀ ਮਾਤਰਾ</string>
+    <string name="forecast_24h_title">24 ਘੰਟਿਆਂ ਦਾ ਪੂਰਵ ਅਨੁਮਾਨ</string>
+    <string name="change_location">ਸਥਾਨ ਬਦਲੋ</string>
+    <string name="now">ਹੁਣ</string>
+
+    <!-- Map Screen -->
+    <string name="map_title">ਮੌਸਮ ਨਕਸ਼ਾ</string>
+    <string name="map_search_hint">ਸ਼ਹਿਰ ਜਾਂ ਜ਼ਿਲ੍ਹਾ ਖੋਜੋ…</string>
+    <string name="cd_my_location">ਮੇਰਾ ਸਥਾਨ</string>
+    <string name="cd_clear_search">ਖੋਜ ਸਾਫ਼ ਕਰੋ</string>
+    <string name="layer_rain">ਮੀਂਹ</string>
+    <string name="layer_temp">ਤਾਪਮਾਨ</string>
+    <string name="layer_wind">ਹਵਾ</string>
+    <string name="layer_humidity">ਨਮੀ</string>
+    <string name="map_timeline_title">ਡੌਪਲਰ ਰਾਡਾਰ ਟਾਈਮ ਸੀਰੀਜ਼</string>
+    <string name="map_legend_light">ਹਲਕਾ</string>
+    <string name="map_legend_moderate">ਦਰਮਿਆਨਾ</string>
+    <string name="map_legend_heavy">ਭਾਰੀ</string>
+    <string name="map_legend_severe">ਬਹੁਤ ਭਾਰੀ</string>
+
+    <!-- Alerts Screen -->
+    <string name="alerts_title">ਸਰਕਾਰੀ ਮੌਸਮ ਚਿਤਾਵਨੀਆਂ</string>
+    <string name="filter_all">ਸਾਰੇ</string>
+    <string name="filter_weather">ਮੌਸਮ</string>
+    <string name="filter_agri">ਖੇਤੀਬਾੜੀ</string>
+    <string name="filter_govt">ਸਰਕਾਰੀ</string>
+    <string name="alert_view_details">ਵੇਰਵੇ ਦੇਖੋ →</string>
+    <string name="alert_no_alerts">ਇਸ ਸਥਾਨ ਲਈ ਕੋਈ ਸਰਗਰਮ ਚਿਤਾਵਨੀ ਨਹੀਂ ਹੈ</string>
+    <string name="alert_modal_title">ਚਿਤਾਵਨੀ ਵੇਰਵੇ</string>
+    <string name="alert_instructions_label">ਸਲਾਹ / ਹਦਾਇਤਾਂ:</string>
+    <string name="alert_default_instruction">ਸੁਚੇਤ ਰਹੋ ਅਤੇ ਸਥਾਨਕ ਮੌਸਮ ਕੇਂਦਰ ਦੇ ਬੁਲੇਟਿਨ ਦੀ ਪਾਲਣਾ ਕਰੋ।</string>
+    <string name="category_general">ਆਮ</string>
+    <string name="category_imd">IMD OASIS CAP</string>
+    <string name="category_farmer_brain">ਕਿਸਾਨ ਸਲਾਹ</string>
+    <string name="alert_level_green">ਗ੍ਰੀਨ ਅਲਰਟ</string>
+    <string name="alert_level_yellow">ਯੈਲੋ ਅਲਰਟ</string>
+    <string name="alert_level_orange">ਓਰੇਂਜ ਅਲਰਟ</string>
+    <string name="alert_level_red">ਰੈੱਡ ਅਲਰਟ</string>
+    <string name="alert_sample_rain_title">ਦਰਮਿਆਨੀ ਬਾਰਿਸ਼ ਦੀ ਸੰਭਾਵਨਾ</string>
+    <string name="alert_sample_rain_body">ਜ਼ਿਲ੍ਹੇ ਵਿੱਚ ਦਰਮਿਆਨੀ ਬਾਰਿਸ਼ ਹੋਣ ਦੀ ਸੰਭਾਵਨਾ ਹੈ।</string>
+    <string name="alert_sample_rain_desc">ਇਲਾਕੇ ਵਿੱਚ ਦਰਮਿਆਨਾ ਮੀਂਹ (15.6 mm - 64.4 mm) ਅਤੇ 35-45 km/h ਦੀ ਰਫ਼ਤਾਰ ਨਾਲ ਤੇਜ਼ ਹਵਾਵਾਂ ਚੱਲਣ ਦੀ ਸੰਭਾਵਨਾ ਹੈ।</string>
+    <string name="alert_sample_rain_inst">ਖੇਤਾਂ ਵਿੱਚ ਪਾਣੀ ਦੀ ਨਿਕਾਸੀ ਦਾ ਢੁਕਵਾਂ ਪ੍ਰਬੰਧ ਰੱਖੋ ਅਤੇ ਕੱਟੀ ਹੋਈ ਫ਼ਸਲ ਨੂੰ ਸੁਰੱਖਿਅਤ ਥਾਂ \'ਤੇ ਰੱਖੋ।</string>
+    <string name="alert_sample_irr_title">ਸਿੰਚਾਈ ਸਲਾਹ</string>
+    <string name="alert_sample_irr_body">ਅਗਲੇ 48 ਘੰਟਿਆਂ ਵਿੱਚ ਹਲਕੀ ਬਾਰਿਸ਼ ਦੀ ਸੰਭਾਵਨਾ। ਸਿੰਚਾਈ ਮੁਲਤਵੀ ਕਰੋ।</string>
+    <string name="alert_sample_irr_desc">ਮਿੱਟੀ ਦੀ ਨਮੀ ਸੂਚਕਾਂਕ 68% ਕਾਫ਼ੀ ਹੈ। ਪਾਣੀ ਖੜ੍ਹਾ ਹੋਣ ਤੋਂ ਬਚਣ ਲਈ ਸਿੰਚਾਈ ਮੁਲਤਵੀ ਕਰੋ।</string>
+    <string name="alert_sample_irr_inst">ਲੋੜ ਤੋਂ ਵੱਧ ਸਿੰਚਾਈ ਤੋਂ ਬਚੋ। ਮੀਂਹ ਰੁਕਣ ਤੋਂ ਬਾਅਦ ਖਾਦ ਪਾਓ।</string>
+    <string name="alert_sample_temp_title">ਤਾਪਮਾਨ ਅਪਡੇਟ</string>
+    <string name="alert_sample_temp_body">ਬੱਦਲਵਾਈ ਕਾਰਨ ਦਿਨ ਦਾ ਤਾਪਮਾਨ ਆਮ ਨਾਲੋਂ 2-3°C ਘੱਟ ਰਹਿਣ ਦੀ ਸੰਭਾਵਨਾ ਹੈ।</string>
+    <string name="alert_sample_temp_desc">ਵੱਧ ਤੋਂ ਵੱਧ 31°C ਅਤੇ ਘੱਟ ਤੋਂ ਘੱਟ 24°C ਤਾਪਮਾਨ ਦੀ ਉਮੀਦ ਹੈ।</string>
+    <string name="alert_sample_temp_inst">ਆਮ ਖੇਤੀਬਾੜੀ ਗਤੀਵਿਧੀਆਂ ਜਾਰੀ ਰੱਖੀਆਂ ਜਾ ਸਕਦੀਆਂ ਹਨ।</string>
+
+    <!-- Data Screen & NWP -->
+    <string name="data_title">ਮੌਸਮ ਵਿਗਿਆਨ ਡਾਟਾ</string>
+    <string name="action_historical_data">ਇਤਿਹਾਸਕ ਜਾਣਕਾਰੀ</string>
+    <string name="action_model_comparison">ਮਾਡਲ ਤੁਲਨਾ</string>
+    <string name="action_export_data">ਡਾਟਾ ਐਕਸਪੋਰਟ ਕਰੋ</string>
+    <string name="data_temp_chart_title">ਤਾਪਮਾਨ ਰੁਝਾਨ (°C)</string>
+    <string name="quick_access_title">ਤੁਰੰਤ ਲਿੰਕ</string>
+    <string name="quick_access_analyst">ਵਿਸ਼ਲੇਸ਼ਕ ਡੈਸ਼ਬੋਰਡ</string>
+    <string name="quick_access_analyst_sub">ਖੇਤਰੀ ਜੋਖਮ ਅਤੇ ਸੰਵੇਦਨਸ਼ੀਲਤਾ ਸੂਚਕ</string>
+    <string name="quick_access_gfs">GFS 0.25° NWP ਮਾਡਲ</string>
+    <string name="quick_access_gfs_sub">ਭਾਰਤੀ ਉਪ-ਮਹਾਂਦੀਪ ਲਈ 0.25° ਗਰਿੱਡ ਮਾਡਲ</string>
+    <string name="quick_access_climate">ਮੈਨ-ਕੈਂਡਲ ਜਲਵਾਯੂ ਰੁਝਾਨ</string>
+    <string name="quick_access_climate_sub">ਮੈਨ-ਕੈਂਡਲ ਅਤੇ ਸੇਨ ਸਲੋਪ ਅੰਕੜੇ</string>
+    <string name="export_success">ਡਾਟਾਸੈੱਟ CSV ਫ਼ਾਈਲ ਵਜੋਂ ਸਫ਼ਲਤਾਪੂਰਵਕ ਐਕਸਪੋਰਟ ਕੀਤਾ ਗਿਆ।</string>
+    <string name="export_dialog_title">ਮੌਸਮ ਡਾਟਾ ਐਕਸਪੋਰਟ ਕਰੋ</string>
+    <string name="export_dialog_desc">30 ਸਾਲਾਂ ਦਾ ਇਤਿਹਾਸਕ ਜਲਵਾਯੂ ਅਤੇ NWP ਡਾਟਾਸੈੱਟ CSV ਫ਼ਾਈਲ ਵਜੋਂ ਤਿਆਰ ਹੈ।\n• ਫ਼ਾਈਲ: weathergpt_climate_dataset.csv\n• ਸਰੋਤ: NOAA GFS 0.25°, Open-Meteo, IMD OASIS\n• ਮਾਪਦੰਡ: ਮੀਂਹ, ਘੱਟੋ-ਘੱਟ/ਵੱਧ ਤੋਂ ਵੱਧ ਤਾਪਮਾਨ, ET0, ਨਮੀ</string>
+    <string name="gfs_dialog_title">GFS 0.25° NWP ਗਰਿੱਡ ਮਾਡਲ</string>
+    <string name="gfs_dialog_desc">ਭਾਰਤੀ ਉਪ-ਮਹਾਂਦੀਪ (6°N-38°N, 68°E-98°E) ਨੂੰ ਕਵਰ ਕਰਨ ਵਾਲਾ 2D ਬਾਈਲੀਨੀਅਰ ਸਥਾਨਿਕ ਇੰਟਰਪੋਲੇਸ਼ਨ ਵਾਲਾ ਗਲੋਬਲ ਫੋਰਕਾਸਟ ਸਿਸਟਮ (GFS) 0.25° ਵਾਯੂਮੰਡਲ ਗਰਿੱਡ ਮਾਡਲ।</string>
+    <string name="climate_dialog_title">ਮੈਨ-ਕੈਂਡਲ ਜਲਵਾਯੂ ਰੁਝਾਨ</string>
+    <string name="climate_dialog_desc">ਮੀਂਹ ਅਤੇ ਤਾਪਮਾਨ ਦੇ ਲੰਬੇ ਸਮੇਂ ਦੇ ਮੋਨੋਟੋਨਿਕ ਰੁਝਾਨਾਂ ਦਾ ਮੁਲਾਂਕਣ ਕਰਨ ਵਾਲਾ ਗੈਰ-ਪੈਰਾਮੀਟ੍ਰਿਕ ਮੈਨ-ਕੈਂਡਲ ਟੈਸਟ ਅਤੇ ਸੇਨ ਸਲੋਪ (95% CI)।</string>
+    <string name="nwp_gfs_tab">GFS (0.25°)</string>
+    <string name="nwp_wrf_tab">WRF (ਖੇਤਰੀ)</string>
+    <string name="nwp_comparison_tab">ਮਾਡਲ ਤੁਲਨਾ</string>
+    <string name="nwp_gfs_title">NOAA GFS 0.25° ਪੂਰਵ ਅਨੁਮਾਨ</string>
+    <string name="nwp_gfs_subtitle">ਗਲੋਬਲ ਫੋਰਕਾਸਟ ਸਿਸਟਮ • 24 ਘੰਟੇ ਅੱਗੇ</string>
+    <string name="nwp_gfs_resolution">0.25° (~27 ਕਿਲੋਮੀਟਰ)</string>
+    <string name="nwp_metric_temp">ਤਾਪਮਾਨ</string>
+    <string name="nwp_metric_precip">ਮੀਂਹ</string>
+    <string name="nwp_metric_wind">ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ</string>
+    <string name="nwp_metric_humidity">ਨਮੀ</string>
+    <string name="nwp_metric_pressure">ਦਬਾਅ</string>
+    <string name="nwp_metric_cloud">ਬੱਦਲਵਾਈ</string>
+    <string name="nwp_metric_cape">CAPE ਸੂਚਕਾਂਕ</string>
+    <string name="nwp_wrf_title">WRF ਖੇਤਰੀ ਮਾਡਲਿੰਗ</string>
+    <string name="nwp_wrf_subtitle">ਉੱਚ-ਰੈਜ਼ੋਲੂਸ਼ਨ ਖੇਤਰੀ ਭੌਤਿਕ ਵਿਗਿਆਨ • 3-9 ਕਿਲੋਮੀਟਰ</string>
+    <string name="nwp_wrf_badge">ਖੇਤਰੀ</string>
+    <string name="nwp_wrf_unavailable_title">WRF ਖੇਤਰੀ ਡਾਟਾ ਉਪਲਬਧ ਨਹੀਂ</string>
+    <string name="nwp_wrf_unavailable_desc">ਲਾਈਵ WRF ਡਾਟਾ ਸਟ੍ਰੀਮ ਵਰਤਮਾਨ ਵਿੱਚ ਕੌਂਫਿਗਰ ਨਹੀਂ ਹੈ। ਖੇਤਰੀ WRF ਮਾਡਲਿੰਗ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਬੈਕਐਂਡ ਵਿੱਚ WRF_BASE_URL ਸੈੱਟ ਕਰੋ।</string>
+    <string name="nwp_comparison_title">ਮਲਟੀ-ਮਾਡਲ NWP ਤੁਲਨਾ</string>
+    <string name="nwp_comparison_subtitle">GFS 0.25° ਬਨਾਮ ECMWF IFS ਬਨਾਮ WRF ਖੇਤਰੀ</string>
+    <string name="nwp_comparison_badge">ਅੰਤਰ</string>
+    <string name="nwp_gfs_forecast">GFS ਅਨੁਮਾਨ</string>
+    <string name="nwp_ecmwf_ifs">ECMWF IFS</string>
+    <string name="nwp_dr_spread">DR ਅੰਤਰ</string>
+    <string name="nwp_confidence_high">ਉੱਚ ਭਰੋਸੇਯੋਗਤਾ</string>
+    <string name="nwp_confidence_moderate">ਦਰਮਿਆਨਾ ਅੰਤਰ</string>
+    <string name="nwp_wrf_status_label">WRF ਸਥਿਤੀ: %1$s</string>
+    <string name="nwp_loading_gfs">GFS ਡਾਟਾ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
+    <string name="nwp_loading_wrf">WRF ਡਾਟਾ ਦੀ ਜਾਂਚ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ…</string>
+    <string name="nwp_loading_comparison">ਮਾਡਲ ਅੰਤਰ ਦੀ ਗਣਨਾ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ…</string>
+    <string name="nwp_day_label">ਦਿਨ %1$d</string>
+
+    <!-- Farmer Screen -->
+    <string name="farmer_title">ਕਿਸਾਨ ਪ੍ਰੋਫਾਈਲ</string>
+    <string name="farmer_step_progress">1/4</string>
+    <string name="farmer_crop_header">ਆਪਣੀ ਫ਼ਸਲ ਬਾਰੇ ਦੱਸੋ</string>
+    <string name="farmer_crop_subheader">ਇਹ ਜਾਣਕਾਰੀ ਸਹੀ ਖੇਤੀਬਾੜੀ ਸਲਾਹ ਤਿਆਰ ਕਰਨ ਵਿੱਚ ਮਦਦ ਕਰਦੀ ਹੈ।</string>
+    <string name="label_crop">ਮੁੱਖ ਫ਼ਸਲ</string>
+    <string name="label_stage">ਵਾਧੇ ਦਾ ਪੜਾਅ</string>
+    <string name="label_soil">ਮਿੱਟੀ ਦੀ ਕਿਸਮ</string>
+    <string name="label_area">ਖੇਤ ਦਾ ਰਕਬਾ (ਏਕੜ)</string>
+    <string name="btn_next">ਅੱਗੇ →</string>
+    <string name="advisory_irrigation_title">ਸਿੰਚਾਈ ਸਲਾਹ (FAO-56)</string>
+    <string name="advisory_spray_title">ਕੀਟਨਾਸ਼ਕ ਸਪਰੇਅ ਦਾ ਢੁਕਵਾਂ ਸਮਾਂ</string>
+    <string name="crop_wheat">ਕਣਕ</string>
+    <string name="crop_rice">ਝੋਨਾ (ਚੌਲ)</string>
+    <string name="crop_cotton">ਕਪਾਹ</string>
+    <string name="crop_mustard">ਸਰ੍ਹੋਂ</string>
+    <string name="crop_sugarcane">ਗੰਨਾ</string>
+    <string name="crop_maize">ਮੱਕੀ</string>
+    <string name="stage_sowing">ਬਿਜਾਈ / ਪੁੰਗਰਨਾ</string>
+    <string name="stage_vegetative">ਬਨਸਪਤੀ ਵਾਧਾ</string>
+    <string name="stage_flowering">ਫੁੱਲ ਆਉਣਾ / ਦਾਣਾ ਬਣਨਾ</string>
+    <string name="stage_maturity">ਪੱਕਣਾ / ਵਾਢੀ</string>
+    <string name="soil_alluvial">ਜਲੋਢ / ਦੋਮਟ ਮਿੱਟੀ</string>
+    <string name="soil_black_cotton">ਕਾਲੀ ਕਪਾਹ ਮਿੱਟੀ</string>
+    <string name="soil_red_sandy">ਲਾਲ ਰੇਤਲੀ ਮਿੱਟੀ</string>
+    <string name="soil_clay">ਚੀਕਣੀ ਮਿੱਟੀ</string>
+    <string name="error_invalid_area">ਕਿਰਪਾ ਕਰਕੇ ਸਹੀ ਸਕਾਰਾਤਮਕ ਰਕਬਾ ਦਰਜ ਕਰੋ</string>
+
+    <!-- Analyst Screen -->
+    <string name="analyst_title">ਵਿਸ਼ਲੇਸ਼ਕ ਡੈਸ਼ਬੋਰਡ</string>
+    <string name="analyst_spatial_report">ਖੇਤਰੀ ਜੋਖਮ ਰਿਪੋਰਟ</string>
+    <string name="analyst_rainfall_total">ਕੁੱਲ ਮੀਂਹ</string>
+    <string name="analyst_temp_avg">ਔਸਤ ਤਾਪਮਾਨ</string>
+    <string name="risk_indicators_title">ਜੋਖਮ ਸੂਚਕ</string>
+    <string name="risk_flood">ਹੜ੍ਹ ਦਾ ਜੋਖਮ</string>
+    <string name="risk_drought">ਸੋਕੇ ਦਾ ਜੋਖਮ</string>
+    <string name="risk_squall">ਤੂਫ਼ਾਨ ਦਾ ਜੋਖਮ</string>
+    <string name="risk_level_low">ਘੱਟ</string>
+    <string name="risk_level_moderate">ਦਰਮਿਆਨਾ</string>
+    <string name="risk_level_high">ਵੱਧ</string>
+    <string name="btn_detailed_report">ਵਿਸਤ੍ਰਿਤ ਰਿਪੋਰਟ →</string>
+    <string name="dialog_select_period">ਵਿਸ਼ਲੇਸ਼ਣ ਦੀ ਮਿਆਦ ਚੁਣੋ</string>
+    <string name="period_7days">7 ਦਿਨ</string>
+    <string name="period_15days">15 ਦਿਨ</string>
+    <string name="period_30days">30 ਦਿਨ</string>
+    <string name="period_90days">90 ਦਿਨ</string>
+    <string name="compared_to_past">ਪਿਛਲੇ 30 ਦਿਨਾਂ ਦੇ ਮੁਕਾਬਲੇ</string>
+    <string name="from_normal">ਆਮ ਨਾਲੋਂ</string>
+    <string name="analyst_report_body">• ਸਮੁੱਚਾ ਪ੍ਰਭਾਵ ਸੂਚਕਾਂਕ (I): 3.2 / 10.0 (ਘੱਟ-ਦਰਮਿਆਨਾ)\n• ਖਤਰਾ (H): 2.8 / 10.0\n• ਸੰਪਰਕ (E): 3.5 / 10.0\n• ਸੰਵੇਦਨਸ਼ੀਲਤਾ (V): 3.6 / 10.0\n• NWP ਮਾਡਲ ਅੰਤਰ (DR): 0.14 (ਉੱਚ ਮਾਡਲ ਸਹਿਮਤੀ)\n• IMD OASIS ਅਲਰਟ ਸਥਿਤੀ: ਗ੍ਰੀਨ (ਆਮ)</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">ਪ੍ਰੋਫਾਈਲ</string>
+    <string name="user_name_default">Garvit Mishra</string>
+    <string name="user_district_default">ਅੰਮ੍ਰਿਤਸਰ, ਪੰਜਾਬ</string>
+    <string name="plan_badge">Vayubodhak Free</string>
+    <string name="your_plan">ਤੁਹਾਡਾ ਪਲਾਨ</string>
+    <string name="btn_upgrade">👑 ਅੱਪਗ੍ਰੇਡ ਕਰੋ →</string>
+    <string name="menu_farmer_profile">ਕਿਸਾਨ ਪ੍ਰੋਫਾਈਲ</string>
+    <string name="menu_saved_regions">ਸੁਰੱਖਿਅਤ ਸਥਾਨ</string>
+    <string name="menu_app_settings">ਐਪ ਸੈਟਿੰਗਾਂ</string>
+    <string name="menu_help_feedback">ਮਦਦ ਅਤੇ ਫੀਡਬੈਕ</string>
+    <string name="menu_about">ਵਾਯੂਬੋਧਕ ਬਾਰੇ</string>
+    <string name="status_active">ਸਰਗਰਮ</string>
+    <string name="dialog_edit_profile_title">ਪ੍ਰੋਫਾਈਲ ਸੰਪਾਦਿਤ ਕਰੋ</string>
+    <string name="dialog_enter_name_prompt">ਆਪਣਾ ਨਾਮ ਦਰਜ ਕਰੋ:</string>
+    <string name="dialog_pro_features_title">ਵਾਯੂਬੋਧਕ ਪ੍ਰੋ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ:</string>
+    <string name="dialog_pro_features_body">• ਅਸੀਮਤ ਉੱਚ-ਰੈਜ਼ੋਲੂਸ਼ਨ NWP ਗਰਿੱਡ ਡਾਟਾ\n• ਵਟਸਐਪ \'ਤੇ ਆਟੋਮੈਟਿਕ ਮੌਸਮ ਅਤੇ ਕੀੜੇ ਚਿਤਾਵਨੀਆਂ\n• ਸੈਟੇਲਾਈਟ ਅਧਾਰਤ ਮਿੱਟੀ ਨਮੀ ਮੈਪਿੰਗ\n• ਮਲਟੀ-ਮਾਡਲ AI ਅੰਤਰ ਵਿਸ਼ਲੇਸ਼ਣ</string>
+    <string name="dialog_support_center_title">ਵਾਯੂਬੋਧਕ ਸਹਾਇਤਾ ਕੇਂਦਰ:</string>
+    <string name="dialog_support_center_body">• ਈਮੇਲ: support@weathergpt.in\n• ਹੈਲਪਲਾਈਨ: 1800-WEATHER-GPT (ਟੋਲ ਫ੍ਰੀ)\n• ਦਸਤਾਵੇਜ਼: docs.weathergpt.in</string>
+    <string name="dialog_about_text">ਭਾਰਤ ਦਾ ਪ੍ਰਮੁੱਖ ਮੌਸਮ ਨਿਰਣੇ ਇੰਟੈਲੀਜੈਂਸ ਪਲੇਟਫਾਰਮ। IMD, NOAA GFS, Open-Meteo, ECMWF ਅਤੇ PostGIS ਦੁਆਰਾ ਸੰਚਾਲਿਤ।</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">ਸੈਟਿੰਗਾਂ</string>
+    <string name="setting_language">ਭਾਸ਼ਾ (Language)</string>
+    <string name="setting_units">ਮਾਪ ਇਕਾਈਆਂ (Units)</string>
+    <string name="setting_notifications">ਗੰਭੀਰ ਮੌਸਮ ਸੂਚਨਾਵਾਂ</string>
+    <string name="setting_location">ਮੁੱਖ ਸਥਾਨ</string>
+    <string name="setting_server_url">ਬੈਕਐਂਡ ਸਰਵਰ URL</string>
+    <string name="setting_about">ਜਾਣਕਾਰੀ ਅਤੇ ਲਾਇਸੈਂਸ</string>
+    <string name="dialog_select_language">ਐਪਲੀਕੇਸ਼ਨ ਭਾਸ਼ਾ ਚੁਣੋ</string>
+    <string name="dialog_select_units">ਮਾਪ ਇਕਾਈਆਂ ਚੁਣੋ</string>
+    <string name="dialog_server_url_title">ਬੈਕਐਂਡ ਸਰਵਰ URL ਕੌਂਫਿਗਰ ਕਰੋ</string>
+    <string name="dialog_server_url_desc">LAN URL ਦਰਜ ਕਰੋ (ਜਿਵੇਂ http://192.168.1.100:8000/) ਜਾਂ QR ਕੋਡ ਲਿੰਕ ਪੇਸਟ ਕਰੋ:</string>
+    <string name="dialog_about_title">WeatherGPT / ਵਾਯੂਬੋਧਕ v1.0.0</string>
+    <string name="dialog_about_subtitle">ਭਾਰਤ ਲਈ ਤਿਆਰ ਕੀਤਾ ਗਿਆ AI-ਅਧਾਰਿਤ ਮੌਸਮ ਨਿਰਣੇ ਇੰਟੈਲੀਜੈਂਸ ਪਲੇਟਫਾਰਮ।</string>
+    <string name="dialog_about_details">• ਮੌਸਮ ਸਰੋਤ: IMD OASIS CAP, NOAA GFS 0.25°, Open-Meteo, ECMWF\n• ਵਿਸ਼ਲੇਸ਼ਣ: FAO-56 Penman-Monteith, Mann-Kendall, Sen\'s slope\n• ਸਥਾਨਿਕ: PostgreSQL 16 + PostGIS 3.4\n• ਆਫ਼ਲਾਈਨ ਉਪਲਬਧਤਾ ਅਤੇ ਸੁਰੱਖਿਅਤ ਡਾਟਾ</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">WeatherGPT ਗੱਲਬਾਤ</string>
+    <string name="chat_empty_title">ਵਾਯੂਬੋਧਕ (WeatherGPT) ਨੂੰ ਪੁੱਛੋ</string>
+    <string name="chat_empty_message">ਮੌਸਮ ਭਵਿੱਖਬਾਣੀ, ਸਿੰਚਾਈ ਪ੍ਰਬੰਧਨ (FAO-56), ਕੀਟਨਾਸ਼ਕ ਸਪਰੇਅ ਜਾਂ ਆਫ਼ਤ ਵਿਸ਼ਲੇਸ਼ਣ ਬਾਰੇ ਪੁੱਛੋ।</string>
+    <string name="chat_input_placeholder">ਮੌਸਮ, ਫ਼ਸਲਾਂ, ਮੀਂਹ ਸੰਬੰਧੀ ਸਵਾਲ ਪੁੱਛੋ…</string>
+    <string name="chat_analyzing_message">ਵਾਯੂਬੋਧਕ ਮੌਸਮ ਡਾਟਾ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕਰ ਰਿਹਾ ਹੈ…</string>
+    <string name="chat_brain_label">Brain: %1$s</string>
+    <string name="chat_assistant_label">ਵਾਯੂਬੋਧਕ (%1$s)</string>
+    <string name="recommendation_label">ਸਲਾਹ / ਸਿਫ਼ਾਰਸ਼</string>
+    <string name="sources_label">ਸਰੋਤ</string>
+
+    <!-- Common UI States & Dialogs -->
+    <string name="loading_weather">ਮੌਸਮ ਜਾਣਕਾਰੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ…</string>
+    <string name="loading_forecast">ਮੌਸਮ ਪੂਰਵ ਅਨੁਮਾਨ ਲਿਆਇਆ ਜਾ ਰਿਹਾ ਹੈ…</string>
+    <string name="loading_alerts">ਸਰਕਾਰੀ ਚਿਤਾਵਨੀਆਂ ਦੀ ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ…</string>
+    <string name="loading_data">ਮੌਸਮ ਡਾਟਾ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
+    <string name="loading_general">ਜਾਣਕਾਰੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ…</string>
+    <string name="error_offline">ਕੋਈ ਇੰਟਰਨੈਟ ਕਨੈਕਸ਼ਨ ਨਹੀਂ। ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਡਾਟਾ ਦਿਖਾਇਆ ਜਾ ਰਿਹਾ ਹੈ।</string>
+    <string name="error_no_internet_title">ਕੋਈ ਇੰਟਰਨੈਟ ਕਨੈਕਸ਼ਨ ਨਹੀਂ</string>
+    <string name="error_unable_to_load">ਡਾਟਾ ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ</string>
+    <string name="error_code_label">ਕੋਡ: %1$s</string>
+    <string name="error_request_id_label">ਬੇਨਤੀ ID: %1$s</string>
+    <string name="empty_state_title">ਡਾਟਾ ਉਪਲਬਧ ਨਹੀਂ</string>
+    <string name="empty_state_message">ਇਸ ਸਮੇਂ ਇਸ ਸੈਕਸ਼ਨ ਲਈ ਕੋਈ ਜਾਣਕਾਰੀ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।</string>
+    <string name="location_select_title">ਸਥਾਨ ਚੁਣੋ</string>
+    <string name="location_select_subtitle">ਭਾਰਤ ਦੇ ਪ੍ਰਮੁੱਖ ਜ਼ਿਲ੍ਹੇ ਅਤੇ ਖੇਤੀਬਾੜੀ ਖੇਤਰ:</string>
+    <string name="btn_apply_save">ਲਾਗੂ ਕਰੋ ਅਤੇ ਸੇਵ ਕਰੋ</string>
+    <string name="btn_cancel">ਰੱਦ ਕਰੋ</string>
+    <string name="btn_close">ਬੰਦ ਕਰੋ</string>
+    <string name="btn_retry">ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
+    <string name="btn_check_connection">ਕਨੈਕਸ਼ਨ ਦੀ ਜਾਂਚ ਕਰੋ</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="cd_menu">ਮੀਨੂ</string>
+    <string name="cd_notifications">ਸੂਚਨਾਵਾਂ</string>
+    <string name="cd_send">ਭੇਜੋ</string>
+    <string name="cd_back">ਪਿੱਛੇ</string>
+    <string name="cd_settings">ਸੈਟਿੰਗਾਂ</string>
+    <string name="cd_dropdown">ਡ੍ਰੌਪਡਾਉਨ</string>
+    <string name="cd_more">ਹੋਰ</string>
+    <string name="cd_selected">ਚੁਣਿਆ ਗਿਆ</string>
+    <string name="cd_navigate">ਨੈਵੀਗੇਟ ਕਰੋ</string>
+    <string name="cd_edit_name">ਨਾਮ ਸੰਪਾਦਿਤ ਕਰੋ</string>
+</resources>

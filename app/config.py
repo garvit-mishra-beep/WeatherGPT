@@ -47,10 +47,10 @@ class Settings(BaseSettings):
     forwarded_allow_ips: str = Field(default="127.0.0.1", description="Allowed trusted proxy IPs")
 
     # LLM Inference Host Settings (vLLM / Ollama / OpenRouter)
-    llm_provider_type: Literal["openai_compatible", "mock"] = "openai_compatible"
+    llm_provider_type: Literal["openai_compatible", "ollama", "mock"] = "openai_compatible"
     llm_base_url: str = Field(
         default="http://127.0.0.1:8001/v1",
-        description="Base URL for OpenAI-compatible endpoint (vLLM on Laptop 1 / Ollama)",
+        description="Base URL for OpenAI-compatible endpoint (vLLM on Laptop 1 / OpenRouter)",
     )
     llm_model_name: str = Field(
         default="Qwen/Qwen2.5-14B-Instruct",
@@ -63,6 +63,23 @@ class Settings(BaseSettings):
     llm_temperature: float = Field(default=0.1, ge=0.0, le=2.0)
     llm_max_tokens: int = Field(default=1024, ge=1, le=8192)
     llm_timeout_seconds: float = Field(default=30.0, ge=1.0, le=120.0)
+
+    # --- Local / Development Ollama LLM Settings -----------------------------
+    ollama_enabled: bool = Field(
+        default=False,
+        description="Enable local Ollama LLM provider for development / offline reasoning",
+    )
+    ollama_base_url: str = Field(
+        default="http://127.0.0.1:11434",
+        description="Base URL for local Ollama service (default: http://127.0.0.1:11434)",
+    )
+    ollama_model: str = Field(
+        default="qwen2.5:1.5b-instruct",
+        description="Configured Ollama model name (e.g. qwen2.5:1.5b-instruct, llama3.1:8b, gemma2:9b)",
+    )
+    ollama_timeout_seconds: float = Field(
+        default=60.0, ge=1.0, le=300.0, description="Bounded timeout in seconds for Ollama inference requests"
+    )
 
     # --- B2: PostgreSQL + PostGIS Database Foundation -------------------------
     database_url: str = Field(
@@ -102,6 +119,44 @@ class Settings(BaseSettings):
     redis_url: str = Field(
         default="redis://localhost:6379/0",
         description="Redis in-memory cache connection URL",
+    )
+
+    # --- FCM Push Notification & Outbox Settings (Phase 9/11) ------------------
+    fcm_project_id: Optional[str] = Field(
+        default=None,
+        description="Google Cloud / Firebase Project ID for HTTP v1 push delivery",
+    )
+    fcm_credentials_path: Optional[str] = Field(
+        default=None,
+        description="Filesystem path to Firebase service account private key JSON",
+    )
+    fcm_credentials_json: Optional[str] = Field(
+        default=None,
+        description="Raw Firebase service account private key JSON string",
+    )
+    fcm_timeout_seconds: float = Field(
+        default=10.0,
+        ge=1.0,
+        le=60.0,
+        description="Bounded timeout in seconds for Google FCM REST requests",
+    )
+    outbox_max_retries: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="Maximum delivery retries for outbox events before terminal failure",
+    )
+    outbox_worker_batch_size: int = Field(
+        default=50,
+        ge=1,
+        le=200,
+        description="Outbox worker batch processing size",
+    )
+    outbox_retry_backoff_seconds: float = Field(
+        default=2.0,
+        ge=0.5,
+        le=60.0,
+        description="Outbox retry backoff base in seconds",
     )
 
     # --- B5: Meteorological Data Ingestion & Adapters -------------------------
@@ -229,9 +284,82 @@ class Settings(BaseSettings):
         default=60.0, ge=1.0, le=3600.0, description="Rate limit sliding window in seconds"
     )
 
+    # --- Voice: Google Cloud Speech-to-Text V2 & Text-to-Speech Settings -----
+    voice_enabled: bool = Field(
+        default=True,
+        description="Enable real voice processing (Speech-to-Text & Text-to-Speech)",
+    )
+    google_cloud_project_id: str = Field(
+        default="weathergpt-507316",
+        description="Google Cloud Project ID for Speech-to-Text and Text-to-Speech",
+    )
+    google_application_credentials: Optional[str] = Field(
+        default=r"D:\WeatherGPT\weathergpt-507316-3ebdf628cb12.json",
+        description="Path to Google Cloud Service Account JSON credentials file",
+    )
+    voice_stt_provider: Literal["google", "mock", "disabled"] = Field(
+        default="google",
+        description="Speech-to-Text provider engine",
+    )
+    voice_tts_provider: Literal["google", "mock", "disabled"] = Field(
+        default="google",
+        description="Text-to-Speech provider engine",
+    )
+    voice_timeout_seconds: float = Field(
+        default=10.0,
+        ge=1.0,
+        le=60.0,
+        description="Bounded timeout in seconds for voice STT/TTS API calls",
+    )
+    voice_max_audio_size_bytes: int = Field(
+        default=10 * 1024 * 1024,
+        ge=1024,
+        le=50 * 1024 * 1024,
+        description="Maximum allowed incoming audio size in bytes (10 MB)",
+    )
+    voice_default_speaking_rate: float = Field(
+        default=1.0,
+        ge=0.25,
+        le=4.0,
+        description="Default speaking rate speed multiplier for TTS synthesis",
+    )
+
     # Legacy compatibility aliases
     weather_provider_timeout_seconds: float = Field(default=5.0, ge=1.0, le=60.0)
     weather_provider_retries: int = Field(default=2, ge=0, le=5)
+
+    # --- Phase 9: Push Notification & Durable Outbox Settings -----------------
+    fcm_enabled: bool = Field(
+        default=True,
+        description="Enable Firebase Cloud Messaging push notifications for proactive decisions",
+    )
+    fcm_project_id: Optional[str] = Field(
+        default=None,
+        description="Google Cloud / Firebase Project ID for FCM HTTP v1 messages",
+    )
+    fcm_credentials_path: Optional[str] = Field(
+        default=None,
+        description="Path to Firebase Service Account JSON credentials file",
+    )
+    fcm_credentials_json: Optional[str] = Field(
+        default=None,
+        description="Raw JSON string containing Firebase Service Account credentials",
+    )
+    fcm_timeout_seconds: float = Field(
+        default=10.0, ge=1.0, le=60.0, description="Bounded timeout in seconds for FCM API calls"
+    )
+    proactive_notifications_enabled: bool = Field(
+        default=True, description="Master toggle for proactive notification generation and delivery"
+    )
+    outbox_worker_batch_size: int = Field(
+        default=50, ge=1, le=500, description="Number of pending outbox entries to process per batch"
+    )
+    outbox_max_retries: int = Field(
+        default=3, ge=1, le=10, description="Maximum delivery attempts before marking outbox entry failed"
+    )
+    outbox_retry_backoff_seconds: float = Field(
+        default=2.0, ge=0.5, le=60.0, description="Base exponential backoff seconds for transient retries"
+    )
 
     @field_validator("cors_origins", mode="before")
     @classmethod

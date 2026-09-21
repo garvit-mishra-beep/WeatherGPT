@@ -2,6 +2,10 @@ package com.weathergpt.data.remote
 
 import com.weathergpt.data.remote.dto.chat.ChatRequestDto
 import com.weathergpt.data.remote.dto.chat.ChatResponseDto
+import com.weathergpt.data.remote.dto.climate.ClimateNormalsResponseDto
+import com.weathergpt.data.remote.dto.climate.ClimateTrendsResponseDto
+import com.weathergpt.data.remote.dto.decision.DecisionRequestDto
+import com.weathergpt.data.remote.dto.decision.NirnayCardDto
 import com.weathergpt.data.remote.dto.farmer.IrrigationAdvisoryRequestDto
 import com.weathergpt.data.remote.dto.farmer.IrrigationAdvisoryResponseDto
 import com.weathergpt.data.remote.dto.farmer.SprayWindowRequestDto
@@ -22,15 +26,24 @@ import com.weathergpt.data.remote.dto.nwp.NWPModelComparisonResponseDto
 import com.weathergpt.data.remote.dto.system.HealthResponseDto
 import com.weathergpt.data.remote.dto.system.ReadyResponseDto
 import com.weathergpt.data.remote.dto.system.RootMetadataDto
+import com.weathergpt.data.remote.dto.voice.VoiceQueryResponseDto
+import com.weathergpt.data.remote.dto.voice.VoiceSttResponseDto
+import com.weathergpt.data.remote.dto.voice.VoiceTtsRequestDto
 import com.weathergpt.data.remote.dto.weather.CurrentWeatherResponseDto
 import com.weathergpt.data.remote.dto.weather.WeatherAlertsResponseDto
 import com.weathergpt.data.remote.dto.weather.WeatherForecastResponseDto
 import com.weathergpt.data.remote.dto.weather.WeatherIntelligenceResponseDto
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 /**
  * Central Retrofit API service interface for the WeatherGPT FastAPI backend (/api/v1).
@@ -108,6 +121,11 @@ interface WeatherGPTApiService {
         @Body request: SprayWindowRequestDto
     ): SprayWindowResponseDto
 
+    @POST("api/v1/decisions")
+    suspend fun evaluateDecision(
+        @Body request: DecisionRequestDto
+    ): NirnayCardDto
+
     // ========================================================================
     // 5. GIS & SPATIAL INTELLIGENCE
     // ========================================================================
@@ -134,10 +152,37 @@ interface WeatherGPTApiService {
         @Body request: RiskAssessmentRequestDto
     ): RiskAssessmentResponseDto
 
+    @POST("api/v1/analyst/risk-matrix")
+    suspend fun getAnalystRiskMatrix(
+        @Body request: RiskAssessmentRequestDto
+    ): RiskAssessmentResponseDto
+
     @POST("api/v1/gis/analysis")
     suspend fun getGISAnalysis(
         @Body request: GISAnalysisRequestDto
     ): GISAnalysisResponseDto
+
+    // ========================================================================
+    // 5B. CLIMATE INTELLIGENCE & CLIMATOLOGY
+    // ========================================================================
+
+    @GET("api/v1/climate/trends")
+    suspend fun getClimateTrends(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("location") location: String? = null,
+        @Query("variable") variable: String = "rainfall",
+        @Query("start_year") startYear: Int = 1991,
+        @Query("end_year") endYear: Int = 2024
+    ): ClimateTrendsResponseDto
+
+    @GET("api/v1/climate/normals")
+    suspend fun getClimateNormals(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("location") location: String? = null,
+        @Query("month") month: Int? = null
+    ): ClimateNormalsResponseDto
 
     // ========================================================================
     // 6. NWP NUMERICAL WEATHER PREDICTION
@@ -183,4 +228,53 @@ interface WeatherGPTApiService {
     suspend fun getRiskMap(
         @Body request: RiskMapRequestDto
     ): MapSpecificationDto
+
+    // ========================================================================
+    // 8. VOICE INTERACTION (SPEECH-TO-TEXT & TEXT-TO-SPEECH)
+    // ========================================================================
+
+    @Multipart
+    @POST("api/v1/voice/stt")
+    suspend fun speechToText(
+        @Part audio: MultipartBody.Part,
+        @Query("language_code") languageCode: String? = null
+    ): VoiceSttResponseDto
+
+    @POST("api/v1/voice/tts")
+    @Streaming
+    suspend fun textToSpeech(
+        @Body request: VoiceTtsRequestDto
+    ): ResponseBody
+
+    @Multipart
+    @POST("api/v1/voice/query")
+    suspend fun voiceQuery(
+        @Part audio: MultipartBody.Part,
+        @Part("language_code") languageCode: RequestBody? = null,
+        @Part("session_id") sessionId: RequestBody? = null,
+        @Part("latitude") latitude: RequestBody? = null,
+        @Part("longitude") longitude: RequestBody? = null,
+        @Part("selected_brain") selectedBrain: RequestBody? = null
+    ): VoiceQueryResponseDto
+
+    // ========================================================================
+    // 9. PROACTIVE DECISIONS & PUSH DEVICE TOKENS
+    // ========================================================================
+
+    @POST("api/v1/proactive/devices")
+    suspend fun registerDeviceToken(
+        @Body request: com.weathergpt.data.remote.dto.proactive.RegisterDeviceRequestDto
+    ): com.weathergpt.data.remote.dto.proactive.RegisterDeviceResponseDto
+
+    // ========================================================================
+    // 10. OPERATIONAL STREAMING & INCREMENTAL SYNCHRONIZATION
+    // ========================================================================
+
+    @GET("api/v1/sync/operational-state")
+    suspend fun getOperationalSyncState(
+        @Query("cursor_seq") cursorSeq: Int = 0,
+        @Query("last_synced_revision") lastSyncedRevision: Int = 0,
+        @Query("district") district: String? = null,
+        @Query("limit") limit: Int = 50
+    ): com.weathergpt.data.remote.dto.sync.OperationalSyncResponseDto
 }

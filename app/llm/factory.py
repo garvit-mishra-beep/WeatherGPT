@@ -7,17 +7,29 @@ from app.config import Settings, settings as default_settings
 from app.llm.base import LLMProvider
 from app.llm.mock_provider import MockLLMProvider
 from app.llm.openai_compatible import OpenAICompatibleProvider
+from app.llm.providers.ollama_provider import OllamaProvider
 
 
 def get_llm_provider(
     app_settings: Optional[Settings] = None,
     http_client: Optional[httpx.AsyncClient] = None,
+    force_real: bool = False,
 ) -> LLMProvider:
     """Instantiate and return the configured LLMProvider implementation."""
     cfg = app_settings or default_settings
 
-    if cfg.llm_provider_type == "mock" or cfg.app_env == "test":
+    if not force_real and (cfg.llm_provider_type == "mock" or cfg.app_env == "test"):
         return MockLLMProvider(model_name=f"mock-{cfg.llm_model_name}")
+
+    if cfg.ollama_enabled or cfg.llm_provider_type == "ollama":
+        return OllamaProvider(
+            base_url=cfg.ollama_base_url,
+            model_name=cfg.ollama_model,
+            default_temperature=cfg.llm_temperature,
+            default_max_tokens=cfg.llm_max_tokens,
+            timeout_seconds=cfg.ollama_timeout_seconds,
+            http_client=http_client,
+        )
 
     return OpenAICompatibleProvider(
         base_url=cfg.llm_base_url,
@@ -28,3 +40,4 @@ def get_llm_provider(
         timeout_seconds=cfg.llm_timeout_seconds,
         http_client=http_client,
     )
+

@@ -46,31 +46,35 @@ class BrainResolver:
                     "Auto routing is not available. Please specify an explicit Brain (general, farmer, researcher, analyst)."
                 )
 
-            # Invoke router strategy (handling both sync and async callables)
-            if inspect.iscoroutinefunction(self._router_strategy):
-                result = await self._router_strategy(request)
-            else:
-                result = self._router_strategy(request)
-                if inspect.iscoroutine(result):
-                    result = await result
+            try:
+                # Invoke router strategy (handling both sync and async callables)
+                if inspect.iscoroutinefunction(self._router_strategy):
+                    result = await self._router_strategy(request)
+                else:
+                    result = self._router_strategy(request)
+                    if inspect.iscoroutine(result):
+                        result = await result
+            except Exception as exc:
+                logger.warning("Auto Router strategy failed (%s). Falling back gracefully to GENERAL Brain.", exc)
+                return BrainType.GENERAL
 
             # Extract selected_brain if router returned a RouterResult
             if hasattr(result, "selected_brain"):
-                if result.needs_clarification or result.selected_brain is None:
-                    raise AutoRoutingNotAvailableError(
-                        message=f"Routing clarification required: {result.rationale}",
-                        details={"disambiguation": getattr(result, "disambiguation", None)},
-                    )
-                resolved = result.selected_brain
+                if result.selected_brain is not None and result.selected_brain != BrainType.AUTO:
+                    resolved = result.selected_brain
+                else:
+                    logger.info("Auto Router required clarification or returned None. Falling back to GENERAL Brain.")
+                    resolved = BrainType.GENERAL
             elif isinstance(result, BrainType):
                 resolved = result
             elif isinstance(result, str):
                 resolved = BrainType(result)
             else:
-                raise AutoRoutingNotAvailableError(f"Router returned invalid output type: {type(result)}")
+                logger.warning("Router returned unexpected type %s. Falling back to GENERAL Brain.", type(result))
+                resolved = BrainType.GENERAL
 
             if resolved == BrainType.AUTO:
-                raise AutoRoutingNotAvailableError("Auto Router returned AUTO instead of a concrete Domain Brain.")
+                resolved = BrainType.GENERAL
             return resolved
 
         if target in (BrainType.GENERAL, BrainType.FARMER, BrainType.RESEARCHER, BrainType.ANALYST):

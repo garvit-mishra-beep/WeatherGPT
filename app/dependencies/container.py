@@ -11,7 +11,7 @@ their own boundaries here rather than scattering instantiation across routers.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional
 
 from app.adapters.strategy import WeatherProviderManager
 from app.brains.farmer import FarmerBrain
@@ -68,9 +68,26 @@ class AppContainer:
     nwp_engine: Optional[Any] = None
     weather_gis_service: Optional[Any] = None
     gis_analysis_engine: Optional[Any] = None
+    voice_service: Optional[Any] = None
+    evidence_bundle_builder: Optional[Any] = None
+    decision_engine: Optional[Any] = None
+    decision_explanation_bridge: Optional[Any] = None
+    climate_intelligence_service: Optional[Any] = None
+    climate_explanation_bridge: Optional[Any] = None
+    farmer_intelligence_service: Optional[Any] = None
+    farmer_explanation_bridge: Optional[Any] = None
+    event_deduplication_registry: Optional[Any] = None
+    notification_delivery_service: Optional[Any] = None
+    proactive_decision_service: Optional[Any] = None
+    fcm_provider: Optional[Any] = None
+    personalization_service: Optional[Any] = None
 
     def build(self) -> "AppContainer":
         """Deterministically construct all real service boundaries."""
+        if self.voice_service is None:
+            from app.voice.service import VoiceService
+            self.voice_service = VoiceService(settings=self.settings)
+
         if self.cache_service is None:
             self.cache_service = CacheService()
 
@@ -122,6 +139,20 @@ class AppContainer:
                 spatial_engine=self.spatial_engine,
             )
 
+        if self.climate_explanation_bridge is None:
+            from app.climate.explanation_bridge import ClimateExplanationBridge
+            self.climate_explanation_bridge = ClimateExplanationBridge(
+                llm_provider=self.llm_provider,
+                settings=self.settings,
+            )
+
+        if self.climate_intelligence_service is None:
+            from app.climate.service import ClimateIntelligenceService
+            self.climate_intelligence_service = ClimateIntelligenceService(
+                weather_manager=self.weather_manager,
+                explanation_bridge=self.climate_explanation_bridge,
+            )
+
         if self.tool_registry is None:
             registry = ToolRegistry()
             register_default_tools(
@@ -131,6 +162,7 @@ class AppContainer:
                 weather_gis_service=self.weather_gis_service,
                 gis_analysis_engine=self.gis_analysis_engine,
                 weather_manager=self.weather_manager,
+                climate_service=self.climate_intelligence_service,
             )
             self.tool_registry = registry
 
@@ -167,6 +199,73 @@ class AppContainer:
 
         if self.context_manager is None:
             self.context_manager = ContextManager()
+
+        if self.evidence_bundle_builder is None:
+            from app.decision.evidence_builder import EvidenceBundleBuilder
+            self.evidence_bundle_builder = EvidenceBundleBuilder(weather_manager=self.weather_manager)
+
+        if self.decision_engine is None:
+            from app.decision.engine import DeterministicDecisionEngine
+            self.decision_engine = DeterministicDecisionEngine()
+
+        if self.decision_explanation_bridge is None:
+            from app.decision.explanation_bridge import DecisionExplanationBridge
+            self.decision_explanation_bridge = DecisionExplanationBridge(
+                llm_provider=self.llm_provider,
+                settings=self.settings,
+            )
+
+        if self.farmer_explanation_bridge is None:
+            from app.farmer.explanation_bridge import FarmerExplanationBridge
+            self.farmer_explanation_bridge = FarmerExplanationBridge(
+                llm_provider=self.llm_provider,
+                settings=self.settings,
+            )
+
+        if self.farmer_intelligence_service is None:
+            from app.farmer.service import FarmerIntelligenceService
+            self.farmer_intelligence_service = FarmerIntelligenceService(
+                decision_engine=self.decision_engine,
+                climate_service=self.climate_intelligence_service,
+                explanation_bridge=self.farmer_explanation_bridge,
+                evidence_builder=self.evidence_bundle_builder,
+            )
+
+        if self.event_deduplication_registry is None:
+            from app.proactive.deduplication import EventDeduplicationRegistry
+            self.event_deduplication_registry = EventDeduplicationRegistry()
+
+        if self.notification_delivery_service is None:
+            from app.proactive.delivery import InMemoryNotificationDeliveryService
+            self.notification_delivery_service = InMemoryNotificationDeliveryService()
+
+        if self.proactive_decision_service is None:
+            from app.proactive.service import ProactiveDecisionService
+            self.proactive_decision_service = ProactiveDecisionService(
+                evidence_builder=self.evidence_bundle_builder,
+                decision_engine=self.decision_engine,
+                dedup_registry=self.event_deduplication_registry,
+                delivery_service=self.notification_delivery_service,
+                explanation_bridge=self.decision_explanation_bridge,
+            )
+
+        if self.fcm_provider is None:
+            from app.proactive.fcm import HTTPv1FCMProvider, MockFCMProvider
+            if self.settings.fcm_project_id and (self.settings.fcm_credentials_path or self.settings.fcm_credentials_json):
+                self.fcm_provider = HTTPv1FCMProvider(
+                    project_id=self.settings.fcm_project_id,
+                    credentials_path=self.settings.fcm_credentials_path,
+                    credentials_json=self.settings.fcm_credentials_json,
+                    timeout_seconds=self.settings.fcm_timeout_seconds,
+                )
+            else:
+                self.fcm_provider = MockFCMProvider()
+
+        if self.personalization_service is None:
+            from app.personalization.service import PersonalizationService
+            self.personalization_service = PersonalizationService(
+                proactive_service=self.proactive_decision_service,
+            )
 
         return self
 

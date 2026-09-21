@@ -1,5 +1,6 @@
 package com.weathergpt.e2e
 
+import com.weathergpt.core.config.AppConfig
 import com.weathergpt.core.error.AppError
 import com.weathergpt.core.network.HttpClientFactory
 import com.weathergpt.core.network.NetworkMonitor
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -45,6 +47,7 @@ class LiveBackendE2ETest {
 
     @Before
     fun setUp() {
+        AppConfig.setDemoMode(false)
         val okHttpClient = HttpClientFactory.createOkHttpClient()
         val retrofit = RetrofitClientFactory.createRetrofit(
             baseUrl = "http://127.0.0.1:8000/",
@@ -78,6 +81,11 @@ class LiveBackendE2ETest {
         } catch (_: Throwable) {
             false
         }
+    }
+
+    @After
+    fun tearDown() {
+        AppConfig.resetToDefault()
     }
 
     // ========================================================================

@@ -67,7 +67,27 @@ data class DailyForecastDto(
     @SerialName("wind_speed_max_kmh")
     val windSpeedMaxKmh: Double,
     @SerialName("dominant_condition")
-    val dominantCondition: String
+    val dominantCondition: String,
+    @SerialName("temp_avg_c")
+    val tempAvgC: Double? = null,
+    @SerialName("feels_like_c")
+    val feelsLikeC: Double? = null,
+    @SerialName("wind_gust_kmh")
+    val windGustKmh: Double? = null,
+    @SerialName("wind_direction_deg")
+    val windDirectionDeg: Double? = null,
+    @SerialName("relative_humidity_pct")
+    val humidityPct: Double? = null,
+    @SerialName("weather_code")
+    val weatherCode: Int? = null,
+    @SerialName("source")
+    val source: String? = null,
+    @SerialName("retrieved_at")
+    val retrievedAt: String? = null,
+    @SerialName("forecast_valid_from")
+    val forecastValidFrom: String? = null,
+    @SerialName("forecast_valid_until")
+    val forecastValidUntil: String? = null
 )
 
 @Serializable

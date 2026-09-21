@@ -7,7 +7,7 @@
 [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2.9.0-E92063.svg?style=flat-square&logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.35-D71F00.svg?style=flat-square&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
 [![PostGIS](https://img.shields.io/badge/PostGIS-3.4-5B8A3C.svg?style=flat-square&logo=postgis&logoColor=white)](https://postgis.net/)
-[![Pytest](https://img.shields.io/badge/Pytest-493%20Passing-brightgreen.svg?style=flat-square&logo=pytest&logoColor=white)](../tests/)
+[![Pytest](https://img.shields.io/badge/Pytest-730%2B%20Passing-brightgreen.svg?style=flat-square&logo=pytest&logoColor=white)](../tests/)
 
 **Modular Backend Platform, LLM Orchestration, Deterministic Tool Gateway & Geospatial Engines**
 
@@ -36,7 +36,7 @@ User Request (Android Client / REST API)
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. Request Normalizer & Security Sanitization               │
 │    - Indic Numeral Conversion (e.g. १२.५ -> 12.5)          │
-│    - Language Detection (EN, HI, MR, GU, BN)                │
+│    - Language Detection (10 Indian Languages)               │
 │    - Lat/Lon Bounding Box & Temporal Window Validation      │
 └─────────────────────────────┬───────────────────────────────┘
                               │
@@ -95,8 +95,8 @@ User Request (Android Client / REST API)
 | :--- | :--- | :--- |
 | [`adapters/`](adapters/) | Multi-provider weather & alert ingestion | Open-Meteo, NOAA GFS 0.25°, NDMA Sachet CAP XML, OpenWeather, WeatherAPI, Tomorrow.io, OpenAQ, CircuitBreaker, ResilientHTTPExecutor. |
 | [`analytics/`](analytics/) | Pure mathematical & agronomic engines | FAO-56 Penman-Monteith $ET_0$, Mann-Kendall monotonic trend test, Sen's slope estimator, chemical spray suitability windows, composite risk scoring. |
-| [`api/`](api/) | Versioned REST API endpoints | `/api/v1` routes: `/chat`, `/weather/*`, `/gis/*`, `/nwp/*`, `/health`, `/ready`, `/metrics`. |
-| [`brains/`](brains/) | Domain Intelligence Brains | `GeneralBrain`, `FarmerBrain`, `ResearcherBrain`, `AnalystBrain`, `BrainRegistry`, `BrainOrchestrator`. |
+| [`api/`](api/) | Versioned REST API endpoints | `/api/v1` routes: `/chat`, `/voice/*`, `/weather/*`, `/gis/*`, `/nwp/*`, `/health`, `/ready`, `/metrics`. |
+| [`brains/`](brains/) | Domain Intelligence Brains | `GeneralBrain`, `FarmerBrain`, `ResearcherBrain`, `AnalystBrain`, `BrainRegistry`, `BrainOrchestrator`, Ayushmaan `analyst_core`. |
 | [`context/`](context/) | Conversational Session Management | Multi-turn session manager, location/temporal inheritance, sliding window context trimming. |
 | [`contracts/`](contracts/) | Schema & Boundary Contracts | Pydantic v2 request/response models, tool definitions, RFC 7807 problem details error models. |
 | [`core/`](core/) | Application Foundation | FastAPI factory (`create_app`), lifespan hooks, structured JSON logging, request-ID correlation middleware, rate limiting. |
@@ -104,13 +104,14 @@ User Request (Android Client / REST API)
 | [`dependencies/`](dependencies/) | Composition Root | `AppContainer` centralized dependency injection and FastAPI `Depends` providers. |
 | [`gis/`](gis/) | Computational GIS & Spatial Engine | Administrative hierarchy reverse geocoding, hazard intersection quantification, Map-Ready GeoJSON generators. |
 | [`grounding/`](grounding/) | Factual Verification & Guardrails | Regex claim extraction, numerical evidence cross-validation, warning severity preservation. |
-| [`llm/`](llm/) | LLM Provider Abstraction | Abstract `LLMProvider` interface, OpenAI-compatible clients, vLLM, Ollama, and test mocks. |
-| [`multilingual/`](multilingual/) | Indic Language Localization | Language detection, Indic numeral conversion, terminology glossaries (English, Hindi, Bengali, Marathi, Gujarati). |
+| [`llm/`](llm/) | LLM Provider Abstraction | Abstract `LLMProvider` interface, OpenAI-compatible clients, vLLM, Ollama (`OllamaProvider`), and test mocks. |
+| [`multilingual/`](multilingual/) | Indic Language Localization | Language detection, Indic numeral conversion, terminology glossaries across 10 Indian languages. |
 | [`nwp/`](nwp/) | Numerical Weather Prediction Grid | NOAA GFS 0.25° grid slice extraction, 2D bilinear interpolation, multi-model divergence ratio ($DR$). |
 | [`personalization/`](personalization/) | Agricultural Personalization | Progressive single-question follow-ups, crop profile extraction, user refusal handling. |
 | [`router/`](router/) | Semantic Auto Router | Multi-class intent classifier, confidence threshold evaluation, and user disambiguation logic. |
 | [`services/`](services/) | High-Level Integration Services | `WeatherGISService` combining observations, NWP prognostic grids, alerts, and spatial boundaries. |
 | [`tools/`](tools/) | Central Deterministic Tool Gateway | Central `ToolGateway`, 15-tool catalog, Brain permissions matrix, SQL/shell injection sanitization. |
+| [`voice/`](voice/) | Cloud-Native Voice Layer | Google Cloud Speech-to-Text V2 & Text-to-Speech adapter services for all 10 Indian languages. |
 
 ---
 
@@ -162,7 +163,7 @@ The ingestion layer (`app/adapters/`) integrates external meteorological sources
 WeatherGPT enforces strict factual grounding before any response is transmitted:
 1. **The LLM is NOT the Source of Meteorological Truth**: All factual measurements must originate from tool executions.
 2. **Official Warning Immutability**: Alert severities (Green, Yellow, Orange, Red) cannot be altered or synthesized.
-3. **Language Invariance**: Quantities ($33.2^\circ\text{C}$, $24.5\text{ mm}$) must remain invariant across English, Hindi, Marathi, Gujarati, and Bengali.
+3. **Language Invariance**: Quantities ($33.2^\circ\text{C}$, $24.5\text{ mm}$) must remain invariant across all 10 supported Indian languages.
 4. **Zero Hardcoded Secrets**: All API keys and database credentials reside exclusively in environment variables.
 
 ---

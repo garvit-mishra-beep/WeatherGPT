@@ -4,6 +4,11 @@ plugins {
   alias(libs.plugins.kotlin.serialization)
 }
 
+// Google Services plugin is applied when google-services.json is present in the app module root
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.weathergpt"
     compileSdk = 36
@@ -48,6 +53,9 @@ android {
         else -> physicalDebugUrl
     }
 
+    val defaultOllamaUrl = "http://192.168.137.1:11434/"
+    val defaultOllamaModel = "gemma4:e2b"
+
     buildTypes {
         debug {
             isMinifyEnabled = false
@@ -57,6 +65,9 @@ android {
             buildConfigField("String", "STAGING_URL", "\"$stagingUrl\"")
             buildConfigField("String", "PRODUCTION_URL", "\"$productionUrl\"")
             buildConfigField("Boolean", "ENABLE_NETWORK_LOGGING", "true")
+            buildConfigField("Boolean", "DEMO_MODE", "true")
+            buildConfigField("String", "DEFAULT_OLLAMA_URL", "\"$defaultOllamaUrl\"")
+            buildConfigField("String", "DEFAULT_OLLAMA_MODEL", "\"$defaultOllamaModel\"")
         }
         release {
             isMinifyEnabled = false
@@ -67,6 +78,9 @@ android {
             buildConfigField("String", "STAGING_URL", "\"$stagingUrl\"")
             buildConfigField("String", "PRODUCTION_URL", "\"$productionUrl\"")
             buildConfigField("Boolean", "ENABLE_NETWORK_LOGGING", "false")
+            buildConfigField("Boolean", "DEMO_MODE", "true")
+            buildConfigField("String", "DEFAULT_OLLAMA_URL", "\"$defaultOllamaUrl\"")
+            buildConfigField("String", "DEFAULT_OLLAMA_MODEL", "\"$defaultOllamaModel\"")
 
             val releaseSigning = signingConfigs.getByName("release")
             if (releaseSigning.storeFile != null && releaseSigning.storeFile!!.exists()) {
@@ -132,6 +146,10 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
+
+    // Firebase Cloud Messaging (BOM-managed)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     // Unit Testing
     testImplementation(libs.junit)

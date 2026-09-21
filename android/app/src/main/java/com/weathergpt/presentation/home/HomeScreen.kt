@@ -49,8 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.weathergpt.R
+import com.weathergpt.core.formatter.WeatherFormatter
 import com.weathergpt.core.result.ResultState
 import com.weathergpt.domain.model.weather.CurrentWeather
+import com.weathergpt.domain.model.weather.WeatherDataSourceMode
 import com.weathergpt.presentation.components.ErrorState
 import com.weathergpt.presentation.components.LoadingState
 
@@ -64,6 +66,7 @@ fun HomeScreen(
     onNavigateToFarmer: () -> Unit,
     onNavigateToData: () -> Unit,
     onNavigateToChat: (String?) -> Unit,
+    onNavigateToSystemStatus: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -152,7 +155,16 @@ fun HomeScreen(
             onNotificationClick = onNavigateToAlerts
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // System Resilience & Data Status Indicator (Sections 3 & 4)
+        val resilienceManager = remember { com.weathergpt.core.resilience.SystemResilienceManager.getInstance() }
+        val resilienceState by resilienceManager.uiState.collectAsStateWithLifecycle()
+        Spacer(modifier = Modifier.height(10.dp))
+        com.weathergpt.presentation.components.SystemStatusIndicator(
+            state = resilienceState,
+            onStatusClick = onNavigateToSystemStatus
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
 
         // 2. User Greeting
         Text(
@@ -172,17 +184,53 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // 3. Conversational Search / Chat Input Field with Send Button
-        val defaultQuery = stringResource(R.string.home_search_placeholder)
         ConversationalChatInputBar(
             queryInput = uiState.queryInput,
             onQueryChange = { viewModel.setQueryInput(it) },
             onSendClick = {
-                val query = uiState.queryInput.ifBlank { defaultQuery }
-                onNavigateToChat(query)
+                val query = uiState.queryInput.trim()
+                if (query.isNotBlank()) {
+                    viewModel.setQueryInput("")
+                    onNavigateToChat(query)
+                } else {
+                    onNavigateToChat(null)
+                }
             }
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        // Quick Nirnay Prompt Chip on Home (Vayubodhak USP)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFFE8F5E9),
+                modifier = Modifier
+                    .border(1.dp, Color(0xFFA5D6A7), RoundedCornerShape(16.dp))
+                    .clickable {
+                        onNavigateToChat("Should I spray my cotton tonight?")
+                    }
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "⚡", fontSize = 12.sp)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Nirnay: Should I spray cotton tonight?",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF1B5E20)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
 
         // 4. Quick Action Workflows ("त्वरित विकल्प")
         Text(
@@ -240,13 +288,13 @@ fun HomeScreen(
                     weather = state.data,
                     locationName = uiState.locationName,
                     onCardClick = onNavigateToWeather,
-                    onLocationClick = { showLocationDialog = true }
+                    onLocationClick = { showLocationDialog = true },
+                    onRetryLive = { viewModel.loadWeather() }
                 )
             }
             is ResultState.Error -> {
-                ErrorState(
+                WeatherUnavailableCard(
                     message = state.error.message,
-                    error = state.error,
                     onRetry = { viewModel.loadWeather() },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -284,7 +332,7 @@ private fun HomeTopHeaderBar(
         ) {
             Icon(
                 imageVector = Icons.Default.Menu,
-                contentDescription = "Menu",
+                contentDescription = stringResource(R.string.cd_menu),
                 tint = Color(0xFF0F172A)
             )
         }
@@ -326,7 +374,7 @@ private fun HomeTopHeaderBar(
         ) {
             Icon(
                 imageVector = Icons.Default.Notifications,
-                contentDescription = "Notifications",
+                contentDescription = stringResource(R.string.cd_notifications),
                 tint = Color(0xFF0F172A)
             )
         }
@@ -361,7 +409,7 @@ private fun ConversationalChatInputBar(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Send",
+                    contentDescription = stringResource(R.string.cd_send),
                     tint = Color.White,
                     modifier = Modifier.size(16.dp)
                 )
@@ -421,7 +469,8 @@ private fun LiveWeatherCardPragya(
     weather: CurrentWeather?,
     locationName: String,
     onCardClick: () -> Unit,
-    onLocationClick: () -> Unit
+    onLocationClick: () -> Unit,
+    onRetryLive: () -> Unit = {}
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -453,28 +502,87 @@ private fun LiveWeatherCardPragya(
                     )
                 }
 
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFE8F5E9))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = "● Live",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1B5E20)
-                    )
+                if (weather?.sourceMode == WeatherDataSourceMode.DEMO_MODE) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFFFFF7ED))
+                                .border(1.dp, Color(0xFFFED7AA), RoundedCornerShape(12.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = "● CONTROLLED SCENARIO",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFC2410C)
+                            )
+                        }
+                        if (!com.weathergpt.core.config.AppConfig.isDemoMode) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Try Live Again",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFC2410C),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color(0xFFFFEDD5))
+                                    .clickable { onRetryLive() }
+                                    .padding(horizontal = 6.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFE8F5E9))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = "● " + stringResource(R.string.home_live_badge),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1B5E20)
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
-            val obsTime = weather?.observationTime?.takeIf { it.isNotBlank() } ?: "09:41 AM"
-            Text(
-                text = "${stringResource(R.string.today)} • $obsTime",
-                fontSize = 11.sp,
-                color = Color(0xFF64748B)
-            )
+            if (weather?.sourceMode == WeatherDataSourceMode.DEMO_MODE) {
+                val updatedTime = weather.retrievedAt ?: weather.observationTime
+                val provider = weather.provider ?: "Open-Meteo"
+                Text(
+                    text = "Offline • Real cached weather",
+                    fontSize = 11.sp,
+                    color = Color(0xFFC2410C),
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Last updated: $updatedTime",
+                    fontSize = 10.sp,
+                    color = Color(0xFF7C2D12),
+                    fontWeight = FontWeight.Normal
+                )
+                Spacer(modifier = Modifier.height(1.dp))
+                Text(
+                    text = "Source: $provider",
+                    fontSize = 10.sp,
+                    color = Color(0xFF7C2D12),
+                    fontWeight = FontWeight.Normal
+                )
+            } else {
+                val obsTime = WeatherFormatter.formatObservationDateTime(weather?.observationTime)
+                val provider = weather?.provider ?: "Open-Meteo"
+                Text(
+                    text = "${stringResource(R.string.today)} • $obsTime • $provider",
+                    fontSize = 11.sp,
+                    color = Color(0xFF64748B)
+                )
+            }
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -486,13 +594,13 @@ private fun LiveWeatherCardPragya(
             ) {
                 Column {
                     Text(
-                        text = "${weather?.temperatureC?.toInt() ?: 31}°",
+                        text = WeatherFormatter.formatTemperature(weather?.temperatureC),
                         fontSize = 44.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
                     Text(
-                        text = weather?.weatherCondition ?: "Partly Cloudy",
+                        text = WeatherFormatter.formatCondition(weather?.weatherCondition),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF334155)
@@ -535,7 +643,7 @@ private fun LiveWeatherCardPragya(
                     Text(text = "▲", fontSize = 10.sp, color = Color(0xFFD97706))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Feels like ${weather?.feelsLikeC?.toInt() ?: 34}°C",
+                        text = stringResource(R.string.feels_like_full, WeatherFormatter.formatFeelsLike(weather?.feelsLikeC)),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF334155)
@@ -545,7 +653,7 @@ private fun LiveWeatherCardPragya(
                     Text(text = "💧", fontSize = 11.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Humidity ${weather?.relativeHumidityPct?.toInt() ?: 62}%",
+                        text = stringResource(R.string.humidity_full, WeatherFormatter.formatHumidity(weather?.relativeHumidityPct)),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF334155)
@@ -555,12 +663,62 @@ private fun LiveWeatherCardPragya(
                     Text(text = "🍃", fontSize = 11.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Wind ${weather?.windSpeedKmh?.toInt() ?: 16} km/h SW",
+                        text = stringResource(R.string.wind_speed_full, WeatherFormatter.formatWind(weather?.windSpeedKmh, weather?.windDirectionDeg)),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF334155)
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WeatherUnavailableCard(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = "☁️", fontSize = 32.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Weather unavailable",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F172A)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = message,
+                fontSize = 12.sp,
+                color = Color(0xFF64748B),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            TextButton(
+                onClick = onRetry,
+                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(contentColor = Color(0xFF1B5E20))
+            ) {
+                Text(
+                    text = "Try Live Again",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

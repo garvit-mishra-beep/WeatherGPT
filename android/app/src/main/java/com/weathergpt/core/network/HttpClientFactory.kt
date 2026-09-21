@@ -55,9 +55,21 @@ object HttpClientFactory {
 
     /**
      * Interceptor rewriting host/port/scheme dynamically if AppConfig.apiBaseUrl is updated at runtime (Debug only).
+     * Bypasses Ollama and explicit external requests so LAN LLM calls are never diverted to the local backend.
      */
     private val dynamicBaseUrlInterceptor = Interceptor { chain ->
         var request = chain.request()
+        val originalUrl = request.url
+
+        // Never rewrite Ollama requests (port 11434, /api/chat, /api/tags, or bypass header)
+        if (originalUrl.port == 11434 ||
+            originalUrl.encodedPath.startsWith("/api/chat") ||
+            originalUrl.encodedPath.startsWith("/api/tags") ||
+            request.header("X-Bypass-Dynamic-Base-Url") != null
+        ) {
+            return@Interceptor chain.proceed(request)
+        }
+
         val currentBaseUrlStr = AppConfig.apiBaseUrl
         val currentBaseUrl = currentBaseUrlStr.toHttpUrlOrNull()
         if (currentBaseUrl != null) {
@@ -73,6 +85,7 @@ object HttpClientFactory {
 
     fun createOkHttpClient(): OkHttpClient {
         val builder = OkHttpClient.Builder()
+            .addInterceptor(DemoModeNetworkGuard.interceptor)
             .connectTimeout(AppConfig.CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(AppConfig.REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(AppConfig.REQUEST_TIMEOUT_SECONDS, TimeUnit.SECONDS)

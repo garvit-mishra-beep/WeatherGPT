@@ -22,6 +22,7 @@ Encapsulates domain-specific intelligence, reasoning workflows, tool execution l
 
 ### 4. Analyst / Disaster Risk Brain (`AnalystBrain` in `analyst.py`)
 - **Focus:** Spatial hazard-exposure-vulnerability quantification, multi-district risk comparisons, operational mitigation planning.
+- **Engine:** Powered by Ayushmaan's 13-stage deterministic analytical engine in `analyst_core/` (NLU, meteorological QC, multi-hazard classification, MCDA risk scoring, operational decision support, and cryptographic SHA-256 evidence provenance).
 - **Authorized Tools:** `run_risk_analysis`, `get_forecast`, `resolve_location`.
 - **Output:** Operational risk mitigation advisories (`primary_action=WITHHOLD | SUITABLE`) and spatial `map` visualization specifications.
 
@@ -30,6 +31,7 @@ Encapsulates domain-specific intelligence, reasoning workflows, tool execution l
 - `registry.py`: `BrainRegistry` managing Brain registrations and exports.
 - `resolver.py`: `BrainResolver` selecting explicit vs auto-routed Brains.
 - `orchestrator.py`: `BrainOrchestrator` coordinating request dispatch and response schema validation.
+- `analyst_core/`: 13-stage deterministic analytical engine (Ayushmaan integration).
 - `errors.py`: Brain domain error hierarchy.
 
 ## 4. Invariants

@@ -20,12 +20,12 @@ This directory contains the authoritative technical specifications, architectura
 | [`10_DATABASE_SCHEMA.md`](10_DATABASE_SCHEMA.md) | PostgreSQL + PostGIS Schema & Migrations | Database Foundation | Implemented / Verified |
 | [`11_ANALYTICS_ENGINE.md`](11_ANALYTICS_ENGINE.md) | Deterministic Analytics (FAO-56 $ET_0$, Mann-Kendall, Sen's Slope) | Mathematical Analytics | Implemented / Verified |
 | [`12_PERSONALIZATION_SPEC.md`](12_PERSONALIZATION_SPEC.md) | Progressive Personalization & Follow-Up Question Logic | Context Management | Implemented / Verified |
-| [`13_MULTILINGUAL_SPEC.md`](13_MULTILINGUAL_SPEC.md) | Multilingual Glossaries & Localization (5 Languages) | Multilingual Support | Implemented / Verified |
+| [`13_MULTILINGUAL_SPEC.md`](13_MULTILINGUAL_SPEC.md) | Multilingual Glossaries & Localization (10 Indian Languages) | Multilingual Support | Implemented / Verified |
 | [`14_MOBILE_UI_SPEC.md`](14_MOBILE_UI_SPEC.md) | Mobile Conversational UX & Weather Cards | Frontend Architecture | Implemented / Verified |
 | [`15_ERROR_GUARDRAILS.md`](15_ERROR_GUARDRAILS.md) | Safety Guardrails, Grounding & Error Taxonomy | AI Safety & Grounding | Implemented / Verified |
 | [`16_TESTING_EVALUATION.md`](16_TESTING_EVALUATION.md) | Testing Protocols, Quality Gates & Benchmarks | QA & CI/CD | Implemented / Verified |
 | [`17_SETUP_DEPLOYMENT.md`](17_SETUP_DEPLOYMENT.md) | Development Setup, Two-Laptop Topology & Services | DevOps & Deployment | Implemented / Verified |
-| [`18_VOICE_SPEC.md`](18_VOICE_SPEC.md) | Voice Ingress/Egress Specification *(Removed from product scope)* | Historical Reference | Scope Removed |
+| [`18_VOICE_SPEC.md`](18_VOICE_SPEC.md) | Voice Ingress/Egress Specification (Decoupled Peripheral Layer; Google STT/TTS) | Voice Peripheral | Implemented / Verified |
 | [`19_ARCHITECTURE_REVIEW.md`](19_ARCHITECTURE_REVIEW.md) | Comprehensive Architecture Audit & Matrix | Systems Engineering | Implemented / Verified |
 | [`20_PERFORMANCE.md`](20_PERFORMANCE.md) | Performance Latency Optimization & Connection Pooling | Performance Engineering| Implemented / Verified |
 | [`21_BRAINS_IMPLEMENTATION.md`](21_BRAINS_IMPLEMENTATION.md) | Concrete Domain Brain Implementations & Prompts | Domain Intelligence | Implemented / Verified |
@@ -105,6 +105,9 @@ This directory contains the authoritative technical specifications, architectura
 | [`71_UI_CORRECTION_REPORT.md`](71_UI_CORRECTION_REPORT.md) | Complete Visual UI Correction Report (All Screens Matching Prototype) | Visual Audit | P7.2 |
 | [`72_FUNCTIONAL_COMPLETION_AUDIT.md`](72_FUNCTIONAL_COMPLETION_AUDIT.md) | Final Android Frontend Functional & Interactive Audit | Functional Audit | P7.3 |
 | [`73_COMPLETE_ENGLISH_HINDI_LOCALIZATION.md`](73_COMPLETE_ENGLISH_HINDI_LOCALIZATION.md) | Complete English & Hindi Reactive Localization Verification | Localization Gate | P7.4 |
+| [`74_VOICE_BUTTON_UI_INTEGRATION.md`](74_VOICE_BUTTON_UI_INTEGRATION.md) | Voice Button UI Integration, Touch Accessibility & Physical Device Validation | Voice UI | P7.10 |
+| [`AYUSHMAAN_BRAIN_INTEGRATION.md`](AYUSHMAAN_BRAIN_INTEGRATION.md) | Ayushmaan Domain Brain Integration Architecture (Analyst, Farmer, Researcher) | Brain Integration | P7.8 |
+| [`OLLAMA_INTEGRATION.md`](OLLAMA_INTEGRATION.md) | Ollama Local LLM Provider Integration Architecture & Ready Probe | LLM Provider | P7.9 |
 
 ---
 

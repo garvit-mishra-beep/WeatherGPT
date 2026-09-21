@@ -16,32 +16,57 @@ logger = logging.getLogger(__name__)
 EXPLICIT_LANG_COMMANDS = {
     SupportedLanguage.ENGLISH: [
         r"\b(answer in english|respond in english|in english|talk in english)\b",
-        r"(अंग्रेज़ी में|इंग्लिश में|ইংরেজিতে|इंग्रजीत|અંગ્રેજીમાં)",
+        r"(अंग्रेज़ी में|इंग्लिश में|ইংরেজিতে|इंग्रजीत|અંગ્રેજીમાં|ஆங்கிலத்தில்|ఆంగ్లంలో|ಆಂಗ್ಲದಲ್ಲಿ|ഇംഗ്ലീഷിൽ|ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ)",
     ],
     SupportedLanguage.HINDI: [
         r"\b(answer in hindi|respond in hindi|in hindi)\b",
         r"(हिंदी में|हिन्दी में|हिंदी में जवाब|हिन्दी में जवाब)",
     ],
-    SupportedLanguage.BENGALI: [
-        r"\b(answer in bengali|respond in bengali|in bengali)\b",
-        r"(বাংলায়|বাংলায় উত্তর)",
-    ],
     SupportedLanguage.MARATHI: [
         r"\b(answer in marathi|respond in marathi|in marathi)\b",
         r"(मराठीत|मराठीत उत्तर|मराठी मध्ये)",
     ],
+    SupportedLanguage.BENGALI: [
+        r"\b(answer in bengali|respond in bengali|in bengali)\b",
+        r"(বাংলায়|বাংলায় উত্তর)",
+    ],
+    SupportedLanguage.TAMIL: [
+        r"\b(answer in tamil|respond in tamil|in tamil)\b",
+        r"(தமிழில்|தமிழில் பதில்)",
+    ],
+    SupportedLanguage.TELUGU: [
+        r"\b(answer in telugu|respond in telugu|in telugu)\b",
+        r"(తెలుగులో|తెలుగులో సమాధానం)",
+    ],
     SupportedLanguage.GUJARATI: [
         r"\b(answer in gujarati|respond in gujarati|in gujarati)\b",
         r"(ગુજરાતીમાં|ગુજરાતીમાં જવાબ)",
+    ],
+    SupportedLanguage.KANNADA: [
+        r"\b(answer in kannada|respond in kannada|in kannada)\b",
+        r"(ಕನ್ನಡದಲ್ಲಿ|ಕನ್ನಡದಲ್ಲಿ ಉತ್ತರಿಸಿ)",
+    ],
+    SupportedLanguage.MALAYALAM: [
+        r"\b(answer in malayalam|respond in malayalam|in malayalam)\b",
+        r"(മലയാളത്തിൽ|മലയാളത്തിൽ ഉത്തരം)",
+    ],
+    SupportedLanguage.PUNJABI: [
+        r"\b(answer in punjabi|respond in punjabi|in punjabi)\b",
+        r"(ਪੰਜਾਬੀ ਵਿੱਚ|ਪੰਜਾਬੀ ਵਿਚ ਜਵਾਬ)",
     ],
 }
 
 LANGUAGE_NAMES = {
     SupportedLanguage.ENGLISH: "English",
     SupportedLanguage.HINDI: "Hindi (हिन्दी)",
-    SupportedLanguage.BENGALI: "Bengali (বাংলা)",
     SupportedLanguage.MARATHI: "Marathi (मराठी)",
+    SupportedLanguage.BENGALI: "Bengali (বাংলা)",
+    SupportedLanguage.TAMIL: "Tamil (தமிழ்)",
+    SupportedLanguage.TELUGU: "Telugu (తెలుగు)",
     SupportedLanguage.GUJARATI: "Gujarati (ગુજરાતી)",
+    SupportedLanguage.KANNADA: "Kannada (ಕನ್ನಡ)",
+    SupportedLanguage.MALAYALAM: "Malayalam (മലയാളം)",
+    SupportedLanguage.PUNJABI: "Punjabi (ਪੰਜਾਬੀ)",
 }
 
 

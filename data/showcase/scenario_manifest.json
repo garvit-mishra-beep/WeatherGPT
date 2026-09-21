@@ -1,0 +1,75 @@
+{
+  "scenario_id": "SCENARIO-GWALIOR-MONSOON-2026",
+  "scenario_name": "Gwalior Monsoon Escalation & Resilience Showcase",
+  "description": "Controlled multi-step operational scenario demonstrating end-to-end VAYUBODHAK processing: baseline weather -> precipitation escalation -> selective recalculation -> warning update -> decision revision -> offline resilience -> network recovery.",
+  "location": {
+    "name": "Gwalior",
+    "district": "Gwalior District",
+    "state": "Madhya Pradesh",
+    "latitude": 26.2183,
+    "longitude": 78.1828,
+    "elevation_m": 197.0
+  },
+  "metadata": {
+    "is_live_authority": false,
+    "authority_disclaimer": "Controlled scenario dataset for product demonstration. Does not represent live transmission from IMD, CWC, or NDMA.",
+    "dataset_class": "CONTROLLED_SHOWCASE_INPUT"
+  },
+  "timeline": [
+    {
+      "step_index": 0,
+      "step_name": "BASELINE_NOMINAL",
+      "timestamp_iso": "2026-09-21T09:00:00Z",
+      "input_file": "weather_initial.json",
+      "expected_event_type": "WEATHER_UPDATE",
+      "expected_change_classification": "INITIAL_OBSERVATION",
+      "expected_revision": 1,
+      "expected_verdict": "PROCEED_WITH_CAUTION",
+      "expected_severity": "LOW",
+      "description": "Normal monsoon weather (3.0 mm rain, light breeze, low hazard)."
+    },
+    {
+      "step_index": 1,
+      "step_name": "PRECIPITATION_ESCALATION",
+      "timestamp_iso": "2026-09-21T09:30:00Z",
+      "input_file": "weather_rain_increase.json",
+      "expected_event_type": "WEATHER_UPDATE",
+      "expected_change_classification": "SIGNIFICANT_WEATHER_DELTA",
+      "expected_revision": 2,
+      "expected_verdict": "POSTPONE",
+      "expected_severity": "CRITICAL",
+      "selective_stages": ["HAZARD", "RISK", "IMPACT", "DECISION"],
+      "reused_stages": ["EXPOSURE", "VULNERABILITY"],
+      "description": "Precipitation increases sharply to 88.5 mm. Triggers ChangeDetector and selective pipeline recomputation."
+    },
+    {
+      "step_index": 2,
+      "step_name": "OFFICIAL_WARNING_ESCALATION",
+      "timestamp_iso": "2026-09-21T09:45:00Z",
+      "input_file": "warning_update.json",
+      "expected_event_type": "OFFICIAL_WARNING_NEW",
+      "expected_change_classification": "OFFICIAL_WARNING_MUTATION",
+      "expected_revision": 3,
+      "expected_verdict": "NO_GO",
+      "expected_severity": "CRITICAL",
+      "description": "Structured warning scenario (Red Alert flood threat). Re-evaluates risk and triggers prioritized notification."
+    },
+    {
+      "step_index": 3,
+      "step_name": "OFFLINE_RESILIENCE",
+      "timestamp_iso": "2026-09-21T10:00:00Z",
+      "action": "SIMULATE_NETWORK_DISCONNECT",
+      "expected_operational_state": "OFFLINE",
+      "expected_evidence_status": "CACHED",
+      "description": "Device loses network. Retains verified Revision 3 cached data with timestamps. Zero stale data presented as live."
+    },
+    {
+      "step_index": 4,
+      "step_name": "NETWORK_RECOVERY_AND_SYNC",
+      "timestamp_iso": "2026-09-21T10:15:00Z",
+      "action": "SIMULATE_NETWORK_RESTORATION",
+      "expected_operational_state": "FULL_OPERATIONAL",
+      "description": "Network restored. Client initiates incremental sync handshake and transitions RECOVERING -> FULL_OPERATIONAL."
+    }
+  ]
+}

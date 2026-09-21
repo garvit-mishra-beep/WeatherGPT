@@ -80,6 +80,14 @@ sealed class AppError(
     ) : AppError(message, cause)
 
     /**
+     * Weather is unavailable from live API and no valid cache exists for the requested location.
+     */
+    data class WeatherUnavailable(
+        override val message: String = "Live weather is temporarily unavailable and no cached weather is available for this location.",
+        override val cause: Throwable? = null
+    ) : AppError(message, cause)
+
+    /**
      * Catch-all unexpected runtime error.
      */
     data class Unknown(
@@ -93,6 +101,7 @@ sealed class AppError(
             is Timeout -> true
             is RateLimited -> true
             is ServerUnavailable -> true
+            is WeatherUnavailable -> true
             is HttpError -> statusCode in 500..599
             is ValidationError -> false
             is SerializationError -> false
@@ -105,6 +114,7 @@ sealed class AppError(
             is Timeout -> "ERR_NETWORK_TIMEOUT"
             is RateLimited -> "ERR_RATE_LIMITED_429"
             is ServerUnavailable -> "ERR_SERVER_UNAVAILABLE_$statusCode"
+            is WeatherUnavailable -> "ERR_WEATHER_UNAVAILABLE"
             is HttpError -> problemDetails?.title ?: "ERR_HTTP_$statusCode"
             is ValidationError -> "ERR_VALIDATION_FAILED_422"
             is SerializationError -> "ERR_SERIALIZATION_FAILED"

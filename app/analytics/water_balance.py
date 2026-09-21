@@ -135,6 +135,12 @@ def calculate_crop_water_balance(
     )
 
 
+# Canonical Agronomic Chemical Spray Safety Thresholds (docs/11 Section 3.4)
+SPRAY_MAX_WIND_SPEED_KMH: float = 15.0
+SPRAY_MAX_RAIN_PROBABILITY_PCT: float = 30.0
+SPRAY_MAX_POST_RAIN_MM: float = 0.0
+
+
 def evaluate_spray_window(
     wind_speed_kmh: float,
     rain_probability_pct: float,
@@ -152,11 +158,12 @@ def evaluate_spray_window(
     if rain_4h_post_spray_mm < 0.0:
         raise InvalidAnalyticsInputError(f"Post-spray rain cannot be negative ({rain_4h_post_spray_mm} mm)")
 
-    wind_ok = wind_speed_kmh <= 15.0
-    rain_prob_ok = rain_probability_pct <= 30.0
-    washoff_ok = rain_4h_post_spray_mm == 0.0
+    wind_ok = wind_speed_kmh <= SPRAY_MAX_WIND_SPEED_KMH
+    rain_prob_ok = rain_probability_pct <= SPRAY_MAX_RAIN_PROBABILITY_PCT
+    washoff_ok = rain_4h_post_spray_mm <= SPRAY_MAX_POST_RAIN_MM
 
     is_suitable = wind_ok and rain_prob_ok and washoff_ok
+
 
     if is_suitable:
         guidance = "Conditions are optimal for chemical spraying (low wind, no imminent rainfall)."

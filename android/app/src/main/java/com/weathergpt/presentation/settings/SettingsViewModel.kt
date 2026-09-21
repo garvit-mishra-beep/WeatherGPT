@@ -26,10 +26,7 @@ data class SettingsUiState(
     val urlValidationError: String? = null
 ) {
     val selectedLanguage: String
-        get() = when (language) {
-            AppLanguage.ENGLISH -> "English"
-            AppLanguage.HINDI -> "हिन्दी"
-        }
+        get() = language.nativeName
 
     val selectedUnits: String
         get() = when (unitSystem) {
@@ -75,10 +72,13 @@ class SettingsViewModel(
     }
 
     fun setLanguage(languageName: String) {
-        val lang = when {
-            languageName.contains("English", ignoreCase = true) -> AppLanguage.ENGLISH
-            else -> AppLanguage.HINDI
-        }
+        val lang = AppLanguage.entries.find {
+            it.englishName.equals(languageName, ignoreCase = true) ||
+            it.nativeName.equals(languageName, ignoreCase = true) ||
+            it.code.equals(languageName, ignoreCase = true) ||
+            languageName.contains(it.englishName, ignoreCase = true) ||
+            languageName.contains(it.nativeName, ignoreCase = true)
+        } ?: AppLanguage.ENGLISH
         _uiState.value = _uiState.value.copy(language = lang)
         settingsManager.setLanguage(lang)
     }

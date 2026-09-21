@@ -56,7 +56,11 @@ class MockLLMProvider(LLMProvider):
                         type="function",
                         function=FunctionCall(
                             name=func_name,
-                            arguments=json.dumps({"latitude": 23.02, "longitude": 72.57}),
+                            arguments=json.dumps(
+                                {"query_name": "Ahmedabad"}
+                                if func_name == "resolve_location"
+                                else {"latitude": 23.02, "longitude": 72.57}
+                            ),
                         ),
                     )
                 ],

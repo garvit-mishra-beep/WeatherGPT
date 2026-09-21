@@ -52,6 +52,8 @@ import com.weathergpt.core.settings.UnitSystem
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
+    onNavigateToFarmerProfile: () -> Unit = {},
+    onNavigateToFieldDetails: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -77,7 +79,10 @@ fun SettingsScreen(
                 )
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     AppLanguage.entries.forEach { lang ->
                         val isSelected = uiState.language == lang
                         Row(
@@ -237,7 +242,7 @@ fun SettingsScreen(
             onDismissRequest = { showAboutDialog = false },
             title = {
                 Text(
-                    text = "WeatherGPT / Vayubodhak v1.0.0",
+                    text = stringResource(R.string.dialog_about_title),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = Color(0xFF0F172A)
@@ -246,14 +251,14 @@ fun SettingsScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        text = "AI-powered, domain-grounded conversational weather decision intelligence platform built for India.",
+                        text = stringResource(R.string.dialog_about_subtitle),
                         fontSize = 13.sp,
                         color = Color(0xFF334155),
                         lineHeight = 18.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "• Meteorological Sources: IMD OASIS CAP, NOAA GFS 0.25°, Open-Meteo, ECMWF\n• Analytics: FAO-56 Penman-Monteith, Mann-Kendall, Sen's slope\n• Spatial: PostgreSQL 16 + PostGIS 3.4\n• Offline Resilience & Voice-Free Text Intelligence",
+                        text = stringResource(R.string.dialog_about_details),
                         fontSize = 12.sp,
                         color = Color(0xFF64748B),
                         lineHeight = 16.sp
@@ -276,6 +281,40 @@ fun SettingsScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        // Section: Agricultural Profile
+        Text(
+            text = "FARMER & FIELD PROFILE",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1B5E20),
+            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+        )
+
+        PragyaSettingsRow(
+            icon = "👨‍🌾",
+            title = "Farmer Profile",
+            trailingValue = "View / Edit",
+            onClick = onNavigateToFarmerProfile
+        )
+
+        PragyaSettingsRow(
+            icon = "🌾",
+            title = "Field Details",
+            trailingValue = "View / Edit",
+            onClick = onNavigateToFieldDetails
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Section: Preferences
+        Text(
+            text = "PREFERENCES",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1B5E20),
+            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+        )
+
         // 1. Language Row
         PragyaSettingsRow(
             icon = "🌐",
@@ -337,24 +376,68 @@ fun SettingsScreen(
             }
         }
 
-        // 4. Backend Server URL Row
-        PragyaSettingsRow(
-            icon = "🔗",
-            title = stringResource(R.string.setting_server_url),
-            trailingValue = uiState.currentBaseUrl.take(24) + (if (uiState.currentBaseUrl.length > 24) "…" else ""),
-            onClick = {
-                inputUrlText = uiState.currentBaseUrl
-                showUrlDialog = true
-            }
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Section: System & Connection
+        Text(
+            text = "SYSTEM & CONNECTION",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF64748B),
+            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
         )
+
+        if (com.weathergpt.core.config.AppConfig.isDemoMode) {
+            Card(
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F8E9)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFFA5D6A7), RoundedCornerShape(14.dp))
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "🔒", fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "Local Intelligence Engine",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1B5E20)
+                        )
+                        Text(
+                            text = "Operating with deterministic on-device intelligence and verified operational caches.",
+                            fontSize = 11.sp,
+                            color = Color(0xFF33691E)
+                        )
+                    }
+                }
+            }
+        } else {
+            // 4. Backend Server URL Row
+            PragyaSettingsRow(
+                icon = "🔗",
+                title = stringResource(R.string.setting_server_url),
+                trailingValue = uiState.currentBaseUrl.take(24) + (if (uiState.currentBaseUrl.length > 24) "…" else ""),
+                onClick = {
+                    inputUrlText = uiState.currentBaseUrl
+                    showUrlDialog = true
+                }
+            )
+        }
 
         // 5. About & Licenses Row
         PragyaSettingsRow(
             icon = "ℹ️",
             title = stringResource(R.string.setting_about),
-            trailingValue = "v1.0.0",
+            trailingValue = "v1.0.0 (Offline Hardened)",
             onClick = { showAboutDialog = true }
         )
+
+        Spacer(modifier = Modifier.height(96.dp))
     }
 }
 
@@ -410,7 +493,7 @@ private fun PragyaSettingsRow(
                 Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Open",
+                    contentDescription = stringResource(R.string.cd_navigate),
                     tint = Color(0xFF94A3B8),
                     modifier = Modifier.size(16.dp)
                 )

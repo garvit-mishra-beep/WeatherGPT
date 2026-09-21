@@ -16,9 +16,14 @@ class SupportedLanguage(str, Enum):
     """Supported Indian languages and ISO 639-1 codes."""
     ENGLISH = "en"
     HINDI = "hi"
-    BENGALI = "bn"
     MARATHI = "mr"
+    BENGALI = "bn"
+    TAMIL = "ta"
+    TELUGU = "te"
     GUJARATI = "gu"
+    KANNADA = "kn"
+    MALAYALAM = "ml"
+    PUNJABI = "pa"
 
 
 class RequestedOutputFormat(str, Enum):
@@ -52,6 +57,7 @@ class AdvisoryAction(str, Enum):
     WITHHOLD = "WITHHOLD"
     SUITABLE = "SUITABLE"
     UNSUITABLE = "UNSUITABLE"
+    MONITOR = "MONITOR"
 
 
 class TemporalType(str, Enum):

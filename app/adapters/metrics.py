@@ -35,6 +35,11 @@ class ProviderMetricsRegistry:
             self.circuit_open_total: Dict[str, int] = defaultdict(int)
             self.circuit_recovery_total: Dict[str, int] = defaultdict(int)
             self.fallback_total: Dict[Tuple[str, str, str], int] = defaultdict(int)
+            self.records_received_total: Dict[str, int] = defaultdict(int)
+            self.records_rejected_total: Dict[str, int] = defaultdict(int)
+            self.cache_hits_total: Dict[str, int] = defaultdict(int)
+            self.cache_misses_total: Dict[str, int] = defaultdict(int)
+            self.stale_records_total: Dict[str, int] = defaultdict(int)
 
             # Latencies: Dict[Tuple[str, str, str], Dict[str, float]]
             self.latencies: Dict[Tuple[str, str, str], Dict[str, float]] = defaultdict(
@@ -94,6 +99,26 @@ class ProviderMetricsRegistry:
     def record_fallback(self, from_provider: str, to_provider: str, operation: str) -> None:
         with self._lock:
             self.fallback_total[(from_provider, to_provider, operation)] += 1
+
+    def record_records_received(self, provider: str, count: int = 1) -> None:
+        with self._lock:
+            self.records_received_total[provider] += count
+
+    def record_records_rejected(self, provider: str, count: int = 1) -> None:
+        with self._lock:
+            self.records_rejected_total[provider] += count
+
+    def record_cache_hit(self, provider: str) -> None:
+        with self._lock:
+            self.cache_hits_total[provider] += 1
+
+    def record_cache_miss(self, provider: str) -> None:
+        with self._lock:
+            self.cache_misses_total[provider] += 1
+
+    def record_stale_record(self, provider: str) -> None:
+        with self._lock:
+            self.stale_records_total[provider] += 1
 
     @asynccontextmanager
     async def measure(
@@ -183,6 +208,21 @@ class ProviderMetricsRegistry:
                 "weathergpt_provider_circuit_open_total": circuit_opens,
                 "weathergpt_provider_circuit_recovery_total": circuit_recoveries,
                 "weathergpt_provider_fallback_total": fallbacks,
+                "weathergpt_adapter_records_received_total": [
+                    {"provider": k, "count": v} for k, v in sorted(self.records_received_total.items())
+                ],
+                "weathergpt_adapter_records_rejected_total": [
+                    {"provider": k, "count": v} for k, v in sorted(self.records_rejected_total.items())
+                ],
+                "weathergpt_adapter_cache_hits_total": [
+                    {"provider": k, "count": v} for k, v in sorted(self.cache_hits_total.items())
+                ],
+                "weathergpt_adapter_cache_misses_total": [
+                    {"provider": k, "count": v} for k, v in sorted(self.cache_misses_total.items())
+                ],
+                "weathergpt_adapter_stale_records_total": [
+                    {"provider": k, "count": v} for k, v in sorted(self.stale_records_total.items())
+                ],
                 "weathergpt_provider_latencies": latency_summary,
             }
 

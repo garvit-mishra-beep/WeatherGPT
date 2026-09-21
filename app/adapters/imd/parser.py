@@ -40,6 +40,11 @@ def parse_cap_xml(xml_content: str) -> List[NormalizedOfficialAlert]:
     if len(xml_content) > 5 * 1024 * 1024:
         raise CAPParseError("CAP XML payload exceeds maximum allowed size (5MB)")
 
+    # Hardening against XML External Entity (XXE) and billion laughs expansion attacks
+    upper_xml = xml_content[:2000].upper()
+    if "<!DOCTYPE" in upper_xml or "<!ENTITY" in upper_xml:
+        raise CAPParseError("XML DOCTYPE and ENTITY declarations are strictly prohibited in CAP feeds")
+
     try:
         root = ET.fromstring(xml_content)
     except ET.ParseError as e:
@@ -58,7 +63,24 @@ def parse_cap_xml(xml_content: str) -> List[NormalizedOfficialAlert]:
     else:
         raise CAPParseError(f"Unrecognized root XML element '{root.tag}'; expected '<alert>' or '<feed>'")
 
-    return alerts
+    return deduplicate_alerts(alerts)
+
+
+def deduplicate_alerts(alerts: List[NormalizedOfficialAlert]) -> List[NormalizedOfficialAlert]:
+    """Deduplicates alerts by alert_id and area, retaining the most recent/revised update."""
+    by_key: dict = {}
+    for alert in alerts:
+        # Key on base alert_id + area_description
+        base_id = alert.alert_id.split("_")[0] if "_" in alert.alert_id else alert.alert_id
+        dedup_key = f"{alert.sender}:{base_id}:{alert.area_description}"
+        if dedup_key not in by_key:
+            by_key[dedup_key] = alert
+        else:
+            existing = by_key[dedup_key]
+            # If incoming alert is a revision or has later sent time, update
+            if alert.sent_time_iso > existing.sent_time_iso:
+                by_key[dedup_key] = alert
+    return list(by_key.values())
 
 
 def _parse_single_alert_element(alert_elem: ET.Element) -> List[NormalizedOfficialAlert]:

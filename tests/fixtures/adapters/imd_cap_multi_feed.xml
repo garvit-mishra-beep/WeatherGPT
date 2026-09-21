@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>IMD All India Weather Alerts Feed</title>
+  <updated>2026-08-30T08:00:00Z</updated>
+  <entry>
+    <id>alert-1</id>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+      <identifier>IMD-NDMA-2026-01</identifier>
+      <sender>imd@imd.gov.in</sender>
+      <sent>2026-08-30T08:00:00+05:30</sent>
+      <info>
+        <event>Thunderstorm</event>
+        <severity>Moderate</severity>
+        <expires>2026-08-30T18:00:00+05:30</expires>
+        <description>Thunderstorm with lightning and gusty winds 30-40 kmph.</description>
+        <parameter>
+          <valueName>ColorCode</valueName>
+          <value>Yellow</value>
+        </parameter>
+        <area>
+          <areaDesc>Ahmedabad District</areaDesc>
+        </area>
+      </info>
+    </alert>
+  </entry>
+  <entry>
+    <id>alert-2</id>
+    <alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+      <identifier>IMD-NDMA-2026-02</identifier>
+      <sender>imd@imd.gov.in</sender>
+      <sent>2026-08-30T08:00:00+05:30</sent>
+      <info>
+        <event>Clear Weather</event>
+        <severity>Minor</severity>
+        <expires>2026-08-31T08:30:00+05:30</expires>
+        <description>Clear weather conditions over West Rajasthan.</description>
+        <parameter>
+          <valueName>ColorCode</valueName>
+          <value>Green</value>
+        </parameter>
+        <area>
+          <areaDesc>Jodhpur District</areaDesc>
+        </area>
+      </info>
+    </alert>
+  </entry>
+</feed>

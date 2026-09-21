@@ -36,10 +36,38 @@ object AppConfig {
     const val STAGING_URL: String = BuildConfig.STAGING_URL
     const val PRODUCTION_URL: String = BuildConfig.PRODUCTION_URL
 
+    const val DEMO_LAN_GATEWAY: String = "192.168.137.1"
+    const val DEMO_HOTSPOT_BACKEND_URL: String = "http://$DEMO_LAN_GATEWAY:8000/"
+    const val DEMO_HOTSPOT_OLLAMA_URL: String = "http://$DEMO_LAN_GATEWAY:11434/"
+
     private const val PREFS_NAME = "weathergpt_debug_config"
     private const val KEY_CUSTOM_URL = "custom_backend_url"
+    private const val KEY_DEMO_MODE = "showcase_demo_mode"
+    private const val KEY_OLLAMA_URL = "custom_ollama_url"
+    private const val KEY_OLLAMA_MODEL = "custom_ollama_model"
 
     private var runtimeBaseUrl: String? = null
+    private var runtimeDemoMode: Boolean? = null
+    private var runtimeOllamaUrl: String? = null
+    private var runtimeOllamaModel: String? = null
+
+    /**
+     * Single source of truth for full offline Showcase Demo Mode.
+     */
+    var isDemoMode: Boolean
+        get() = runtimeDemoMode ?: BuildConfig.DEMO_MODE
+        set(value) {
+            runtimeDemoMode = value
+        }
+
+    val ollamaBaseUrl: String
+        get() {
+            val url = runtimeOllamaUrl ?: if (isDemoMode) DEMO_HOTSPOT_OLLAMA_URL else BuildConfig.DEFAULT_OLLAMA_URL
+            return if (url.endsWith("/")) url else "$url/"
+        }
+
+    val ollamaModel: String
+        get() = runtimeOllamaModel ?: BuildConfig.DEFAULT_OLLAMA_MODEL
 
     val isCustomBaseUrl: Boolean
         get() = runtimeBaseUrl != null
@@ -64,9 +92,58 @@ object AppConfig {
                 if (validation is ValidationResult.Success) {
                     runtimeBaseUrl = validation.normalizedUrl
                 }
+            } else if (isDemoMode) {
+                runtimeBaseUrl = DEMO_HOTSPOT_BACKEND_URL
+            }
+            if (prefs.contains(KEY_DEMO_MODE)) {
+                runtimeDemoMode = prefs.getBoolean(KEY_DEMO_MODE, BuildConfig.DEMO_MODE)
+            }
+            val savedOllamaUrl = prefs.getString(KEY_OLLAMA_URL, null)
+            if (!savedOllamaUrl.isNullOrBlank()) {
+                runtimeOllamaUrl = savedOllamaUrl
+            }
+            val savedOllamaModel = prefs.getString(KEY_OLLAMA_MODEL, null)
+            if (!savedOllamaModel.isNullOrBlank()) {
+                runtimeOllamaModel = savedOllamaModel
             }
         } catch (_: Throwable) {
             // Ignore SharedPreferences failure in unit test environments
+        }
+    }
+
+    fun setDemoMode(enabled: Boolean, context: android.content.Context? = null) {
+        runtimeDemoMode = enabled
+        if (context != null) {
+            try {
+                val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+                prefs.edit().putBoolean(KEY_DEMO_MODE, enabled).apply()
+            } catch (_: Throwable) {
+                // Non-fatal
+            }
+        }
+    }
+
+    fun setCustomOllamaUrl(url: String?, context: android.content.Context? = null) {
+        runtimeOllamaUrl = url?.takeIf { it.isNotBlank() }
+        if (context != null) {
+            try {
+                val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+                prefs.edit().putString(KEY_OLLAMA_URL, runtimeOllamaUrl).apply()
+            } catch (_: Throwable) {
+                // Non-fatal
+            }
+        }
+    }
+
+    fun setCustomOllamaModel(model: String?, context: android.content.Context? = null) {
+        runtimeOllamaModel = model?.takeIf { it.isNotBlank() }
+        if (context != null) {
+            try {
+                val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+                prefs.edit().putString(KEY_OLLAMA_MODEL, runtimeOllamaModel).apply()
+            } catch (_: Throwable) {
+                // Non-fatal
+            }
         }
     }
 
@@ -87,6 +164,14 @@ object AppConfig {
      */
     fun usePhysicalDeviceDebug(context: android.content.Context? = null): ValidationResult {
         return setCustomBaseUrl(PHYSICAL_DEBUG_URL, context)
+    }
+
+    /**
+     * Set target to Laptop 1 Hotspot Gateway for offline demo (http://192.168.137.1:8000/).
+     */
+    fun useDemoHotspot(context: android.content.Context? = null): ValidationResult {
+        setCustomOllamaUrl(DEMO_HOTSPOT_OLLAMA_URL, context)
+        return setCustomBaseUrl(DEMO_HOTSPOT_BACKEND_URL, context)
     }
 
     /**
@@ -141,7 +226,18 @@ object AppConfig {
     fun resetToDefault(context: android.content.Context? = null) {
         if (!BuildConfig.DEBUG) return
         runtimeBaseUrl = null
+        runtimeDemoMode = null
+        runtimeOllamaUrl = null
+        runtimeOllamaModel = null
         persistUrl(context, null)
+        if (context != null) {
+            try {
+                val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+                prefs.edit().remove(KEY_DEMO_MODE).remove(KEY_OLLAMA_URL).remove(KEY_OLLAMA_MODEL).apply()
+            } catch (_: Throwable) {
+                // Non-fatal
+            }
+        }
     }
 
     private fun persistUrl(context: android.content.Context?, url: String?) {

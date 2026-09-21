@@ -1,35 +1,15 @@
-# WeatherGPT - Git Ignore Rules
+# ==============================================================================
+# VAYUBODHAK — GIT IGNORE CONFIGURATION
+# ==============================================================================
 
-# Secrets & Environment Variables
-.env
-.env.*
-!.env.example
-*.pem
-*.key
-*.cert
-secrets/
-
-# Internal Agent Operating Instructions (Exempt from Public Repo)
-AGENTS.md
-
-# Development Test Suites & Caches (Exempt from Public Repo per Repository Policy)
-tests/
-test_*.py
-*_test.py
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Python Bytecode & Environments
+# ------------------------------------------------------------------------------
+# 1. Python & Bytecode Artifacts
+# ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-venv/
-.venv/
-ENV/
 build/
 develop-eggs/
 dist/
@@ -42,45 +22,122 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# IDE & Editor Files
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.hypothesis/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# ------------------------------------------------------------------------------
+# 2. Android & Gradle Artifacts
+# ------------------------------------------------------------------------------
+.gradle/
+**/build/
+build/
+android/app/build/
+android/.gradle/
+local.properties
+.cxx/
+captures/
+*.apk
+*.aab
+*.ap_
+output-metadata.json
+google-services.json
+!google-services.json.example
+
+# ------------------------------------------------------------------------------
+# 3. IDE & Editor Artifacts
+# ------------------------------------------------------------------------------
 .idea/
 .vscode/
+*.iml
+*.ipr
+*.iws
 *.swp
 *.swo
 *~
-.project
-.pydevproject
-.settings/
+*.sublime-project
+*.sublime-workspace
 
-# OS Artifacts
+# ------------------------------------------------------------------------------
+# 4. Environment & Secrets
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+!.env.example
+
+# ------------------------------------------------------------------------------
+# 5. Runtime, Logs & Temporary Artifacts
+# ------------------------------------------------------------------------------
+logs/
+*.log
+.tmp/
+scratch/
+all_md_files.txt
+
+# ------------------------------------------------------------------------------
+# 6. Showcase Transient Runtime State (Fixtures remain committed)
+# ------------------------------------------------------------------------------
+.showcase_state.json
+data/showcase/.showcase_state.json
+
+# ------------------------------------------------------------------------------
+# 7. Operating System Metadata
+# ------------------------------------------------------------------------------
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# Logs & Local Databases
-*.log
-*.sqlite
-*.db
+# ------------------------------------------------------------------------------
+# 8. Web & Node Artifacts
+# ------------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+web/
 
-# Android Build & Local Configuration
-.gradle/
-build/
-android/.gradle/
-android/app/build/
-android/local.properties
-captures/
-.externalNativeBuild/
-.cxx/
-*.apk
-*.aab
-*.keystore
-*.jks
-
-# Temporary Screenshots
-WhatsApp Image*
-*.png.tmp
-
+# ------------------------------------------------------------------------------
+# 9. Legacy Archives
+# ------------------------------------------------------------------------------
+archive/
+**/archive/

@@ -42,6 +42,9 @@ from app.analytics.types import (
     TrendDirection,
 )
 from app.analytics.water_balance import (
+    SPRAY_MAX_POST_RAIN_MM,
+    SPRAY_MAX_RAIN_PROBABILITY_PCT,
+    SPRAY_MAX_WIND_SPEED_KMH,
     calculate_crop_water_balance,
     calculate_effective_precipitation,
     evaluate_spray_window,
@@ -50,6 +53,10 @@ from app.analytics.water_balance import (
 __all__ = [
     # Version
     "ANALYTICS_ENGINE_VERSION",
+    # Constants
+    "SPRAY_MAX_WIND_SPEED_KMH",
+    "SPRAY_MAX_RAIN_PROBABILITY_PCT",
+    "SPRAY_MAX_POST_RAIN_MM",
     # Core Functions
     "calculate_et0",
     "calculate_et0_from_input",
@@ -58,6 +65,7 @@ __all__ = [
     "calculate_crop_water_balance",
     "calculate_effective_precipitation",
     "evaluate_spray_window",
+
     "calculate_hazard_index",
     "calculate_composite_risk",
     # Types & Enums

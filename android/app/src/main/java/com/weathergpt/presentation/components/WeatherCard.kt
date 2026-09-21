@@ -116,7 +116,7 @@ fun WeatherCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Live",
+                            text = stringResource(R.string.home_live_badge),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2E7D32)

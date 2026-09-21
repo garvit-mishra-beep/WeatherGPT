@@ -83,27 +83,74 @@ class AlertsViewModel(
         loadAlerts()
     }
 
+    val availableLocations get() = locationManager.availableLocations
+
+    fun selectPredefinedLocation(location: com.weathergpt.core.location.PredefinedLocation) {
+        locationManager.selectPredefinedLocation(location)
+    }
+
     fun getFilteredAlerts(report: WeatherAlertsReport): List<OfficialAlert> {
         val category = AlertCategory.entries.getOrElse(_uiState.value.selectedCategoryIndex) { AlertCategory.ALL }
         return when (category) {
             AlertCategory.ALL -> report.alerts
-            AlertCategory.WEATHER -> report.alerts.filter {
-                it.hazard.contains("Rain", ignoreCase = true) ||
-                it.hazard.contains("Storm", ignoreCase = true) ||
-                it.hazard.contains("Wind", ignoreCase = true) ||
-                it.hazard.contains("Heat", ignoreCase = true)
+            AlertCategory.WEATHER -> report.alerts.filter { alert ->
+                isWeatherAlert(alert)
             }
-            AlertCategory.AGRICULTURE -> report.alerts.filter {
-                it.hazard.contains("Agri", ignoreCase = true) ||
-                it.description.contains("crop", ignoreCase = true) ||
-                it.instructions?.contains("crop", ignoreCase = true) == true
+            AlertCategory.AGRICULTURE -> report.alerts.filter { alert ->
+                isAgricultureAlert(alert)
             }
-            AlertCategory.GOVERNMENT -> report.alerts.filter {
-                report.authority.contains("IMD", ignoreCase = true) ||
-                report.authority.contains("NDMA", ignoreCase = true) ||
-                it.hazard.isNotEmpty()
+            AlertCategory.GOVERNMENT -> report.alerts.filter { alert ->
+                isGovernmentAlert(alert, report.authority)
             }
         }
+    }
+
+    fun sortAlerts(alerts: List<OfficialAlert>): List<OfficialAlert> {
+        val severityRank = mapOf(
+            com.weathergpt.domain.model.weather.AlertSeverity.RED to 1,
+            com.weathergpt.domain.model.weather.AlertSeverity.ORANGE to 2,
+            com.weathergpt.domain.model.weather.AlertSeverity.YELLOW to 3,
+            com.weathergpt.domain.model.weather.AlertSeverity.GREEN to 4
+        )
+        return alerts.sortedWith(
+            compareBy<OfficialAlert> { severityRank[it.parsedSeverity] ?: 5 }
+                .thenByDescending { it.isActive }
+                .thenBy { it.validUntil.ifBlank { it.expiresAt } }
+                .thenByDescending { it.issuedAt }
+        )
+    }
+
+    fun getSortedFilteredAlerts(report: WeatherAlertsReport): List<OfficialAlert> {
+        return sortAlerts(getFilteredAlerts(report))
+    }
+
+    private fun isWeatherAlert(alert: OfficialAlert): Boolean {
+        val weatherKeywords = listOf(
+            "Rain", "Flood", "Storm", "Thunderstorm", "Lightning", "Wind", "Squall",
+            "Heat", "Heatwave", "Cold", "Coldwave", "Cyclone", "Fog", "Smog", "Frost",
+            "Snow", "Hail", "Gale", "Blizzard", "Monsoon", "Weather", "Depression"
+        )
+        val text = "${alert.hazard} ${alert.headline} ${alert.description}"
+        return weatherKeywords.any { text.contains(it, ignoreCase = true) }
+    }
+
+    private fun isAgricultureAlert(alert: OfficialAlert): Boolean {
+        val agriKeywords = listOf(
+            "Crop", "Harvest", "Sowing", "Pest", "Agri", "Agriculture", "Irrigation",
+            "Fertilizer", "Livestock", "Soil", "Mandi", "Kisan", "Farming", "Field"
+        )
+        val text = "${alert.hazard} ${alert.headline} ${alert.description} ${alert.instructions.orEmpty()}"
+        return agriKeywords.any { text.contains(it, ignoreCase = true) }
+    }
+
+    private fun isGovernmentAlert(alert: OfficialAlert, authority: String): Boolean {
+        val govtKeywords = listOf(
+            "NDMA", "SDRF", "NDRF", "Disaster Management", "Administration", "Collector",
+            "Magistrate", "Evacuation", "Curfew", "Relief", "Civil Defense", "Public Safety",
+            "Municipal", "Govt", "Government", "Emergency Advisory", "Order"
+        )
+        val alertText = "${alert.hazard} ${alert.headline} ${alert.description} ${alert.instructions.orEmpty()}"
+        return govtKeywords.any { alertText.contains(it, ignoreCase = true) || authority.contains(it, ignoreCase = true) }
     }
 
     companion object {

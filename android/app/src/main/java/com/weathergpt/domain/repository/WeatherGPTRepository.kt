@@ -5,6 +5,7 @@ import com.weathergpt.domain.model.HealthStatus
 import com.weathergpt.domain.model.ReadinessStatus
 import com.weathergpt.domain.model.chat.ChatQuery
 import com.weathergpt.domain.model.chat.ChatResponse
+import com.weathergpt.domain.model.farmer.FarmerProfile
 import com.weathergpt.domain.model.farmer.IrrigationAdvisory
 import com.weathergpt.domain.model.farmer.SpraySuitability
 import com.weathergpt.domain.model.gis.AdministrativeBoundary
@@ -41,6 +42,14 @@ interface WeatherGPTRepository {
     // 3. Weather & Official Alerts
     // ========================================================================
     suspend fun getCurrentWeather(latitude: Double, longitude: Double): ResultState<CurrentWeather>
+
+    suspend fun prefetchDemoWeather(): ResultState<CurrentWeather> =
+        getCurrentWeather(
+            com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LATITUDE,
+            com.weathergpt.core.location.SharedLocationManager.DEMO_GWALIOR_LONGITUDE
+        )
+
+    fun getNetworkWeatherCallsCount(): Int = 0
 
     suspend fun getWeatherForecast(
         latitude: Double,
@@ -82,6 +91,19 @@ interface WeatherGPTRepository {
         relativeHumidityPct: Double = 60.0
     ): ResultState<SpraySuitability>
 
+    suspend fun evaluateDecision(
+        question: String,
+        locationName: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null,
+        requestedTime: String? = null,
+        domain: String? = "farmer",
+        context: Map<String, String>? = null
+    ): ResultState<com.weathergpt.domain.model.decision.NirnayCard>
+
+    suspend fun getFarmerProfile(): ResultState<FarmerProfile>
+    suspend fun saveFarmerProfile(profile: FarmerProfile): ResultState<Unit>
+
     // ========================================================================
     // 5. GIS & Spatial Operations
     // ========================================================================
@@ -105,6 +127,20 @@ interface WeatherGPTRepository {
         hazardType: String = "heavy_rainfall"
     ): ResultState<OperationalRisk>
 
+    suspend fun getAnalystRiskMatrix(
+        districtName: String,
+        precip24hPercentile: Double,
+        exposureIndex: Double,
+        vulnerabilityIndex: Double,
+        hazardType: String = "heavy_rainfall"
+    ): ResultState<OperationalRisk> = getRiskAssessment(
+        districtName,
+        precip24hPercentile,
+        exposureIndex,
+        vulnerabilityIndex,
+        hazardType
+    )
+
     suspend fun getGISAnalysis(
         latitude: Double?,
         longitude: Double?,
@@ -114,6 +150,25 @@ interface WeatherGPTRepository {
         observedTempC: Double? = null,
         leadHours: Int = 24
     ): ResultState<GISAnalysisReport>
+
+    // ========================================================================
+    // 5B. Climate Intelligence & Climatology
+    // ========================================================================
+    suspend fun getClimateTrends(
+        latitude: Double,
+        longitude: Double,
+        location: String? = null,
+        variable: String = "rainfall"
+    ): ResultState<com.weathergpt.domain.model.climate.ClimateTrends> =
+        ResultState.Error(com.weathergpt.core.error.AppError.NetworkUnavailable("Climate trends unavailable", null))
+
+    suspend fun getClimateNormals(
+        latitude: Double,
+        longitude: Double,
+        location: String? = null,
+        month: Int? = null
+    ): ResultState<com.weathergpt.domain.model.climate.ClimateNormals> =
+        ResultState.Error(com.weathergpt.core.error.AppError.NetworkUnavailable("Climate normals unavailable", null))
 
     // ========================================================================
     // 6. NWP Numerical Weather Prediction
@@ -155,4 +210,32 @@ interface WeatherGPTRepository {
         observedRainMm: Double? = null,
         observedWindKmh: Double? = null
     ): ResultState<MapSpecification>
+
+    // ========================================================================
+    // 8. Voice (Speech-to-Text & Text-to-Speech)
+    // ========================================================================
+    suspend fun speechToText(
+        audioBytes: ByteArray,
+        languageCode: String = "hi"
+    ): ResultState<com.weathergpt.data.remote.dto.voice.VoiceSttResponseDto> =
+        ResultState.Error(com.weathergpt.core.error.AppError.NetworkUnavailable("Speech-to-text unavailable", null))
+
+    suspend fun textToSpeech(
+        text: String,
+        languageCode: String = "hi",
+        voice: String? = null,
+        speakingRate: Double = 1.0
+    ): ResultState<ByteArray> =
+        ResultState.Error(com.weathergpt.core.error.AppError.NetworkUnavailable("Text-to-speech unavailable", null))
+
+    suspend fun sendVoiceQuery(
+        audioBytes: ByteArray,
+        languageCode: String = "hi",
+        sessionId: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null,
+        selectedBrain: String? = null
+    ): ResultState<com.weathergpt.data.remote.dto.voice.VoiceQueryResponseDto> =
+        ResultState.Error(com.weathergpt.core.error.AppError.ServerUnavailable(503, "Voice query not implemented"))
 }
+

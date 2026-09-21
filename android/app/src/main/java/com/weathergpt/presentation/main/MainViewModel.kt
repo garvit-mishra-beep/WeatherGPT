@@ -49,6 +49,17 @@ class MainViewModel(
     private val _urlValidationError = MutableStateFlow<String?>(null)
     val urlValidationError: StateFlow<String?> = _urlValidationError.asStateFlow()
 
+    private val _pendingDestination = MutableStateFlow<com.weathergpt.presentation.navigation.ScreenDestination?>(null)
+    val pendingDestination: StateFlow<com.weathergpt.presentation.navigation.ScreenDestination?> = _pendingDestination.asStateFlow()
+
+    fun navigateTo(destination: com.weathergpt.presentation.navigation.ScreenDestination) {
+        _pendingDestination.value = destination
+    }
+
+    fun clearPendingDestination() {
+        _pendingDestination.value = null
+    }
+
     private var activeJob: Job? = null
 
     init {

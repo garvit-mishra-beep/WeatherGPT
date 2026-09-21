@@ -30,9 +30,19 @@ fun ProvideAppLanguage(
         Pair(ctx, config)
     }
 
-    CompositionLocalProvider(
+    val activityResultRegistryOwner = androidx.activity.compose.LocalActivityResultRegistryOwner.current
+        ?: (context as? androidx.activity.result.ActivityResultRegistryOwner)
+
+    val providers = mutableListOf<androidx.compose.runtime.ProvidedValue<*>>(
         LocalContext provides localizedContext,
-        androidx.compose.ui.platform.LocalConfiguration provides localizedConfig,
+        androidx.compose.ui.platform.LocalConfiguration provides localizedConfig
+    )
+    if (activityResultRegistryOwner != null) {
+        providers.add(androidx.activity.compose.LocalActivityResultRegistryOwner provides activityResultRegistryOwner)
+    }
+
+    CompositionLocalProvider(
+        *providers.toTypedArray(),
         content = content
     )
 }

@@ -114,7 +114,7 @@ fun ProfileScreen(
                                 )
                             }
                             if (isSelected) {
-                                Text(text = "Active", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
+                                Text(text = stringResource(R.string.status_active), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
                             }
                         }
                     }
@@ -362,7 +362,7 @@ fun ProfileScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Name",
+                        contentDescription = stringResource(R.string.cd_edit_name),
                         tint = Color(0xFF64748B),
                         modifier = Modifier.size(14.dp)
                     )
@@ -426,7 +426,107 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. Menu Action List
+            // 4. Detailed Farmer & Farm Overview Card
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "🌾", fontSize = 16.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Farmer & Field Details",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0F172A)
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFE8F5E9))
+                                .clickable { onNavigateToFarmerProfile() }
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "Edit →",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1B5E20)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    ProfileFieldRow("Farmer Mode", "Active (Agricultural Advisory)")
+                    ProfileFieldRow("Language", "Hindi (हिंदी) / English")
+                    ProfileFieldRow("Primary Crop", "Wheat (गेहूं)")
+                    ProfileFieldRow("Crop Stage", "Vegetative / Tillering")
+                    ProfileFieldRow("Planting Date", "Not provided")
+                    ProfileFieldRow("Field / Plot", "Plot #1 (North Field)")
+                    ProfileFieldRow("Cultivated Area", "2.5 Hectares")
+                    ProfileFieldRow("Soil Type", "Alluvial / Loam (जलोढ़ / दोमट)")
+                    ProfileFieldRow("Soil Moisture", "Adequate (FAO-56 Water Balance)")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 5. Preferences, Data & Privacy Card
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "🔒", fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Preferences, Data & Privacy",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF0F172A)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    ProfileFieldRow("Unit System", "Metric (°C, mm, km/h, ha)")
+                    ProfileFieldRow("Notifications", "Enabled")
+                    ProfileFieldRow("Alert Preference", "IMD Warnings + Crop Alerts")
+                    ProfileFieldRow("Weather Data Sources", "Open-Meteo • NOAA GFS 0.25° • IMD CAP")
+                    ProfileFieldRow(
+                        "Cache Status",
+                        if (com.weathergpt.core.config.AppConfig.isDemoMode) {
+                            "Verified Cache • Gwalior Region (loc_26.22_78.18)"
+                        } else {
+                            "Dynamic Local Cache"
+                        }
+                    )
+                    ProfileFieldRow("Privacy Guarantee", "Local on-device SQLite only • Zero cloud sync")
+                    ProfileFieldRow("Decision History", "Available in local session")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 6. Menu Action List
             PragyaProfileMenuRow(
                 icon = "🌾",
                 title = stringResource(R.string.menu_farmer_profile),
@@ -465,8 +565,32 @@ fun ProfileScreen(
                 onClick = { showAboutDialog = true }
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(88.dp))
         }
+    }
+}
+
+@Composable
+private fun ProfileFieldRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = Color(0xFF64748B),
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = value,
+            fontSize = 12.sp,
+            color = Color(0xFF0F172A),
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
@@ -474,28 +598,27 @@ fun ProfileScreen(
 private fun PragyaProfileMenuRow(
     icon: String,
     title: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
+            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
             .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = icon, fontSize = 16.sp)
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = title,
                     fontSize = 14.sp,
@@ -506,9 +629,9 @@ private fun PragyaProfileMenuRow(
 
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Navigate",
+                contentDescription = stringResource(R.string.cd_navigate),
                 tint = Color(0xFF94A3B8),
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(16.dp)
             )
         }
     }

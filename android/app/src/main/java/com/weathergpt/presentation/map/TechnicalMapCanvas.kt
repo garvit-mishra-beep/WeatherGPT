@@ -228,7 +228,7 @@ fun TechnicalMapCanvas(
                                     .background(Color(0xFF1B5E20))
                             )
                             Spacer(modifier = Modifier.width(3.dp))
-                            Text(text = "Now", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
+                            Text(text = stringResource(R.string.now), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
                         }
                         Text(text = "+2h", fontSize = 11.sp, color = Color(0xFF64748B))
                     }
