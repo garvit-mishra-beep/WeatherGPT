@@ -134,7 +134,7 @@ out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-web/
+!web/lib/
 
 # ------------------------------------------------------------------------------
 # 9. Legacy Archives

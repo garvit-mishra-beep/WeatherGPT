@@ -51,7 +51,7 @@ VALID_CAP_XML = """<?xml version="1.0" encoding="UTF-8"?>
     <urgency>Immediate</urgency>
     <severity>Extreme</severity>
     <certainty>Observed</certainty>
-    <expires>2026-09-22T10:00:00+05:30</expires>
+    <expires>2026-09-30T10:00:00+05:30</expires>
     <headline>Red Alert for Heavy Precipitation</headline>
     <description>Extremely heavy rainfall expected exceeding 200mm in 24 hours.</description>
     <instruction>Stay indoors and avoid low-lying waterlogged areas.</instruction>
@@ -80,7 +80,7 @@ REVISED_CAP_XML = """<?xml version="1.0" encoding="UTF-8"?>
     <urgency>Immediate</urgency>
     <severity>Extreme</severity>
     <certainty>Observed</certainty>
-    <expires>2026-09-22T12:00:00+05:30</expires>
+    <expires>2026-09-30T12:00:00+05:30</expires>
     <headline>Red Alert for Extreme Precipitation (Updated)</headline>
     <description>Rainfall forecast upgraded to > 250mm.</description>
     <instruction>Immediate evacuation for vulnerable floodplains.</instruction>

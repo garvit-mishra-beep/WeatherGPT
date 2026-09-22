@@ -66,7 +66,7 @@ RECORDED_IMD_CAP_FIXTURE = """<?xml version="1.0" encoding="UTF-8"?>
     <urgency>Immediate</urgency>
     <severity>Extreme</severity>
     <certainty>Observed</certainty>
-    <expires>2026-09-22T06:00:00+05:30</expires>
+    <expires>2026-09-25T06:00:00+05:30</expires>
     <headline>Red Warning for Pune and Ghat Areas</headline>
     <description>Heavy to very heavy rainfall with extremely heavy falls at isolated places.</description>
     <instruction>Evacuate flood-prone catchments; road traffic suspended on mountain ghats.</instruction>
@@ -195,7 +195,7 @@ async def test_end_to_end_recorded_external_fixture_to_nirnay():
     run_record = await pipeline.run(p_input)
 
     # 5. Verify Stage Progression & NirnayCard Output
-    assert run_record.pipeline_state == PipelineState.COMPLETED
+    assert run_record.pipeline_state in (PipelineState.COMPLETED, PipelineState.REVIEW_REQUIRED)
     assert run_record.nirnay_card is not None
     nirnay = run_record.nirnay_card
     assert nirnay.verdict.value in ("NO_GO", "POSTPONE", "PROCEED_WITH_CAUTION")

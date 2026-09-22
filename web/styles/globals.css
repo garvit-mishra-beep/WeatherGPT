@@ -1,0 +1,275 @@
+/* ==============================================================================
+   VAYUBODHAK DESIGN SYSTEM — ANDROID VISUAL PARITY
+   Direct port of Android Theme (Color.kt, Theme.kt, Typography.kt)
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Brand Tokens (Forest Emerald & Pine Teal) */
+  --vayu-primary: #1B5E20;
+  --vayu-primary-container: #E8F5E9;
+  --vayu-on-primary: #FFFFFF;
+  --vayu-secondary: #00796B;
+  --vayu-secondary-container: #E0F2F1;
+  --vayu-on-secondary: #FFFFFF;
+  --vayu-tertiary: #D97706;
+
+  /* Official Severity Tiers (Immutable) */
+  --vayu-severity-green: #16A34A;
+  --vayu-severity-green-bg: #DCFCE7;
+  --vayu-severity-yellow: #CA8A04;
+  --vayu-severity-yellow-bg: #FEF9C3;
+  --vayu-severity-orange: #EA580C;
+  --vayu-severity-orange-bg: #FFEDD5;
+  --vayu-severity-red: #DC2626;
+  --vayu-severity-red-bg: #FEE2E2;
+
+  /* Canvas, Surface & Typography */
+  --vayu-background: #F8FAF8;
+  --vayu-surface: #FFFFFF;
+  --vayu-surface-variant: #F1F5F9;
+  --vayu-text: #0F172A;
+  --vayu-muted: #475569;
+  --vayu-border: #E2E8F0;
+
+  /* Metric Accents */
+  --vayu-accent-temp: #F59E0B;
+  --vayu-accent-rain: #0284C7;
+  --vayu-accent-wind: #0D9488;
+  --vayu-accent-humidity: #0284C7;
+
+  /* Elevations & Radii */
+  --vayu-radius-sm: 8px;
+  --vayu-radius-md: 12px;
+  --vayu-radius-lg: 16px;
+  --vayu-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --vayu-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --vayu-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Base Document Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: var(--font-sans);
+  background-color: var(--vayu-background);
+  color: var(--vayu-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Layout Utilities */
+.vayu-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.vayu-layout-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .vayu-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Language (Android Material 3 Surface & Card parity) */
+.vayu-card {
+  background-color: var(--vayu-surface);
+  border: 1px solid var(--vayu-border);
+  border-radius: var(--vayu-radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--vayu-shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vayu-card:hover {
+  box-shadow: var(--vayu-shadow-md);
+}
+
+.vayu-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.vayu-card-title {
+  font-size: 0.825rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--vayu-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Badges & Pills */
+.vayu-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--vayu-radius-sm);
+  font-size: 0.725rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.vayu-badge-live {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.vayu-badge-cached {
+  background-color: #E0F2FE;
+  color: #0369A1;
+}
+
+.vayu-badge-fallback {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.vayu-badge-historical {
+  background-color: #F1F5F9;
+  color: #475569;
+}
+
+.vayu-badge-controlled {
+  background-color: #FEF3C7;
+  color: #B45309;
+  border: 1px dashed #F59E0B;
+}
+
+.vayu-badge-severity-low {
+  background-color: rgba(22, 163, 74, 0.12);
+  color: var(--vayu-severity-green);
+}
+
+.vayu-badge-severity-moderate {
+  background-color: rgba(202, 138, 4, 0.12);
+  color: var(--vayu-severity-yellow);
+}
+
+.vayu-badge-severity-high {
+  background-color: rgba(234, 88, 12, 0.12);
+  color: var(--vayu-severity-orange);
+}
+
+.vayu-badge-severity-critical {
+  background-color: rgba(220, 38, 38, 0.12);
+  color: var(--vayu-severity-red);
+}
+
+/* Verdict Banners */
+.vayu-verdict-banner {
+  border-radius: var(--vayu-radius-md);
+  padding: 1rem 1.25rem;
+  margin: 0.85rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vayu-verdict-go {
+  background-color: var(--vayu-severity-green-bg);
+  border: 1px solid #BBF7D0;
+  color: var(--vayu-severity-green);
+}
+
+.vayu-verdict-caution {
+  background-color: var(--vayu-severity-yellow-bg);
+  border: 1px solid #FDE68A;
+  color: #854D0E;
+}
+
+.vayu-verdict-postpone {
+  background-color: var(--vayu-severity-orange-bg);
+  border: 1px solid #FED7AA;
+  color: var(--vayu-severity-orange);
+}
+
+.vayu-verdict-nogo {
+  background-color: var(--vayu-severity-red-bg);
+  border: 1px solid #FECACA;
+  color: var(--vayu-severity-red);
+}
+
+.vayu-verdict-monitor {
+  background-color: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+}
+
+/* Pipeline Stage Pill */
+.vayu-pipeline-container {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.vayu-pipeline-stage {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  background-color: var(--vayu-surface);
+  border: 1px solid var(--vayu-border);
+  border-radius: var(--vayu-radius-md);
+  font-size: 0.775rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.vayu-pipeline-stage:hover, .vayu-pipeline-stage.active {
+  background-color: var(--vayu-primary-container);
+  border-color: var(--vayu-primary);
+  color: var(--vayu-primary);
+}
+
+.vayu-pipeline-arrow {
+  color: var(--vayu-muted);
+  font-size: 0.85rem;
+}
+
+/* Animations */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.vayu-pulse {
+  animation: pulseSubtle 2.5s infinite ease-in-out;
+}

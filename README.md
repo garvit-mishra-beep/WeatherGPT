@@ -3,6 +3,7 @@
 > **Hyperlocal Weather & Climate Decision Intelligence System with an Evidence-First Deterministic Pipeline and Failure-Aware Resilience**
 
 [![Backend Tests](https://img.shields.io/badge/backend%20tests-1322%20passed-brightgreen.svg)](#running-tests)
+[![Web Tests](https://img.shields.io/badge/web%20tests-7%20passed-brightgreen.svg)](#running-web)
 [![Showcase Tests](https://img.shields.io/badge/showcase%20tests-8%20passed-brightgreen.svg)](#running-showcase-scenario)
 [![Android Tests](https://img.shields.io/badge/android%20tests-304%20passed-brightgreen.svg)](#running-android)
 [![Architecture](https://img.shields.io/badge/architecture-Evidence--First-blue.svg)](#evidence-first-disaster-pipeline)
@@ -98,6 +99,12 @@ VAYUBODHAK/
 ├── android/                         # Native Jetpack Compose Android Client
 │   ├── app/src/main/                # Presentation, Domain, Data layers
 │   └── app/src/test/                # Android unit & synchronization tests
+├── web/                             # Next.js 15 + React 19 Desktop/Web Client
+│   ├── app/                         # App Router pages (/overview, /intelligence, etc.)
+│   ├── components/                  # Android-parity components (NirnayCard, etc.)
+│   ├── hooks/                       # useOperationalState synchronization hook
+│   ├── lib/api/                     # Resilient API clients & offline cache
+│   └── public/                      # Meteorological GIS radar map
 ├── app/                             # Python Analytical Backend
 │   ├── adapters/                    # Weather & statutory data adapters
 │   ├── api/v1/                      # FastAPI endpoints (Sync, Decisions, Showcase)
@@ -177,6 +184,22 @@ Interactive API documentation will be available at: `http://localhost:8000/docs`
 .\android\gradlew.bat -p android testDebugUnitTest
 ```
 
+### Web Application Setup (Next.js)
+```bash
+# 1. Navigate to web directory
+cd web
+
+# 2. Install dependencies
+npm install
+
+# 3. Launch local dev server (port 3000)
+npm run dev
+
+# 4. Build for production
+npm run build
+npm run start
+```
+
 ---
 
 ## 8. Running Showcase Demonstration Scenario
@@ -213,10 +236,13 @@ python scripts/showcase/run_showcase.py next
 # 1. Full Backend Pytest Regression Suite (1,322 tests)
 pytest tests/ -q
 
-# 2. Dedicated Showcase Scenario Suite (8 tests)
+# 2. Web Frontend Unit & Invariant Suite (7 tests)
+cd web && npm test
+
+# 3. Dedicated Showcase Scenario Suite (8 tests)
 pytest tests/test_showcase_scenario.py -v
 
-# 3. Full Android Unit Tests (304 tests)
+# 4. Full Android Unit Tests (304 tests)
 .\android\gradlew.bat -p android testDebugUnitTest
 ```
 
